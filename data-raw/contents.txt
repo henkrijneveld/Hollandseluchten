@@ -1,0 +1,2 @@
+This directory should contain spreadsheet files with sensor data from the "hollandse luchten" project. These are about 4.5 Gib, so no part of github. Contact the owner of this repository for more information.
+
