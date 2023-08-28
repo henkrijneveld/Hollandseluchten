@@ -8,3 +8,5 @@ These are my personal development files, not made to be reused as-is. As this is
 - Development environment with Python, Pandas and Seaborn installed including all dependencies
 - Raw sensor data (internal for project) installed  in ~/data-raw
 - As development environment I use Pycharm 2023.* (latest) Professional
+
+HR
