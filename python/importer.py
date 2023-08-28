@@ -227,56 +227,61 @@ def getCSVsensor(project, sensor, start, end):
     return meetframe
 
 
-def runKNMItofile(savelocation, includedatesinfilename, start, end):
+def runKNMItofile(savelocation, includedatesinfilename, start, end, fastimport):
     if savelocation == None:
         savelocation = "../data-knmi"
     station = "240"
-    knmidata = getKNMI(station, start, end)
     savefile = savelocation + "/KNMI_" + station
     if includedatesinfilename:
         savefile += "_" + start + "_" + end
     savefile += ".csv"
-    knmidata.to_csv(savefile,index=False)
+    if not fastimport or not os.path.exists(savefile):
+        knmidata = getKNMI(station, start, end)
+        knmidata.to_csv(savefile,index=False)
 
-def runMeetnettofile(savelocation, includedatesinfilename, start, end, meetnetselection):
+def runMeetnettofile(savelocation, includedatesinfilename, start, end, meetnetselection, fastimport):
     if savelocation == None:
         savelocation = "../data-meetnet"
 
     for sensor in meetnetselection:
-        meetframe = getMeetnet(sensor, start, end)
         savefile = savelocation + "/" + sensor
         if includedatesinfilename:
             savefile += "_" + start + "_" + end
         savefile += ".csv"
-        meetframe.to_csv(savefile,index=False)
+        if not fastimport or not os.path.exists(savefile):
+            meetframe = getMeetnet(sensor, start, end)
+            meetframe.to_csv(savefile,index=False)
 
 def checkDiff(row):
     if row["pm25"] != row["pm25_kal"]:
         printf("datetime %s: Difference on pm25 %f vs pm25_kal %f\n", row["datetime"].strftime("%Y%m%d %H:%M"), row["pm25"], row["pm25_kal"])
-def runCSVtofile(savelocation, includedatesinfilename, start, end, sensorselection):
+def runCSVtofile(savelocation, includedatesinfilename, start, end, sensorselection, fastimport):
     if savelocation == None:
         savelocation = "./projects/data-sensor"
 
     for sensor in sensorselection:
         project = sensor[0]
         sensorid = sensor[1]
-        meetframe = getCSVsensor(project, sensorid, start, end)
         savefile = savelocation + "/" + project + "_" + sensorid
         if includedatesinfilename:
             savefile += "_" + start + "_" + end
         savefile += ".csv"
-        meetframe.to_csv(savefile,index=False)
+        if not fastimport or not os.path.exists(savefile):
+            meetframe = getCSVsensor(project, sensorid, start, end)
+            meetframe.to_csv(savefile,index=False)
 #        printf("Sensor: %s - %s\n", project, sensorid)
 #        meetframe.apply(checkDiff, axis = 1)
 
 
-def retrieveAllData(includedatesinfilename, savelocation, start, end, knmiselection, meetnetselection, sensorselection):
+def retrieveAllData(includedatesinfilename, savelocation, start, end, knmiselection, meetnetselection, sensorselection, fastimport):
     if not os.path.exists(savelocation):
         os.makedirs(savelocation)
+    if fastimport:
+        printf("Fastimport used\n")
     if knmiselection:
-        runKNMItofile(savelocation, includedatesinfilename, start, end)
+        runKNMItofile(savelocation, includedatesinfilename, start, end, fastimport)
     if meetnetselection != None:
-        runMeetnettofile(savelocation, includedatesinfilename, start, end, meetnetselection)
+        runMeetnettofile(savelocation, includedatesinfilename, start, end, meetnetselection, fastimport)
     if sensorselection != None:
-        runCSVtofile(savelocation, includedatesinfilename, start, end, sensorselection)
+        runCSVtofile(savelocation, includedatesinfilename, start, end, sensorselection, fastimport)
     return

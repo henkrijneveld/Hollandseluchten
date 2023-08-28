@@ -1,7 +1,7 @@
 def runit():
     setGlobalPlot()
     merged = pd.merge(NL49701, NL49704, on='datetime', suffixes=("_first", "_last"))
-    merged["delta_pm"] = merged.apply(lambda x: x["pm25_first"] - x["pm25_last"], axis=1)#
+    merged["delta_pm"] = merged.apply(lambda x: x["pm25_first"] - x["pm25_last"], axis=1)
     deltas = pd.DataFrame()
     deltas["delta_pm"] = merged["delta_pm"].copy()
     deltas.sort_values(inplace=True, ignore_index=True, by="delta_pm")

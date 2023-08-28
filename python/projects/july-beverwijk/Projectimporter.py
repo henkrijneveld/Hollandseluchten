@@ -29,7 +29,9 @@ def runit():
     sensorselection = [("HLL", "549"), ("OZK", "1845"), ("HLL", "545"), ("OZK", "1850")]
 #    sensorselection = None
 
-    imp.retrieveAllData(includedatesinfilename, savelocation, start, end, knmiselection, meetnetselection, sensorselection)
+    fastimport=True
+
+    imp.retrieveAllData(includedatesinfilename, savelocation, start, end, knmiselection, meetnetselection, sensorselection, fastimport)
 
     return
 

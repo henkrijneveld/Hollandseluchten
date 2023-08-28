@@ -11,24 +11,29 @@ def runit():
     savelocation = os.getcwd()
 
     # startdate for retrieving
-    start = "20230601"
+    start = "20230101"
 
     # enddate for retrieving (inclusive)
-    end = "20230731"
+    end = "20230825"
 
     # not None if knmi data must be retrieved
     knmiselection = True
 #    knmiselection = False
 
     # list of meetnet sensors to retrieve (include alfaprefix. None if nothing to retrieve
-    meetnetselection = ["NL49570", "NL49572", "NL49551", "NL49557", "NL49573", "NL49704", "NL49701", "NL49703"]
+    meetnetselection = ["NL49556", "NL49016", "NL49012", "NL49014", "NL49007", "NL49017", "NL49570",
+                        "NL49572", "NL49551", "NL49557", "NL49573", "NL49704", "NL49701", "NL49703"]
+
 #    meetnetselection = None
 
     # list sensors to retrieve. Every entry is a tuple: (project, sensornumber). None if nothing to retrieve
 #    sensorselection = [("HLL", "549"), ("OZK", "1845"), ("HLL", "545"), ("OZK", "1850")]
     sensorselection = None
 
-    imp.retrieveAllData(includedatesinfilename, savelocation, start, end, knmiselection, meetnetselection, sensorselection)
+    # fastimport: if True existing files will not be reloaded (no check on dates is done!)
+    fastimport = True
+
+    imp.retrieveAllData(includedatesinfilename, savelocation, start, end, knmiselection, meetnetselection, sensorselection, fastimport)
 
     return
 
