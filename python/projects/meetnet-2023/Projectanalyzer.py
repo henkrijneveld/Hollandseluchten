@@ -35,7 +35,7 @@ projectdir = "/home/henk/Projects/Hollandseluchten/python/projects/meetnet-2023"
 
 # the framelist values are concatenated, and the median and mean values are determined on the groupby attribute
 # a dataframe with a single row for every groupby value is returned
-def meanvalues(framelist, groupby, value):
+def medianvalues(framelist, groupby, value):
     totalframe = pd.concat(framelist)
     totalframe.sort_values(groupby, inplace=True)
     result = totalframe.groupby(groupby)[value].median().to_frame()
@@ -62,31 +62,42 @@ def diffPlot(leftframe, rightframe, attr):
     lplot.set(xlim=(-40.0, 20.0))
     return
 
-def windplot(frame, values, polar=True):
-    conc = pd.merge(frame, KNMI_240, on="datetime")
-    conc = meanvalues([conc], "winddirection", values)
+def windplot(frame, values, polar=True, useMedian=True):
+    conc = weatherFrame(frame)
+    conc = medianvalues([conc], "winddirection", values)
+    if not useMedian:
+        values = values + "_mean"
     if polar:
         conc["winddirection"] = conc["winddirection"] / 180 * math.pi
+        conc.drop(index=37, inplace=True) # this is value 990: variable winds
+        conc.loc[0] = conc.loc[36].copy() # direction 0: no wind
+        conc["winddirection"][0] = 0
         g = sns.FacetGrid(conc, subplot_kws=dict(projection='polar', theta_offset=math.pi/2, theta_direction=-1), height=10,
                           sharex=False, sharey=False, despine=False)
-        g.map_dataframe(sns.scatterplot, x="winddirection", y=values)
+        g.map_dataframe(sns.lineplot, x="winddirection", y=values)
     else:
         lplot = (sns.scatterplot(data=conc, x="winddirection", y=values))
         lplot.set(xlim=(5.0, 365.0))
 
+# merge knmi data into a frame
+def weatherFrame(aFrame):
+    conc = pd.merge(aFrame, KNMI_240, on="datetime", suffixes=("", "_knmi"))
+    conc = conc.rename({'windspeed_knmi': 'windspeed', 'winddirection_knmi': 'winddirection'}, axis=1)
+    return conc
 
 def runit():
     setGlobalPlot()
 
-    loc_beverwijk = meanvalues([NL49557, NL49573, NL49551, NL49572, NL49570], "datetime", "pm25")
-    loc_midden = meanvalues([NL49556, NL49701, NL49704, NL49703], "datetime", "pm25")
-    loc_amsterdam = meanvalues([NL49016, NL49012, NL49017, NL49014, NL49007], "datetime", "pm25")
-    loc_all = meanvalues([NL49557, NL49573, NL49551, NL49572, NL49570, NL49556, NL49701,
+    loc_beverwijk = medianvalues([NL49557, NL49573, NL49551, NL49572, NL49570], "datetime", "pm25")
+    loc_midden = (([NL49556, NL49701, NL49704, NL49703], "datetime", "pm25"))
+    loc_amsterdam = medianvalues([NL49016, NL49012, NL49017, NL49014, NL49007], "datetime", "pm25")
+    loc_all = medianvalues([NL49557, NL49573, NL49551, NL49572, NL49570, NL49556, NL49701,
                           NL49704, NL49703, NL49016, NL49012, NL49017, NL49014, NL49007], "datetime", "pm25")
 
 
-    diff = diffFrame(HLL_545, NL49570, "pm25")
-    windplot(diff, "delta", True)
+#    diff = diffFrame(HLL_420, NL49701, "pm25")
+#    diff = weatherFrame(HLL_420)
+    windplot(HLL_298, "pm25", True, True)
 
 #    lplot = sns.lineplot(loc_all, x="datetime", y="pm25")
 #    smootifyLineplot(lplot)
