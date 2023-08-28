@@ -84,7 +84,7 @@ def getKNMI(station, start, end):
     # add hour to datetime, as all the values are from the last part of the hour
     knmiframe = knmiframe.apply(dateadd, axis = 1)
     knmiframe = knmiframe.astype({'winddirection' : 'int'})
-    knmiframe = knmiframe.astype({'humidity' : 'int'})
+    knmiframe = knmiframe.astype({'humidity' : 'float64'})
     knmiframe = knmiframe.astype({'windspeed' : 'float64'})
     knmiframe['windspeed'] = knmiframe['windspeed'].apply(lambda x: x / 10)
     knmiframe = knmiframe.astype({'temperature' : 'float64'})
@@ -93,7 +93,7 @@ def getKNMI(station, start, end):
     printf("KNMI data retrieved!\n")
     return knmiframe[23:-1] # remove the first 23 rows from the day before
 
-# convert YYYYMMDD to YYY-MM-DD
+# convert YYYYMMDD to YYYY-MM-DD
 def convertToHyphenatedDate(aDate):
     return (aDate[0:4] + "-" + aDate[4:6] + "-" + aDate[6:8])
 
@@ -172,8 +172,8 @@ def getCSVsensordate(name, date, postfix_pm25, postfix_temp, postfix_rh, postfix
     meetframe = meetframe.astype({'pm25' : 'float64'})
  #   meetframe = meetframe.astype({'pm25_kal' : 'float64'})
     meetframe = meetframe.astype({'temperature' : 'float64'})
-    meetframe['humidity'] = meetframe['humidity'].fillna('-1')
-    meetframe = meetframe.astype({'humidity' : 'int'})
+#    meetframe['humidity'] = meetframe['humidity'].fillna('-1')
+    meetframe = meetframe.astype({'humidity' : 'float64'})
     meetframe["datetime"] = pd.to_datetime(meetframe["datetime"])
 
     meetframe.sort_values(by=['datetime'], inplace=True)
