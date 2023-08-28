@@ -142,12 +142,15 @@ def getMeetnet(sensor, start, end):
     return meetframe
 
 # key for sensor values is the name + postfix
-def getCSVsensordate(name, date, postfix_pm25, postfix_temp, postfix_rh, postfix_pres, postfix_pm25_kal):
+def getCSVsensordate(name, date, postfix_pm25, postfix_temp, postfix_rh, postfix_pres, postfix_pm25_kal, ignorecsvnotfound):
     pathSourcefile = os.path.dirname(os.path.abspath(__file__))
     csvfile = pathSourcefile + "/../data-raw/kogerveldData_" + date +".csv"
     if not os.path.exists(csvfile):
-        printf("CSV file not found: %s\n", csvfile)
-        exit(-1)
+        if not ignorecsvnotfound:
+            printf("\nCSV file not found: %s\n", csvfile)
+            exit(-1)
+        else:
+            return pd.DataFrame()
     all = pd.read_csv(csvfile)
     pm25frame = all.query("name=='" + name + postfix_pm25 + "'").copy()
     pm25frame.rename(columns={'result': 'pm25', 'phenomenonTime': 'datetime'}, inplace=True)
@@ -180,7 +183,7 @@ def getCSVsensordate(name, date, postfix_pm25, postfix_temp, postfix_rh, postfix
     printf(".")
     return meetframe
 
-def getCSVsensor(project, sensor, start, end):
+def getCSVsensor(project, sensor, start, end, ignorecsvnotfound):
     sensorname = None
     postfix_pm25 = None
     postfix_temp = None
@@ -214,14 +217,15 @@ def getCSVsensor(project, sensor, start, end):
     dt_tmpend = convertToDatetime(start) + datetime.timedelta(days = 1)
     dt_end = convertToDatetime(end)
 
-    meetframe = getCSVsensordate(sensorname, dt_start.strftime("%Y%m%d"), postfix_pm25, postfix_temp, postfix_rh, postfix_pres, postfix_pm25_kal)
+    meetframe = getCSVsensordate(sensorname, dt_start.strftime("%Y%m%d"), postfix_pm25, postfix_temp, postfix_rh,
+                                 postfix_pres, postfix_pm25_kal, ignorecsvnotfound)
 
     while dt_tmpend <= dt_end:
         dt_start = dt_tmpend
         dt_tmpend = dt_start + datetime.timedelta(days=1)
         meetframe = pd.concat(
-            [meetframe, getCSVsensordate(sensorname, dt_start.strftime("%Y%m%d"), postfix_pm25, postfix_temp, postfix_rh, postfix_pres, postfix_pm25_kal)],
-            ignore_index=True)
+            [meetframe, getCSVsensordate(sensorname, dt_start.strftime("%Y%m%d"), postfix_pm25, postfix_temp, postfix_rh,
+                                         postfix_pres, postfix_pm25_kal, ignorecsvnotfound)], ignore_index=True)
 
     printf("\n")
     return meetframe
@@ -255,7 +259,7 @@ def runMeetnettofile(savelocation, includedatesinfilename, start, end, meetnetse
 def checkDiff(row):
     if row["pm25"] != row["pm25_kal"]:
         printf("datetime %s: Difference on pm25 %f vs pm25_kal %f\n", row["datetime"].strftime("%Y%m%d %H:%M"), row["pm25"], row["pm25_kal"])
-def runCSVtofile(savelocation, includedatesinfilename, start, end, sensorselection, fastimport):
+def runCSVtofile(savelocation, includedatesinfilename, start, end, sensorselection, fastimport, ignorecsvnotfound):
     if savelocation == None:
         savelocation = "./projects/data-sensor"
 
@@ -267,13 +271,14 @@ def runCSVtofile(savelocation, includedatesinfilename, start, end, sensorselecti
             savefile += "_" + start + "_" + end
         savefile += ".csv"
         if not fastimport or not os.path.exists(savefile):
-            meetframe = getCSVsensor(project, sensorid, start, end)
+            meetframe = getCSVsensor(project, sensorid, start, end, ignorecsvnotfound)
             meetframe.to_csv(savefile,index=False)
 #        printf("Sensor: %s - %s\n", project, sensorid)
 #        meetframe.apply(checkDiff, axis = 1)
 
 
-def retrieveAllData(includedatesinfilename, savelocation, start, end, knmiselection, meetnetselection, sensorselection, fastimport):
+def retrieveAllData(includedatesinfilename, savelocation, start, end, knmiselection, meetnetselection, sensorselection,
+                    fastimport, ignorecsvnotfound):
     if not os.path.exists(savelocation):
         os.makedirs(savelocation)
     if fastimport:
@@ -283,5 +288,5 @@ def retrieveAllData(includedatesinfilename, savelocation, start, end, knmiselect
     if meetnetselection != None:
         runMeetnettofile(savelocation, includedatesinfilename, start, end, meetnetselection, fastimport)
     if sensorselection != None:
-        runCSVtofile(savelocation, includedatesinfilename, start, end, sensorselection, fastimport)
+        runCSVtofile(savelocation, includedatesinfilename, start, end, sensorselection, fastimport, ignorecsvnotfound)
     return

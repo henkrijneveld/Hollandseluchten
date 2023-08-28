@@ -29,11 +29,16 @@ def runit():
     # list sensors to retrieve. Every entry is a tuple: (project, sensornumber). None if nothing to retrieve
 #    sensorselection = [("HLL", "549"), ("OZK", "1845"), ("HLL", "545"), ("OZK", "1850")]
     sensorselection = None
+    sensorselection = [("HLL", "298"),("HLL", "545"), ("HLL", "420")]
 
     # fastimport: if True existing files will not be reloaded (no check on dates is done!)
     fastimport = True
 
-    imp.retrieveAllData(includedatesinfilename, savelocation, start, end, knmiselection, meetnetselection, sensorselection, fastimport)
+    # when csv for sensordata not found, just continue (True), or end (False)
+    ignorecsvnotfound = True
+
+    imp.retrieveAllData(includedatesinfilename, savelocation, start, end, knmiselection, meetnetselection, sensorselection,
+                        fastimport, ignorecsvnotfound)
 
     return
 
