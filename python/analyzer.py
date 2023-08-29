@@ -71,8 +71,8 @@ def setGlobalPlot():
 #    pp.pprint(sns.axes_style())
 #    pp.pprint(sns.plotting_context())
     sns.set_palette("muted")
-    my_dpi = 96
-    plt.figure(figsize=(1000 / my_dpi, 800 / my_dpi), dpi=my_dpi)
+    my_dpi = 300
+    plt.figure(figsize=(2000 / my_dpi, 1600 / my_dpi), dpi=my_dpi)
 
 # make the relplots somewhat nicer when using datetime as x-axis
 def smootifyRelplot(relplot):
@@ -85,3 +85,32 @@ def smootifyLineplot(lplot):
     lplot.tick_params(axis='x', labelrotation=30, bottom=True)
     plt.tight_layout()
 
+# the framelist values are concatenated, and the median and mean values are determined on the groupby attribute
+# a dataframe with a single row for every groupby value is returned
+def medianvalues(framelist, groupby, value):
+    totalframe = pd.concat(framelist)
+    totalframe.sort_values(groupby, inplace=True)
+    result = totalframe.groupby(groupby)[value].median().to_frame()
+    result = result.reset_index()
+    result.columns.values[0] = groupby
+    result.columns.values[1] = value
+    result[value+"_mean"] = totalframe.groupby(groupby)[value].mean().values
+    return result
+
+# The difference of attr for the left- and right frames is returned
+# based on datetime. Resulting value is "delta_" + attr
+def diffFrame(leftframe, rightframe, attr):
+    merged = pd.merge(leftframe, rightframe, on='datetime', suffixes=("_left", "_right"))
+    merged["delta"] = merged.apply(lambda x: x[attr+"_left"] - x[attr+"_right"], axis=1)
+    deltas = pd.DataFrame()
+    deltas["delta_"+attr] = merged["delta"].copy()
+    deltas["datetime"] = merged["datetime"].copy()
+    deltas.sort_values(inplace=True, ignore_index=True, by="delta_"+attr)
+    print(deltas.describe())
+    return deltas
+
+# merge knmi data into a frame on key datetime
+def weatherFrame(aFrame, knmiFrame = "KNMI_240"):
+    conc = pd.merge(aFrame, knmiFrame, on="datetime", suffixes=("", "_knmi"))
+    conc = conc.rename({'windspeed_knmi': 'windspeed', 'winddirection_knmi': 'winddirection'}, axis=1)
+    return conc
