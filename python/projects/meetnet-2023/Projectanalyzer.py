@@ -74,7 +74,7 @@ def windplot(frame, values, polar=True, useMedian=True):
         conc["winddirection"][0] = 0
         g = sns.FacetGrid(conc, subplot_kws=dict(projection='polar', theta_offset=math.pi/2, theta_direction=-1), height=10,
                           sharex=False, sharey=False, despine=False)
-        g.map_dataframe(sns.lineplot, x="winddirection", y=values)
+        g.map_dataframe(sns.lineplot, x="winddirection", y=values, linewidth=4.0)
     else:
         lplot = (sns.scatterplot(data=conc, x="winddirection", y=values))
         lplot.set(xlim=(5.0, 365.0))
@@ -89,15 +89,15 @@ def runit():
     setGlobalPlot()
 
     loc_beverwijk = medianvalues([NL49557, NL49573, NL49551, NL49572, NL49570], "datetime", "pm25")
-    loc_midden = (([NL49556, NL49701, NL49704, NL49703], "datetime", "pm25"))
+    loc_midden = medianvalues([NL49556, NL49701, NL49704, NL49703], "datetime", "pm25")
     loc_amsterdam = medianvalues([NL49016, NL49012, NL49017, NL49014, NL49007], "datetime", "pm25")
     loc_all = medianvalues([NL49557, NL49573, NL49551, NL49572, NL49570, NL49556, NL49701,
                           NL49704, NL49703, NL49016, NL49012, NL49017, NL49014, NL49007], "datetime", "pm25")
 
 
-#    diff = diffFrame(HLL_420, NL49701, "pm25")
+    diff = diffFrame(HLL_545, HLL_298, "pm25")
 #    diff = weatherFrame(HLL_420)
-    windplot(HLL_298, "pm25", True, True)
+    windplot(diff, "delta", True, True)
 
 #    lplot = sns.lineplot(loc_all, x="datetime", y="pm25")
 #    smootifyLineplot(lplot)
