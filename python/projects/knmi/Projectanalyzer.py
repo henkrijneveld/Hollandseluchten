@@ -20,7 +20,7 @@ projectdir = "/home/henk/Projects/Hollandseluchten/python/projects/knmi"
 def runit():
     setGlobalPlot()
 
-    windhistogram(KNMI_240, False)
+    windcountplot(KNMI_240, True)
 #    hplot = sns.histplot(data=KNMI_240, x="winddirection",binwidth=10)
 #    hplot.set(xlim=(0, 370))
     plt.show()
