@@ -1,7 +1,7 @@
 # Prerequisites:
 # - panda and dependencies installed
 # ../data-raw: tafik csv files
-# ../data_knmi: destination knmi files
+# ../data_knmi: destination knmi-2020-2023 files
 # ../data-sensors: destination project sensor files
 # ../data-meetnet: destination meetnet files
 #
@@ -45,7 +45,7 @@ def printf(format, *args):
 #  humidity (U in original data)
 #
 # WARNING: do not call this function too often, you will be blocked!
-# do to the specific way knmi api works, allways start a day earlier with retrieving the data
+# do to the specific way knmi-2020-2023 api works, allways start a day earlier with retrieving the data
 def dateadd(x):
     x["datetime"] = x["datetime"] + pd.Timedelta(hours = x["hour"])
     return x
@@ -59,7 +59,7 @@ def getKNMI(station, start, end):
     #knmidata = requests.post(requestPOSTURL, json = postdata)
 
     if knmidata.status_code != 200:
-        printf("Error reading knmi station %s. Status code = %d", station, knmidata.status_code)
+        printf("Error reading knmi-2020-2023 station %s. Status code = %d", station, knmidata.status_code)
         exit(-1)
     knmidict = knmidata.json()
     if len(knmidict) == 0:
@@ -205,7 +205,7 @@ def runKNMItofile():
     end = "20230816"
     station = "420"
     knmidata = getKNMI(station, start, end)
-    savefile = "../data-knmi/" + station + "-" + start + "-" + end + ".csv"
+    savefile = "../data-knmi-2020-2023/" + station + "-" + start + "-" + end + ".csv"
     knmidata.to_csv(savefile)
 
 def runMeetnettofile():

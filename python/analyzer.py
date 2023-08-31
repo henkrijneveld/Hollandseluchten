@@ -109,7 +109,7 @@ def diffFrame(leftframe, rightframe, attr):
     print(deltas.describe())
     return deltas
 
-# merge knmi data into a frame on key datetime
+# merge knmi-2020-2023 data into a frame on key datetime
 def weatherFrame(aFrame, knmiFrame = "KNMI_240"):
     conc = pd.merge(aFrame, knmiFrame, on="datetime", suffixes=("", "_knmi"))
     conc = conc.rename({'windspeed_knmi': 'windspeed', 'winddirection_knmi': 'winddirection'}, axis=1)

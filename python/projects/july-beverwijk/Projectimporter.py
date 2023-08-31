@@ -16,7 +16,7 @@ def runit():
     # enddate for retrieving (inclusive)
     end = "20230731"
 
-    # not None if knmi data must be retrieved
+    # not None if knmi-2020-2023 data must be retrieved
     knmiselection = True
 #    knmiselection = False
 

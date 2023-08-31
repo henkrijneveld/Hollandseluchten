@@ -14,10 +14,10 @@ def runit():
     start = "20200101"
 
     # enddate for retrieving (inclusive)
-    end = "20230801"
+    end = "20230831"
 
-    # not None if knmi data must be retrieved
-    knmiselection = True
+    # not None if knmi-2020-2023 data must be retrieved
+    knmiselection = ["240", "225"] # schiphol, ijmuiden
 #    knmiselection = False
 
     # list of meetnet sensors to retrieve (include alfaprefix. None if nothing to retrieve

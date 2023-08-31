@@ -20,8 +20,8 @@ def diffPlot(leftframe, rightframe, attr):
     return
 
 # show median of values in the winddirection of frame
-def windplot(frame, values, polar=True, useMedian=True):
-    conc = weatherFrame(frame)
+def windplot(frame, values, polar=True, useMedian=True, title="Windplot"):
+    conc = frame.copy()
     conc = medianvalues([conc], "winddirection", values)
     if not useMedian:
         values = values + "_mean"
@@ -32,18 +32,21 @@ def windplot(frame, values, polar=True, useMedian=True):
         conc["winddirection"][0] = 0
         g = sns.FacetGrid(conc, subplot_kws=dict(projection='polar', theta_offset=math.pi/2, theta_direction=-1), height=10,
                           sharex=False, sharey=False, despine=False)
+        g.fig.suptitle(title)
         g.map_dataframe(sns.lineplot, x="winddirection", y=values, linewidth=4.0)
     else:
         lplot = (sns.scatterplot(data=conc, x="winddirection", y=values))
         lplot.set(xlim=(5.0, 365.0))
+
+    plt.tight_layout()
     plt.show()
 
-# show number of count of every winddirection in fram
-def windcountplot(frame, polar=True):
+# show number of count of every winddirection in frame
+def windcountplot(frame, polar=True, title="wind count plot"):
 #    conc = frame.groupby("winddirection").count()
 #    conc = conc.reset_index()
 #    conc.columns.values[0] = "winddirection"
-    conc = frame
+    conc = frame.copy()
     # drop variable winds
     conc.drop(conc[conc['winddirection'] == 990].index, inplace=True)
     # drop no wind
@@ -61,8 +64,10 @@ def windcountplot(frame, polar=True):
         conc["winddirection"] = (conc["winddirection"] * math.pi) / 180.0
         g = sns.FacetGrid(conc, subplot_kws=dict(projection='polar', theta_offset=math.pi/2, theta_direction=-1), height=10,
                           sharex=False, sharey=False, despine=False)
+        g.fig.suptitle(title)
         g.map_dataframe(sns.histplot, x="winddirection", binwidth=math.pi/18.01, linewidth=4.0)
     else:
         lplot = sns.histplot(data=conc, x="winddirection", binwidth=9.9999) # todo: wow just wow: 9.9999 instead of 10...
         lplot.set(xlim=(0.0, 380.0))
+    plt.tight_layout()
     plt.show()

@@ -1,7 +1,7 @@
 # Prerequisites:
 # - panda and dependencies installed
 # ../data-raw: tafik csv files
-# ../data_knmi: destination knmi files
+# ../data_knmi: destination knmi-2020-2023 files
 # ../data-sensors: destination project sensor files
 # ../data-meetnet: destination meetnet files
 #
@@ -50,13 +50,13 @@ def printf(format, *args):
 #  humidity (U in original data)
 #
 # WARNING: do not call this function too often, you will be blocked!
-# do to the specific way knmi api works, allways start a day earlier with retrieving the data
+# do to the specific way knmi-2020-2023 api works, allways start a day earlier with retrieving the data
 def dateadd(x):
     x["datetime"] = x["datetime"] + pd.Timedelta(hours = x["hour"])
     return x
 
 def getKNMI(station, start, end):
-    # knmi data has a few data quirks: you can not start at 00:00, so we read a day extra and remove the first 23 values
+    # knmi-2020-2023 data has a few data quirks: you can not start at 00:00, so we read a day extra and remove the first 23 values
     dt_start = convertToDatetime(start) + datetime.timedelta(days = -1)
     start = dt_start.strftime("%Y%m%d")
     # the end is 24 hours later then expected, so also the end data is one day earlier
@@ -71,7 +71,7 @@ def getKNMI(station, start, end):
     # knmidata = requests.post(requestPOSTURL, json = postdata)
 
     if knmidata.status_code != 200:
-        printf("Error reading knmi station %s. Status code = %d", station, knmidata.status_code)
+        printf("Error reading knmi-2020-2023 station %s. Status code = %d", station, knmidata.status_code)
         exit(-1)
     knmidict = knmidata.json()
     if len(knmidict) == 0:
@@ -90,7 +90,7 @@ def getKNMI(station, start, end):
     knmiframe = knmiframe.astype({'temperature' : 'float64'})
     knmiframe['temperature'] = knmiframe['temperature'].apply(lambda x: x / 10)
     knmiframe.drop(columns=['station_code','hour'], inplace=True)
-    printf("KNMI data retrieved!\n")
+    printf("KNMI data retrieved for station #%s!\n", station)
     return knmiframe[23:-1] # remove the first 23 rows from the day before
 
 # convert YYYYMMDD to YYYY-MM-DD
@@ -231,17 +231,17 @@ def getCSVsensor(project, sensor, start, end, ignorecsvnotfound):
     return meetframe
 
 
-def runKNMItofile(savelocation, includedatesinfilename, start, end, fastimport):
+def runKNMItofile(savelocation, includedatesinfilename, start, end, knmiselection, fastimport):
     if savelocation == None:
         savelocation = "../data-knmi"
-    station = "240"
-    savefile = savelocation + "/KNMI_" + station
-    if includedatesinfilename:
-        savefile += "_" + start + "_" + end
-    savefile += ".csv"
-    if not fastimport or not os.path.exists(savefile):
-        knmidata = getKNMI(station, start, end)
-        knmidata.to_csv(savefile,index=False)
+    for station in knmiselection:
+        savefile = savelocation + "/KNMI_" + station
+        if includedatesinfilename:
+            savefile += "_" + start + "_" + end
+        savefile += ".csv"
+        if not fastimport or not os.path.exists(savefile):
+            knmidata = getKNMI(station, start, end)
+            knmidata.to_csv(savefile,index=False)
 
 def runMeetnettofile(savelocation, includedatesinfilename, start, end, meetnetselection, fastimport):
     if savelocation == None:
@@ -284,7 +284,7 @@ def retrieveAllData(includedatesinfilename, savelocation, start, end, knmiselect
     if fastimport:
         printf("Fastimport used\n")
     if knmiselection:
-        runKNMItofile(savelocation, includedatesinfilename, start, end, fastimport)
+        runKNMItofile(savelocation, includedatesinfilename, start, end, knmiselection, fastimport)
     if meetnetselection != None:
         runMeetnettofile(savelocation, includedatesinfilename, start, end, meetnetselection, fastimport)
     if sensorselection != None:
