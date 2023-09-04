@@ -31,6 +31,7 @@ import matplotlib.pyplot as plt
 import requests
 import datetime
 import os
+import time
 
 import sys
 def printf(format, *args):
@@ -107,14 +108,17 @@ def getMeetnetTimelimited(sensor, start, end):
         printf("Error reading luchtmeetdata %s. Status code = %d", sensor, luchtmeetdata.status_code)
         exit(-1)
     luchtmeetdict = luchtmeetdata.json()['data']
-    luchtdata = pd.DataFrame.from_dict(luchtmeetdict)
-    luchtdata.rename(columns={'value': 'pm25', 'timestamp_measured': 'datetime'}, inplace=True)
+    if len(luchtmeetdict) > 0:
+        luchtdata = pd.DataFrame.from_dict(luchtmeetdict)
+        luchtdata.rename(columns={'value': 'pm25', 'timestamp_measured': 'datetime'}, inplace=True)
 
-    luchtdata = luchtdata.astype({'pm25' : 'float64'})
-    luchtdata["datetime"] = pd.to_datetime(luchtdata["datetime"])
-    luchtdata.drop(columns=['station_number','formula'], inplace=True)
-    luchtdata.sort_values(by=['datetime'], inplace=True)
-    printf("Luchtmeet data on %s retrieved from %s to %s!\n", sensor, start, end)
+        luchtdata = luchtdata.astype({'pm25' : 'float64'})
+        luchtdata["datetime"] = pd.to_datetime(luchtdata["datetime"])
+        luchtdata.drop(columns=['station_number','formula'], inplace=True)
+        luchtdata.sort_values(by=['datetime'], inplace=True)
+        printf("Luchtmeet data on %s retrieved from %s to %s!\n", sensor, start, end)
+    else:
+        luchtdata = pd.DataFrame()
     return luchtdata
 
 def convertToDatetime(aDate):
@@ -255,6 +259,7 @@ def runMeetnettofile(savelocation, includedatesinfilename, start, end, meetnetse
         if not fastimport or not os.path.exists(savefile):
             meetframe = getMeetnet(sensor, start, end)
             meetframe.to_csv(savefile,index=False)
+            time.sleep(15)
 
 def checkDiff(row):
     if row["pm25"] != row["pm25_kal"]:
