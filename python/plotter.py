@@ -12,15 +12,15 @@ import math
 from analyzer import *
 
 # difplot on attribute name
-def diffPlot(leftframe, rightframe, attr):
+def diffPlot(leftframe, rightframe, attr, xlim=(-40.0, 40.0)):
     deltas = diffFrame(leftframe, rightframe, attr)
     lplot = sns.histplot(data=deltas, x="delta_"+attr, binwidth=0.50, kde=True)
-    lplot.set(xlim=(-40.0, 20.0))
+    lplot.set(xlim=xlim)
     plt.show()
     return
 
-# show median of values in the winddirection of frame
-def windplot(frame, values, polar=True, useMedian=True, title="Windplot"):
+# show median of values in the winddirection of frame, value in steps + and - 10 degrees
+def windplot(frame, values, polar=True, useMedian=True, title="Windplot", smooth=0):
     conc = frame.copy()
     conc = medianvalues([conc], "winddirection", values)
     if not useMedian:
@@ -30,6 +30,18 @@ def windplot(frame, values, polar=True, useMedian=True, title="Windplot"):
         conc.drop(index=37, inplace=True) # this is value 990: variable winds
         conc.loc[0] = conc.loc[36].copy() # direction 0: no wind
         conc["winddirection"][0] = 0
+        if smooth:
+            # dirty
+            svalues = values + "_smooth"
+            conc = conc.assign(newcolumn=0)
+            conc = conc.rename(columns={"newcolumn": svalues})
+            conc = conc.astype({svalues: 'float64'})
+            for i in range(0,37):
+                for j in range(-smooth, smooth+1):
+                    conc.at[i, svalues] += conc[values][(i+j) % 36]
+                conc.at[i, svalues] /= smooth * 2 + 1
+            values = svalues
+
         g = sns.FacetGrid(conc, subplot_kws=dict(projection='polar', theta_offset=math.pi/2, theta_direction=-1), height=10,
                           sharex=False, sharey=False, despine=False)
         g.fig.suptitle(title)
@@ -53,19 +65,12 @@ def windcountplot(frame, polar=True, title="wind count plot"):
     conc.drop(conc[conc['winddirection'] == 0].index, inplace=True)
     if polar:
         conc.loc[conc["winddirection"] == 360, "winddirection"] = 0
-        a = len(conc[conc["winddirection"] == 0])
-        printf("Wind 0 = %d\n", a)
-        b = len(conc[conc["winddirection"] == 360])
-        printf("Wind 360 = %d\n", b)
-        c = len(conc[conc["winddirection"] == 350])
-        printf("Wind 350 = %d\n", c)
-        d = len(conc[conc["winddirection"] == 340])
-        printf("Wind 340 = %d\n", d)
+
         conc["winddirection"] = (conc["winddirection"] * math.pi) / 180.0
         g = sns.FacetGrid(conc, subplot_kws=dict(projection='polar', theta_offset=math.pi/2, theta_direction=-1), height=10,
                           sharex=False, sharey=False, despine=False)
         g.fig.suptitle(title)
-        g.map_dataframe(sns.histplot, x="winddirection", binwidth=math.pi/18.01, linewidth=4.0)
+        g.map_dataframe(sns.histplot, x="winddirection", binwidth=math.pi/18.001, linewidth=4.0)
     else:
         lplot = sns.histplot(data=conc, x="winddirection", binwidth=9.9999) # todo: wow just wow: 9.9999 instead of 10...
         lplot.set(xlim=(0.0, 380.0))

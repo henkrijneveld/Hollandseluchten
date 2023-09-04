@@ -83,7 +83,7 @@ def getKNMI(station, start, end):
     knmiframe["datetime"] = pd.to_datetime(knmiframe["datetime"])
     # add hour to datetime, as all the values are from the last part of the hour
     knmiframe = knmiframe.apply(dateadd, axis = 1)
-    knmiframe = knmiframe.astype({'winddirection' : 'int'})
+    knmiframe = knmiframe.astype({'winddirection' : 'float64'})
     knmiframe = knmiframe.astype({'humidity' : 'float64'})
     knmiframe = knmiframe.astype({'windspeed' : 'float64'})
     knmiframe['windspeed'] = knmiframe['windspeed'].apply(lambda x: x / 10)

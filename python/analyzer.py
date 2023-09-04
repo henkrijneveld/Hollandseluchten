@@ -23,6 +23,12 @@ def convertToDatetime(aDate):
     dt = pd.Timestamp(dt)
     return dt.tz_localize("UTC")
 
+def dropNoWindDirection(aFrame):
+    # drop variable winds
+    aFrame.drop(aFrame[aFrame['winddirection'] == 990].index, inplace=True)
+    # drop no wind
+    aFrame.drop(aFrame[aFrame['winddirection'] == 0].index, inplace=True)
+
 def printGlobals(projectdir):
     prefix = ""
     startdate = False
@@ -96,6 +102,19 @@ def medianvalues(framelist, groupby, value):
     result.columns.values[1] = value
     result[value+"_mean"] = totalframe.groupby(groupby)[value].mean().values
     return result
+
+# the count of groupby values
+# returns groupby values and counts
+def countvalues(aFrame, groupby):
+    totalframe = aFrame.copy()
+    totalframe.sort_values(groupby, inplace=True)
+    totalframe = totalframe.assign(count=0)
+    result = totalframe.groupby(groupby)["count"].count().to_frame()
+    result = result.reset_index()
+    result.columns.values[0] = groupby
+    result["count"] = totalframe.groupby(groupby)[groupby].count().values
+    return result
+
 
 # The difference of attr for the left- and right frames is returned
 # based on datetime. Resulting value is "delta_" + attr
