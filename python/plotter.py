@@ -42,8 +42,9 @@ def windplot(frame, values, polar=True, useMedian=True, title="Windplot", smooth
                 conc.at[i, svalues] /= smooth * 2 + 1
             values = svalues
 
-        g = sns.FacetGrid(conc, subplot_kws=dict(projection='polar', theta_offset=math.pi/2, theta_direction=-1), height=10,
-                          sharex=False, sharey=False, despine=False)
+        g = sns.FacetGrid(conc, subplot_kws=dict(projection='polar', theta_offset=math.pi/2,
+                          theta_direction=-1), height=10, sharex=False, sharey=False,
+                          despine=False)
         g.fig.suptitle(title)
         g.map_dataframe(sns.lineplot, x="winddirection", y=values, linewidth=4.0)
     else:
