@@ -12,9 +12,19 @@ import math
 from analyzer import *
 
 # difplot on attribute name
-def diffPlot(leftframe, rightframe, attr, xlim=(-40.0, 40.0)):
+def diffPlot(leftframe, rightframe, attr, xlim=(-40.0, 40.0), title="Difference"):
     deltas = diffFrame(leftframe, rightframe, attr)
     lplot = sns.histplot(data=deltas, x="delta_"+attr, binwidth=0.50, kde=True)
+    lplot.set(xlim=xlim)
+    lplot.set(title=title)
+    plt.show()
+    return
+
+def diffWindPlot(leftframe, rightframe, xlim=(-170.0, 170.0), title="Winddifference"):
+    deltas = diffWindFrame(leftframe, rightframe)
+    deltas["delta_winddirection"] = (deltas["delta_winddirection"] - 5)  # shift to middle for histogram
+    lplot = sns.histplot(data=deltas, x="delta_winddirection", binwidth=10, kde=False)
+    lplot.set(title=title)
     lplot.set(xlim=xlim)
     plt.show()
     return
@@ -66,13 +76,13 @@ def windcountplot(frame, polar=True, title="wind count plot"):
     if polar:
         conc.loc[conc["winddirection"] == 360, "winddirection"] = 0
 
-        conc["winddirection"] = (conc["winddirection"] * math.pi) / 180.0
+        conc["winddirection"] = (conc["winddirection"] * math.pi) / 180.0 - math.pi/36 # shift to middle
         g = sns.FacetGrid(conc, subplot_kws=dict(projection='polar', theta_offset=math.pi/2, theta_direction=-1), height=10,
                           sharex=False, sharey=False, despine=False)
         g.fig.suptitle(title)
         g.map_dataframe(sns.histplot, x="winddirection", binwidth=math.pi/18.001, linewidth=4.0)
     else:
-        lplot = sns.histplot(data=conc, x="winddirection", binwidth=9.9999) # todo: wow just wow: 9.9999 instead of 10...
+        lplot = sns.histplot(data=conc, x="winddirection", binwidth=9.9999)
         lplot.set(xlim=(0.0, 380.0))
     plt.tight_layout()
     plt.show()

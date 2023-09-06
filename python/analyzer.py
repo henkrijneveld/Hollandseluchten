@@ -128,6 +128,31 @@ def diffFrame(leftframe, rightframe, attr):
     print(deltas.describe())
     return deltas
 
+# compute winddiffeerence
+def winddif(aRow):
+    srcwind = aRow["winddirection_left"]
+    compwind = aRow["winddirection_right"]
+    diff = compwind - srcwind
+    if diff < -170:
+        diff = 360 + diff
+    if diff > 180:
+        diff = diff - 360
+    return diff
+
+# The difference on wuinddirection for the left- and right frames is returned
+# for winddirection values.
+# if any value is 0 or 990 it is ignored
+# based on datetime. Resulting value is "delta_" + attr
+def diffWindFrame(leftframe, rightframe):
+    merged = pd.merge(leftframe, rightframe, on='datetime', suffixes=("_left", "_right"))
+    merged["delta"] = merged.apply(winddif, axis=1)
+    deltas = pd.DataFrame()
+    deltas["delta_winddirection"] = merged["delta"].copy()
+    deltas["datetime"] = merged["datetime"].copy()
+    deltas.sort_values(inplace=True, ignore_index=True, by="delta_winddirection")
+    print(deltas.describe())
+    return deltas
+
 # merge knmi-2020-2023 data into a frame on key datetime
 def weatherFrame(aFrame, knmiFrame = "KNMI_240"):
     conc = pd.merge(aFrame, knmiFrame, on="datetime", suffixes=("", "_knmi"))

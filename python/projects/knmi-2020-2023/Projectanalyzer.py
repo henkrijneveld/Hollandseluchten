@@ -22,6 +22,10 @@ projectdir = "/home/henk/Projects/Hollandseluchten/python/projects/knmi-2020-202
 def runit():
     setGlobalPlot()
 
+    diffWindPlot(KNMI_209, KNMI_225, title="Difference direction KNMI_209 vs KNMI_225 (2020-2023)")
+    diffWindPlot(KNMI_240, KNMI_225, title="Difference direction KNMI_240 vs KNMI_225 (2020-2023)")
+
+
 #   WINDDIRECTION COUNTS FOR STATION AND YEAR
 #    windcountplot(KNMI_240, True, "Windcountplot Schiphol (240) from "+startdate+" to "+enddate)
 #    KNMI_240_2023 = KNMI_240[KNMI_240["datetime"] < pd.to_datetime("2021-01-01 21:00:00+00:00")].copy()
@@ -32,27 +36,28 @@ def runit():
 #    KNMI_240_2023 = KNMI_240[(KNMI_240["datetime"] > pd.to_datetime("2022-01-01 21:00:00+00:00")) &
 #                             (KNMI_240["datetime"] < pd.to_datetime("2023-01-01 21:00:00+00:00"))].copy()
 #    windcountplot(KNMI_240_2023, True, "Windcountplot Schiphol (240) from 2022")
-    KNMI_240_2023 = KNMI_240[KNMI_240["datetime"] > pd.to_datetime("2023-01-01 21:00:00+00:00")].copy()
-    windcountplot(KNMI_240_2023, True, "Windcountplot Schiphol (240) from 2023")
+#    KNMI_240_2023 = KNMI_240[KNMI_240["datetime"] > pd.to_datetime("2023-01-01 21:00:00+00:00")].copy()
+#    windcountplot(KNMI_240_2023, True, "Windcountplot Schiphol (240): 20230101 - 20230901")
+
 
 
 #    windcountplot(KNMI_225, True, "Windcountplot ijmuiden-zuidpier (225) from "+startdate+" to "+enddate)
 #    windcountplot(KNMI_209, True, "Windcountplot ijmuiden-zee (209) from "+startdate+" to "+enddate)
 
 #    KNMI_225_2023 = KNMI_225[KNMI_225["datetime"] > pd.to_datetime("2023-01-01 21:00:00+00:00")].copy()
-#    windcountplot(KNMI_225, True, "Windcountplot ijmuiden-zuidpier (225) from 2023")
+#    windcountplot(KNMI_225, True, "Windcountplot ijmuiden-zuidpier (225): 20230101 - 20230901")
 #    KNMI_209_2023 = KNMI_209[KNMI_209["datetime"] > pd.to_datetime("2023-01-01 21:00:00+00:00")].copy()
-#    windcountplot(KNMI_209, True, "Windcountplot ijmuiden-zee (209) from 2023")
+#    windcountplot(KNMI_209, True, "Windcountplot ijmuiden-zee (209): 20230101 - 20230901")
 
 #  WINDCOUNTPLOT WITH SMOOTIFY
-    result = countvalues(KNMI_240_2023, "winddirection")
-    windplot(result, "count", title="Schiphol directions 2023, smooth = 0", smooth=0)
-    result = countvalues(KNMI_240_2023, "winddirection")
-    windplot(result, "count", title="Schiphol directions 2023, smooth = 1", smooth=1)
-    result = countvalues(KNMI_240_2023, "winddirection")
-    windplot(result, "count", title="Schiphol directions 2023, smooth = 2", smooth=2)
-    result = countvalues(KNMI_240_2023, "winddirection")
-    windplot(result, "count", title="Schiphol directions 2023, smooth = 3", smooth=3)
+#    result = countvalues(KNMI_240_2023, "winddirection")
+#    windplot(result, "count", title="Schiphol directions 2023, smooth = 0", smooth=0)
+#    result = countvalues(KNMI_240_2023, "winddirection")
+#    windplot(result, "count", title="Schiphol directions 2023, smooth = 1", smooth=1)
+#    result = countvalues(KNMI_240_2023, "winddirection")
+#    windplot(result, "count", title="Schiphol directions 2023, smooth = 2", smooth=2)
+#    result = countvalues(KNMI_240_2023, "winddirection")
+#    windplot(result, "count", title="Schiphol directions 2023, smooth = 3", smooth=3)
 
 #  WINDSPEEDPLOTS
 #    windplot(KNMI_240, "windspeed", title="Schiphol windspeed plot, smooth = 20 degrees", smooth=2)
