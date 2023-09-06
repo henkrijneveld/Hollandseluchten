@@ -79,10 +79,6 @@ def plotDiff25(leftFrame, rightFrame, title="difference", knmiFrame=KNMI_240):
     diff2 = weatherFrame(diff2, knmiFrame)
     windplot(diff2, "delta_pm25", True, True, title=title, smooth=0)
 
-    diff1 = weatherFrame(diff1, knmiFrame)
-    windplot(diff2, "delta_pm25", True, True, title=title, smooth=0)
-
-
 def runit():
     # list of meetnet sensors to retrieve
     selectionwest = [NL49553, NL49557, NL49573, NL49570, NL49572, NL49551]
@@ -103,7 +99,7 @@ def runit():
     loc_east = medianvalues([eastdata], "datetime", "pm25")
     loc_all = medianvalues([westdata, middledata, eastdata], "datetime", "pm25")
 
-#    plotPM25series(loc_west, "West PM25 data 2023", KNMI_225)
+    plotPM25series(NL49557, "West PM25 data 2023", KNMI_240)
 #    plotPM25series(loc_west, "West PM25 data 2023", KNMI_240)
 
 #    plotPM25series(loc_middle, "Middle PM25 data 2023", KNMI_240)
@@ -119,7 +115,7 @@ def runit():
 
 #    plotDiff25(NL49573, NL49572, "East-West meetnet Beverwijk", KNMI_225)
 #    plotDiff25(NL49551, NL49557, "North-South meetnet Beverwijk", KNMI_225)
-    plotDiff25(NL49557, NL49553, "Top North detectors Beverwijk", KNMI_240)
+#    plotDiff25(NL49016, NL49012, "West - East detectors Beverwijk", KNMI_240)
 #    plotDiff25(NL49553, NL49557, "Top North detectors Beverwijk", KNMI_240)
 
 
