@@ -9,11 +9,11 @@ import os
 import pprint as pp
 import math
 
-from analyzer import *
+import analyzer
 
 # difplot on attribute name
 def diffPlot(leftframe, rightframe, attr, xlim=(-40.0, 40.0), title="Difference"):
-    deltas = diffFrame(leftframe, rightframe, attr)
+    deltas = analyzer.diffFrame(leftframe, rightframe, attr)
     lplot = sns.histplot(data=deltas, x="delta_"+attr, binwidth=0.50, kde=True)
     lplot.set(xlim=xlim)
     lplot.set(title=title)
@@ -21,7 +21,7 @@ def diffPlot(leftframe, rightframe, attr, xlim=(-40.0, 40.0), title="Difference"
     return
 
 def diffWindPlot(leftframe, rightframe, xlim=(-170.0, 170.0), title="Winddifference"):
-    deltas = diffWindFrame(leftframe, rightframe)
+    deltas = analyzer.diffWindFrame(leftframe, rightframe)
     deltas["delta_winddirection"] = (deltas["delta_winddirection"] - 5)  # shift to middle for histogram
     lplot = sns.histplot(data=deltas, x="delta_winddirection", binwidth=10, kde=False)
     lplot.set(title=title)
@@ -30,9 +30,12 @@ def diffWindPlot(leftframe, rightframe, xlim=(-170.0, 170.0), title="Winddiffere
     return
 
 # show median of values in the winddirection of frame, value in steps + and - 10 degrees
-def windplot(frame, values, polar=True, useMedian=True, title="Windplot", smooth=0):
+def windplot(frame, values, polar=True, useMedian=True, title="Windplot", smooth=0, method="medianvalues"):
+    global functions
     conc = frame.copy()
-    conc = medianvalues([conc], "winddirection", values)
+#   conc = medianvalues([conc], "winddirection", values)
+    conc = getattr(analyzer, method)([conc], "winddirection", values)
+
     if not useMedian:
         values = values + "_mean"
     if polar:

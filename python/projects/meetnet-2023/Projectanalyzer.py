@@ -43,7 +43,7 @@ def removeFirstTwoRows(aDataframeList):
     for aFrame in aDataframeList:
         aFrame.drop(index=[aFrame.index[0], aFrame.index[1]], axis=0, inplace=True)
 
-def plotPM25series(aFrame, title="PM25 data", knmiFrame=KNMI_240):
+def plotPM25series(aFrame, title="PM25 data", knmiFrame=KNMI_240, method="medianvalues"):
     lplot = sns.lineplot(aFrame, x="datetime", y="pm25")
     smootifyLineplot(lplot)
     lplot.set(title=title)
@@ -52,7 +52,8 @@ def plotPM25series(aFrame, title="PM25 data", knmiFrame=KNMI_240):
 
     wFrame = aFrame.copy()
     windPM_all = weatherFrame(wFrame, knmiFrame)
-    windplot(windPM_all, "pm25", True, True, title=title+" winddirectiond", smooth=1)
+    windplot(windPM_all, "pm25", True, True, title=title+" winddirectiond",
+             smooth=0, method=method)
 
 def plotDiff25(leftFrame, rightFrame, title="difference", knmiFrame=KNMI_240):
     leftFrame = leftFrame.copy()
@@ -86,7 +87,7 @@ def runit():
     selectioneast = [NL49007, NL49016, NL49012, NL49014, NL49017]
     selectionall = selectionwest + selectionmiddle + selectioneast
 
-    removeFirstTwoRows(selectionall) # remove the fireworks peak at 1th januari
+    removeFirstTwoRows(selectionall)  # remove the fireworks peak at 1th januari
 
     setGlobalPlot()
 
@@ -98,13 +99,19 @@ def runit():
     loc_middle = medianvalues([middledata], "datetime", "pm25")
     loc_east = medianvalues([eastdata], "datetime", "pm25")
     loc_all = medianvalues([westdata, middledata, eastdata], "datetime", "pm25")
+    loc_all_mean = meanvalues([westdata, middledata, eastdata], "datetime", "pm25")
+    loc_all_max = maxvalues([westdata, middledata, eastdata], "datetime", "pm25")
+    loc_all_min = minvalues([westdata, middledata, eastdata], "datetime", "pm25")
 
-    plotPM25series(NL49557, "West PM25 data 2023", KNMI_240)
+
+#    plotPM25series(loc_all, "PM25 concentration all stations vs winddirection Schiphol", KNMI_240)
 #    plotPM25series(loc_west, "West PM25 data 2023", KNMI_240)
-
 #    plotPM25series(loc_middle, "Middle PM25 data 2023", KNMI_240)
 #    plotPM25series(loc_east, "East PM25 data 2023", KNMI_240)
-#    plotPM25series(loc_all, "All PM25 data 2023", KNMI_240)
+    plotPM25series(loc_all, "All PM25 data 2023 - median", KNMI_240)
+    plotPM25series(loc_all_mean, "All PM25 data 2023 - mean", KNMI_240, "meanvalues")
+    plotPM25series(loc_all_max, "All PM25 data 2023 - max", KNMI_240, "maxvalues")
+    plotPM25series(loc_all_min, "All PM25 data 2023 - min", KNMI_240, "minvalues")
 
 #    plotPM25series(NL49561, "Meetnetsensor 49561 (Schiphol next to knmi station)", KNMI_240)
 

@@ -103,6 +103,40 @@ def medianvalues(framelist, groupby, value):
     result[value+"_mean"] = totalframe.groupby(groupby)[value].mean().values
     return result
 
+# the framelist values are concatenated, and the median and mean values are determined on the groupby attribute
+# a dataframe with a single row for every groupby value is returned
+def meanvalues(framelist, groupby, value):
+    totalframe = pd.concat(framelist)
+    totalframe.sort_values(groupby, inplace=True)
+    result = totalframe.groupby(groupby)[value].mean().to_frame()
+    result = result.reset_index()
+    result.columns.values[0] = groupby
+    result.columns.values[1] = value
+    return result
+
+# the framelist values are concatenated, and the median and mean values are determined on the groupby attribute
+# a dataframe with a single row for every groupby value is returned
+def maxvalues(framelist, groupby, value):
+    totalframe = pd.concat(framelist)
+    totalframe.sort_values(groupby, inplace=True)
+    result = totalframe.groupby(groupby)[value].max().to_frame()
+    result = result.reset_index()
+    result.columns.values[0] = groupby
+    result.columns.values[1] = value
+    return result
+
+# the framelist values are concatenated, and the median and mean values are determined on the groupby attribute
+# a dataframe with a single row for every groupby value is returned
+def minvalues(framelist, groupby, value):
+    totalframe = pd.concat(framelist)
+    totalframe.sort_values(groupby, inplace=True)
+    result = totalframe.groupby(groupby)[value].min().to_frame()
+    result = result.reset_index()
+    result.columns.values[0] = groupby
+    result.columns.values[1] = value
+    return result
+
+
 # the count of groupby values
 # returns groupby values and counts
 def countvalues(aFrame, groupby):
