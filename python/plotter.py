@@ -20,6 +20,16 @@ def diffPlot(leftframe, rightframe, attr, xlim=(-40.0, 40.0), title="Difference"
     plt.show()
     return
 
+# relative difplot on attribute name
+def diffPlotRelative(leftframe, rightframe, attr, xlim=(-3.0, 3.0), title="Difference"):
+    deltas = analyzer.relativeFrame(leftframe, rightframe, attr)
+    lplot = sns.histplot(data=deltas, x="delta_"+attr, binwidth=0.10, kde=True)
+    lplot.set(xlim=xlim)
+    lplot.set(title=title)
+    plt.show()
+    return
+
+
 def diffWindPlot(leftframe, rightframe, xlim=(-170.0, 170.0), title="Winddifference"):
     deltas = analyzer.diffWindFrame(leftframe, rightframe)
     deltas["delta_winddirection"] = (deltas["delta_winddirection"] - 5)  # shift to middle for histogram
@@ -30,7 +40,7 @@ def diffWindPlot(leftframe, rightframe, xlim=(-170.0, 170.0), title="Winddiffere
     return
 
 # show median of values in the winddirection of frame, value in steps + and - 10 degrees
-def windplot(frame, values, polar=True, useMedian=True, title="Windplot", smooth=0, method="medianvalues"):
+def windplot(frame, values, polar=True, useMedian=True, title="Windplot", smooth=1, method="medianvalues"):
     global functions
     conc = frame.copy()
 #   conc = medianvalues([conc], "winddirection", values)

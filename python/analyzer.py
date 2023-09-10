@@ -162,6 +162,31 @@ def diffFrame(leftframe, rightframe, attr):
     print(deltas.describe())
     return deltas
 
+
+def relative(aRow):
+    left = aRow["pm25_left"]
+    right = aRow["pm25_right"]
+    if left < 0.1:
+        return 99
+    if right < 0.1:
+        return 89
+    reldiff = 1 - (left - right) / left
+    return reldiff
+
+# The relative difference of attr for the left- and right frames is returned
+# based on datetime. Resulting value is "delta_" + attr
+# difference == 1 means they are the same
+def relativeFrame(leftframe, rightframe, attr):
+    merged = pd.merge(leftframe, rightframe, on='datetime', suffixes=("_left", "_right"))
+    merged["delta"] = merged.apply(relative, axis=1)
+    deltas = pd.DataFrame()
+    deltas["delta_"+attr] = merged["delta"].copy()
+    deltas["datetime"] = merged["datetime"].copy()
+    deltas.sort_values(inplace=True, ignore_index=True, by="delta_"+attr)
+    print(deltas.describe())
+    return deltas
+
+
 # compute winddiffeerence
 def winddif(aRow):
     srcwind = aRow["winddirection_left"]
