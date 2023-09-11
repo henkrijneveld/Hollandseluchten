@@ -29,7 +29,13 @@ def runit():
 #    sensorselection = [("HLL", "549"), ("OZK", "1845"), ("HLL", "545"), ("OZK", "1850")]
     sensorselection = None
     sensorselection = [("HLL", "420"),("HLL", "541"), ("OZK", "1849"), ("HLL", "549"), ("HLL", "545"), ("OZK", "1850"),
-                       ("OZK", "1845"), ("HLL", "298"), ("HLL", "433"), ("HLL", "452"), ("HLL", "226"), ("HLL", "513")]
+                       ("OZK", "1845"), ("HLL", "298"), ("HLL", "433"), ("HLL", "452"), ("HLL", "226"), ("HLL", "513"),
+                       ("HLL", "224"), ("HLL", "329"),
+                       ("HLL", "237"), ("HLL", "288"),  # Velsen South
+                       ("HLL", "224"), ("HLL", "532"),  # Wijk aan Zee
+                       ("HLL", "434"), ("HLL", "245"),  # Beverwijk
+                       ("HLL", "230"), ("HLL", "512")   # Driehuis
+                       ]
 
     # fastimport: if True existing files will not be reloaded (no check on dates is done!)
     fastimport = True

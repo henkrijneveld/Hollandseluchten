@@ -35,6 +35,22 @@ HLL_433 = pd.DataFrame() # westsensor
 HLL_452 = pd.DataFrame() # eastsensor
 HLL_513 = pd.DataFrame() # southsensor
 HLL_226 = pd.DataFrame() # northsensor
+HLL_224 = pd.DataFrame() # northeastsensor
+HLL_329 = pd.DataFrame() # southwestsensor
+
+# random colocations
+HLL_237 = pd.DataFrame() # Velsen Zuid
+HLL_288 = pd.DataFrame() #
+
+HLL_532 = pd.DataFrame() # Wijk aan zee (met 224)
+
+HLL_434 = pd.DataFrame() # Beverwijk
+HLL_245 = pd.DataFrame() #
+
+HLL_230 = pd.DataFrame() # Driehuis
+HLL_512 = pd.DataFrame() #
+
+
 
 # Extras
 HLL_298 = pd.DataFrame()
@@ -91,7 +107,12 @@ def compareDifferentTypesColocation():
 def runit():
     setBeverwijk = ["NL49570", "HLL_545", "HLL_549", "OZK_1845", "OZK_1850"]
     setZaandam = ["NL49701", "HLL_420", "HLL_541", "OZK_1849"]
-    setIndustry = ["HLL_433", "HLL_452", "HLL_513", "HLL_226"] # west, east, south, north
+    setIndustry = ["HLL_433", "HLL_452", "HLL_513", "HLL_226",
+                   "HLL_224", "HLL_329"]  # west, east, south, north, northeast, southwest
+    setColocSodaq=["HLL_237", "HLL_288",
+                   "HLL_532", "HLL_224",
+                   "HLL_434", "HLL_245",
+                   "HLL_230", "HLL_512"]
 
 # STEP 1: REVIEW CORE DATA
 
@@ -119,9 +140,26 @@ def runit():
 #    ==> tail seems to disappear
 
 # STEP 5 Beverwijk area
-    createTimeSeries(setIndustry, "Industry")
-    comparePlot(HLL_433, HLL_452, KNMI_225, "HLL_433 (west) vs HLL_452 (east)", filename=projectdir + "/different-industry-west-east", xlim=(-20,20))
-    comparePlot(HLL_513, HLL_226, KNMI_225, "HLL_513 (south) vs HLL_226 (north)", filename=projectdir + "/different-industry-south-north", xlim=(-20,20))
+#    createTimeSeries(setIndustry, "Industry")
+#    wFrame = HLL_433.copy()
+#    wFrame = weatherFrame(wFrame, KNMI_225)
+#    windplot(wFrame, "pm25", polar=True, useMedian=True, title="Windplot HLL_433", smooth=1, method="medianvalues",
+#                 filename=projectdir + "/windplot-HLL_433")
+#    comparePlot(HLL_433, HLL_452, KNMI_225, "HLL_433 (west) vs HLL_452 (east)", filename=projectdir + "/different-industry-west-east", xlim=(-20,20))
+#    comparePlot(HLL_513, HLL_226, KNMI_225, "HLL_513 (south) vs HLL_226 (north)", filename=projectdir + "/different-industry-south-north", xlim=(-20,20))
+#    comparePlot(HLL_226, HLL_513, KNMI_225, "HLL_226 (north) vs HLL_226 (south)", filename=projectdir + "/different-industry-north-south", xlim=(-20,20))
+#    comparePlot(HLL_224, HLL_329, KNMI_225, "HLL_224 (northeast) vs HLL_329 (southwest)", filename=projectdir + "/different-industry-northeast-southwest", xlim=(-20,20))
+
+# STEP 6 Colocations SODAQ
+    createTimeSeries(setColocSodaq, "ColoqSodaq")
+    comparePlot(HLL_237, HLL_288, KNMI_225, "HLL_237 vs HLL_288 (Velsen South)",
+                filename=projectdir + "/coloqsodaq-VelsenSouth", xlim=(-20, 20))
+    comparePlot(HLL_532, HLL_224, KNMI_225, "HLL_532 vs HLL_224 (Wijkaanzee)",
+                filename=projectdir + "/coloqsodaq-WijkAanZee", xlim=(-20, 20))
+    comparePlot(HLL_434, HLL_245, KNMI_225, "HLL_434 vs HLL_245 (Beverwijk)",
+                filename=projectdir + "/coloqsodaq-Driehuis", xlim=(-20, 20))
+    comparePlot(HLL_230, HLL_512, KNMI_240, "HLL_230 vs HLL_512 (Driehuis)",
+                filename=projectdir + "/coloqsodaq-VelsenSouth", xlim=(-20, 20))
 
     return
 
