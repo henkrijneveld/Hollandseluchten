@@ -34,7 +34,10 @@ def runit():
                        ("HLL", "237"), ("HLL", "288"),  # Velsen South
                        ("HLL", "224"), ("HLL", "532"),  # Wijk aan Zee
                        ("HLL", "434"), ("HLL", "245"),  # Beverwijk
-                       ("HLL", "230"), ("HLL", "512")   # Driehuis
+                       ("HLL", "230"), ("HLL", "512"),   # Driehuis
+                       ("HLL", "298"), ("HLL", "326"),   # OFI
+                       ("HLL", "326"), ("HLL", "320"),  # A8
+                       ("HLL", "332"), ("HLL", "444")  # A7
                        ]
 
     # fastimport: if True existing files will not be reloaded (no check on dates is done!)

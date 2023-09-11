@@ -50,10 +50,16 @@ HLL_245 = pd.DataFrame() #
 HLL_230 = pd.DataFrame() # Driehuis
 HLL_512 = pd.DataFrame() #
 
-
+# QD Tests Zaandijk
+HLL_298 = pd.DataFrame() # OFI
+HLL_326 = pd.DataFrame() #
+# HLL_326 = pd.DataFrame() # A8
+HLL_320 = pd.DataFrame() #
+HLL_332 = pd.DataFrame() # A7
+HLL_444 = pd.DataFrame() #
 
 # Extras
-HLL_298 = pd.DataFrame()
+#HLL_298 = pd.DataFrame()
 
 startdate = "20230101"
 enddate = "20230901"
@@ -113,6 +119,11 @@ def runit():
                    "HLL_532", "HLL_224",
                    "HLL_434", "HLL_245",
                    "HLL_230", "HLL_512"]
+    setZaandam=[
+        "HLL_298", "HLL_326",  # OFI
+        "HLL_326", "HLL_320", # A8
+        "HLL_332", "HLL_444"
+    ]
 
 # STEP 1: REVIEW CORE DATA
 
@@ -151,15 +162,23 @@ def runit():
 #    comparePlot(HLL_224, HLL_329, KNMI_225, "HLL_224 (northeast) vs HLL_329 (southwest)", filename=projectdir + "/different-industry-northeast-southwest", xlim=(-20,20))
 
 # STEP 6 Colocations SODAQ
-    createTimeSeries(setColocSodaq, "ColoqSodaq")
-    comparePlot(HLL_237, HLL_288, KNMI_225, "HLL_237 vs HLL_288 (Velsen South)",
-                filename=projectdir + "/coloqsodaq-VelsenSouth", xlim=(-20, 20))
-    comparePlot(HLL_532, HLL_224, KNMI_225, "HLL_532 vs HLL_224 (Wijkaanzee)",
-                filename=projectdir + "/coloqsodaq-WijkAanZee", xlim=(-20, 20))
-    comparePlot(HLL_434, HLL_245, KNMI_225, "HLL_434 vs HLL_245 (Beverwijk)",
-                filename=projectdir + "/coloqsodaq-Driehuis", xlim=(-20, 20))
-    comparePlot(HLL_230, HLL_512, KNMI_240, "HLL_230 vs HLL_512 (Driehuis)",
-                filename=projectdir + "/coloqsodaq-VelsenSouth", xlim=(-20, 20))
+#    createTimeSeries(setColocSodaq, "ColoqSodaq")
+#    comparePlot(HLL_237, HLL_288, KNMI_225, "HLL_237 vs HLL_288 (Velsen South)",
+#                filename=projectdir + "/coloqsodaq-VelsenSouth", xlim=(-20, 20))
+#    comparePlot(HLL_532, HLL_224, KNMI_225, "HLL_532 vs HLL_224 (Wijkaanzee)",
+#                filename=projectdir + "/coloqsodaq-WijkAanZee", xlim=(-20, 20))
+#    comparePlot(HLL_434, HLL_245, KNMI_225, "HLL_434 vs HLL_245 (Beverwijk)",
+#                filename=projectdir + "/coloqsodaq-Driehuis", xlim=(-20, 20))
+#    comparePlot(HLL_230, HLL_512, KNMI_240, "HLL_230 vs HLL_512 (Driehuis)",
+#                filename=projectdir + "/coloqsodaq-VelsenSouth", xlim=(-20, 20))
+
+    createTimeSeries(setZaandam, "SetZaandam")
+    comparePlot(HLL_298, HLL_326, KNMI_240, "HLL_298 vs HLL_326 (OFI)",
+                filename=projectdir + "/Zaandam-OFI", xlim=(-20, 20))
+    comparePlot(HLL_326, HLL_320, KNMI_240, "HLL_326 vs HLL_320 (A8)",
+                filename=projectdir + "/Zaandam-A8", xlim=(-20, 20))
+    comparePlot(HLL_332, HLL_444, KNMI_240, "HLL_332 vs HLL_444 (A7)",
+                filename=projectdir + "/Zaandam-A7", xlim=(-20, 20))
 
     return
 
