@@ -11,36 +11,53 @@ import math
 
 import analyzer
 
+def printSeries(aSensor, title="PM Series", filename=False):
+    lplot = sns.lineplot(aSensor, x="datetime", y="pm25")
+    lplot.set(title=title)
+    lplot.tick_params(axis='x', labelrotation=30, bottom=True)
+    plt.tight_layout()
+    plt.show()
+    if filename:
+        lplot.get_figure().savefig(filename)
+
 # difplot on attribute name
-def diffPlot(leftframe, rightframe, attr, xlim=(-40.0, 40.0), title="Difference"):
+def diffPlot(leftframe, rightframe, attr, xlim=(-40.0, 40.0), title="Difference", filename=False):
     deltas = analyzer.diffFrame(leftframe, rightframe, attr)
-    lplot = sns.histplot(data=deltas, x="delta_"+attr, binwidth=0.50, kde=True)
+    lplot = sns.histplot(data=deltas, x="delta_"+attr, binwidth=0.10, kde=True)
     lplot.set(xlim=xlim)
     lplot.set(title=title)
     plt.show()
+    if filename:
+        lplot.get_figure().savefig(filename)
+
     return
 
 # relative difplot on attribute name
-def diffPlotRelative(leftframe, rightframe, attr, xlim=(-3.0, 3.0), title="Difference"):
+def diffPlotRelative(leftframe, rightframe, attr, xlim=(-3.0, 3.0), title="Difference", filename=False):
     deltas = analyzer.relativeFrame(leftframe, rightframe, attr)
     lplot = sns.histplot(data=deltas, x="delta_"+attr, binwidth=0.10, kde=True)
     lplot.set(xlim=xlim)
     lplot.set(title=title)
     plt.show()
+    if filename:
+        lplot.get_figure().savefig(filename)
+
     return
 
 
-def diffWindPlot(leftframe, rightframe, xlim=(-170.0, 170.0), title="Winddifference"):
+def diffWindPlot(leftframe, rightframe, xlim=(-170.0, 170.0), title="Winddifference", filename=False):
     deltas = analyzer.diffWindFrame(leftframe, rightframe)
     deltas["delta_winddirection"] = (deltas["delta_winddirection"] - 5)  # shift to middle for histogram
     lplot = sns.histplot(data=deltas, x="delta_winddirection", binwidth=10, kde=False)
     lplot.set(title=title)
     lplot.set(xlim=xlim)
     plt.show()
+    if filename:
+        lplot.get_figure().savefig(filename)
     return
 
 # show median of values in the winddirection of frame, value in steps + and - 10 degrees
-def windplot(frame, values, polar=True, useMedian=True, title="Windplot", smooth=1, method="medianvalues"):
+def windplot(frame, values, polar=True, useMedian=True, title="Windplot", smooth=1, method="medianvalues", filename=False):
     global functions
     conc = frame.copy()
 #   conc = medianvalues([conc], "winddirection", values)
@@ -50,7 +67,8 @@ def windplot(frame, values, polar=True, useMedian=True, title="Windplot", smooth
         values = values + "_mean"
     if polar:
         conc["winddirection"] = conc["winddirection"] / 180 * math.pi
-        conc.drop(index=37, inplace=True) # this is value 990: variable winds
+        if 37 in conc.index:
+            conc.drop(index=37, inplace=True) # this is value 990: variable winds
         conc.loc[0] = conc.loc[36].copy() # direction 0: no wind
         conc["winddirection"][0] = 0
         if smooth:
@@ -70,9 +88,14 @@ def windplot(frame, values, polar=True, useMedian=True, title="Windplot", smooth
                           despine=False)
         g.fig.suptitle(title)
         g.map_dataframe(sns.lineplot, x="winddirection", y=values, linewidth=4.0)
+        if filename:
+            g.savefig(filename)
+
     else:
         lplot = (sns.scatterplot(data=conc, x="winddirection", y=values))
         lplot.set(xlim=(5.0, 365.0))
+        if filename:
+            lplot.get_figure().savefig(filename)
 
     plt.tight_layout()
     plt.show()

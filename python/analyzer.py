@@ -11,6 +11,7 @@ import seaborn as sns
 import sys
 import os
 import pprint as pp
+from plotter import *
 
 def printf(template, *args):
     sys.stdout.write(template % args)
@@ -62,6 +63,7 @@ def importDataframes(projectdir, globalcontext):
         if file.endswith(".csv"):
             tmpFrame = pd.read_csv(projectdir + "/" + file)
             tmpFrame["datetime"] = pd.to_datetime(tmpFrame["datetime"])
+            tmpFrame = removeDatesBefore(tmpFrame, "2023-01-01 04:00:00+00:00")
             fname = file[:-4]
             if not fname in globalcontext:
                 printf("File %s added to globals\n", fname)
@@ -209,7 +211,7 @@ def diffWindFrame(leftframe, rightframe):
     deltas["delta_winddirection"] = merged["delta"].copy()
     deltas["datetime"] = merged["datetime"].copy()
     deltas.sort_values(inplace=True, ignore_index=True, by="delta_winddirection")
-    print(deltas.describe())
+#    print(deltas.describe())
     return deltas
 
 # merge knmi-2020-2023 data into a frame on key datetime
@@ -217,3 +219,48 @@ def weatherFrame(aFrame, knmiFrame = "KNMI_240"):
     conc = pd.merge(aFrame, knmiFrame, on="datetime", suffixes=("", "_knmi"))
     conc = conc.rename({'windspeed_knmi': 'windspeed', 'winddirection_knmi': 'winddirection'}, axis=1)
     return conc
+
+
+def removeDatesBefore(aDataframe, aDate="2023-01-01 21:00:00+00:00"):
+    return aDataframe[aDataframe["datetime"] > pd.to_datetime(aDate)].copy()
+
+def removeDatesAfter(aDataframe, aDate="2023-01-01 21:00:00+00:00"):
+    return aDataframe[aDataframe["datetime"] < pd.to_datetime(aDate)].copy()
+
+
+def plotPM25series(aFrame, showLineplot=False, title="PM25 data", knmiFrame=None, method="medianvalues", filename=False):
+    if showLineplot:
+        lplot = sns.lineplot(aFrame, x="datetime", y="pm25")
+        smootifyLineplot(lplot)
+        lplot.set(title=title)
+        plt.tight_layout()
+        plt.show()
+
+    wFrame = aFrame.copy()
+    windPM_all = weatherFrame(wFrame, knmiFrame)
+    windplot(windPM_all, "pm25", True, True, title=title+" winddirectiond",
+             smooth=1, method=method, filename=filename)
+
+def plotDiff25(leftFrame, rightFrame, title="difference", knmiFrame=None, filename=False, smooth=1):
+    leftFrame = leftFrame.copy()
+    rightFrame = rightFrame.copy()
+    diff1 = diffFrame(leftFrame, rightFrame, "pm25")
+#    diff2 = diffFrame(rightFrame, leftFrame, "pm25")
+
+#    merged = pd.merge(diff1, diff2, on='datetime', suffixes=("_1", "_2"))
+#    merged["delta"] = merged.apply(lambda x: x["delta_pm25_1"] + x["delta_pm25_2"], axis=1)
+
+#    diffs = diffFrame(diff1, diff2, "delta")
+
+#    lplot = sns.lineplot(merged, x="datetime", y="delta")
+#    smootifyLineplot(lplot)
+#    lplot.set(title=title)
+#    lplot.set(ylim=(-40,40))
+#    plt.tight_layout()
+#    plt.show()
+
+    diff1 = weatherFrame(diff1, knmiFrame)
+    windplot(diff1, "delta_pm25", True, True, title=title, smooth=smooth, filename=filename)
+
+#    diff2 = weatherFrame(diff2, knmiFrame)
+#    windplot(diff2, "delta_pm25", True, True, title=title, smooth=0)

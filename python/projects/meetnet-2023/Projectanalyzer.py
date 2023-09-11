@@ -39,47 +39,6 @@ enddate = "20230901"
 projectdir = "/home/henk/Projects/Hollandseluchten/python/projects/meetnet-2023"
 
 
-def removeDatesBefore(aDataframe, aDate="2023-01-01 21:00:00+00:00"):
-    return aDataframe[aDataframe["datetime"] > pd.to_datetime(aDate)].copy()
-
-
-def plotPM25series(aFrame, showLineplot=False, title="PM25 data", knmiFrame=KNMI_240, method="medianvalues"):
-    if showLineplot:
-        lplot = sns.lineplot(aFrame, x="datetime", y="pm25")
-        smootifyLineplot(lplot)
-        lplot.set(title=title)
-        plt.tight_layout()
-        plt.show()
-
-    wFrame = aFrame.copy()
-    windPM_all = weatherFrame(wFrame, knmiFrame)
-    windplot(windPM_all, "pm25", True, True, title=title+" winddirectiond",
-             smooth=1, method=method)
-
-def plotDiff25(leftFrame, rightFrame, title="difference", knmiFrame=KNMI_240):
-    leftFrame = leftFrame.copy()
-    rightFrame = rightFrame.copy()
-    diff1 = diffFrame(leftFrame, rightFrame, "pm25")
-#    diff2 = diffFrame(rightFrame, leftFrame, "pm25")
-
-#    merged = pd.merge(diff1, diff2, on='datetime', suffixes=("_1", "_2"))
-#    merged["delta"] = merged.apply(lambda x: x["delta_pm25_1"] + x["delta_pm25_2"], axis=1)
-
-#    diffs = diffFrame(diff1, diff2, "delta")
-
-#    lplot = sns.lineplot(merged, x="datetime", y="delta")
-#    smootifyLineplot(lplot)
-#    lplot.set(title=title)
-#    lplot.set(ylim=(-40,40))
-#    plt.tight_layout()
-#    plt.show()
-
-    diff1 = weatherFrame(diff1, knmiFrame)
-    windplot(diff1, "delta_pm25", True, True, title=title, smooth=1)
-
-#    diff2 = weatherFrame(diff2, knmiFrame)
-#    windplot(diff2, "delta_pm25", True, True, title=title, smooth=0)
-
 def runit():
     # list of meetnet sensors to retrieve
     selectionwest = [NL49553, NL49557, NL49573, NL49570, NL49572, NL49551]
@@ -97,8 +56,8 @@ def runit():
     loc_west = medianvalues([westdata], "datetime", "pm25")
     loc_middle = medianvalues([middledata], "datetime", "pm25")
     loc_east = medianvalues([eastdata], "datetime", "pm25")
-#    loc_all = medianvalues([westdata, middledata, eastdata], "datetime", "pm25")
-    loc_all = meanvalues([westdata, middledata, eastdata], "datetime", "pm25")
+    loc_all = medianvalues([westdata, middledata, eastdata], "datetime", "pm25")
+#    loc_all = meanvalues([westdata, middledata, eastdata], "datetime", "pm25")
 
 
     # create the virtual reference sensor
@@ -107,11 +66,13 @@ def runit():
 
     # plot the median pm concentrations of the virtual sensor
     lplot = sns.lineplot(loc_all, x="datetime", y="pm25")
+    lplot.set(title="NLMedian sensor (all NL sensors, median value")
     smootifyLineplot(lplot)
     plt.show()
+    lplot.get_figure().savefig(projectdir + "/NLMediansensor.jpg")
 
     plotPM25series(loc_all, title="PM25 concentration all stations vs winddirection Schiphol",
-                   knmiFrame=KNMI_240, method="meanvalues")
+                   knmiFrame=KNMI_240, method="meanvalues", filename=projectdir+"/PM25-median-wind-schiphol.jpg")
 
 
     # colocationsensors
@@ -119,15 +80,15 @@ def runit():
     #  49701: Zaandam
 
     # winddependency
-    plotPM25series(NL49570, title="PM25 concentration coloc NL49570 vs winddirection IJmuiden Zuidpier", knmiFrame=KNMI_225)
-    plotPM25series(NL49701, title="PM25 concentration coloc NL49701 vs winddirection Schiphol", knmiFrame=KNMI_240)
-    plotPM25series(NL49561, title="PM25 concentration NL49561 (closest to Schiphol) vs winddirection Schiphol", knmiFrame=KNMI_240)
+    plotPM25series(NL49570, title="PM25 concentration coloc NL49570 vs winddirection IJmuiden Zuidpier", knmiFrame=KNMI_225, filename=projectdir+"/PM25-coloc-NL49570.jpg")
+    plotPM25series(NL49701, title="PM25 concentration coloc NL49701 vs winddirection Schiphol", knmiFrame=KNMI_240, filename=projectdir+"/PM25-coloc-NL49701.jpg")
+    plotPM25series(NL49561, title="PM25 concentration NL49561 (closest to Schiphol) vs winddirection Schiphol", knmiFrame=KNMI_240, filename=projectdir+"/PM25-Schiphol-NL49561.jpg")
 
     # difference from reference
-    diffPlot(NL49556, loc_all, attr="pm25", title="difference NL49556 (de Rijp) vs reference")
-    diffPlot(NL49570, loc_all, attr="pm25", title="difference NL49570 vs reference")
-    diffPlot(NL49701, loc_all, attr="pm25", title="difference NL49701 vs reference")
-    diffPlotRelative(NL49701, loc_all, xlim=(-0.5, 4.0), attr="pm25", title="Relative difference coloc zaandam 49701 vs reference")
+    diffPlot(NL49556, loc_all, attr="pm25", title="difference NL49556 (de Rijp) vs reference", filename=projectdir+"/PM25-deRijp-diff.jpg")
+    diffPlot(NL49570, loc_all, attr="pm25", title="difference NL49570 vs reference", filename=projectdir+"/PM25-NL49570-diff.jpg")
+    diffPlot(NL49701, loc_all, attr="pm25", title="difference NL49701 vs reference", filename=projectdir+"/PM25-NL49701-diff.jpg")
+    diffPlotRelative(NL49701, loc_all, xlim=(-0.5, 4.0), attr="pm25", title="Relative difference coloc zaandam 49701 vs reference", filename=projectdir+"/PM25-NL49701--Relative-diff.jpg")
 
     # situational plots
     # industry Beverwijk
@@ -135,32 +96,30 @@ def runit():
     #  49572: east sensor
     #  49557: north sensor
     #  49551: south sensor
-    plotDiff25(NL49573, NL49572, title="Difference West - East industry Beverwijk", knmiFrame=KNMI_225)
-    plotDiff25(NL49557, NL49551, title="Difference North - South industry Beverwijk", knmiFrame=KNMI_225)
-    diffPlot(NL49557, loc_all, xlim=(-15.0, 15.0), attr="pm25", title="difference NL49557 (North industry Beverwijk) vs reference")
-    diffPlotRelative(NL49557, loc_all, xlim=(-0.5, 4.0), attr="pm25", title="Relative difference NL49557 (North industry Beverwijk) vs reference")
-    diffPlot(NL49551, loc_all, xlim=(-15.0, 15.0), attr="pm25", title="difference NL49551 (South industry Beverwijk) vs reference")
+    plotDiff25(NL49573, NL49572, title="Difference West - East industry Beverwijk", knmiFrame=KNMI_225, filename=projectdir+"/PM25-WE-Beverwijk.jpg")
+    plotDiff25(NL49557, NL49551, title="Difference North - South industry Beverwijk", knmiFrame=KNMI_225, filename=projectdir+"/PM25-NS-Beverwijk.jpg")
+    diffPlot(NL49557, loc_all, xlim=(-15.0, 15.0), attr="pm25", title="difference NL49557 (North industry Beverwijk) vs reference", filename=projectdir+"/PM25-N-Beverwijk-diff-ref.jpg")
+    diffPlotRelative(NL49557, loc_all, xlim=(-0.5, 4.0), attr="pm25", title="Relative difference NL49557 (North industry Beverwijk) vs reference", filename=projectdir+"/PM25-N-Beverwijk-reldiff-ref.jpg")
+    diffPlot(NL49551, loc_all, xlim=(-15.0, 15.0), attr="pm25", title="difference NL49551 (South industry Beverwijk) vs reference", filename=projectdir+"/PM25-S-Beverwijk-diff-ref.jpg")
 
     # harbour Amsterdam
     #  49701: Zaandam
     #  49007: Amsterdam
     #  49703: south-west
     #  49556: de Rijp (a lot more north
-    plotDiff25(NL49701, NL49703, title="Difference North-South harbour amsterdam", knmiFrame=KNMI_240)
-    plotDiff25(NL49703, NL49556, title="Difference North-South harbour amsterdam and Zaandam", knmiFrame=KNMI_240)
+    plotDiff25(NL49701, NL49703, title="Difference North-South Zaandam - harbour amsterdam", knmiFrame=KNMI_240, filename=projectdir+"/PM25-NS-harbour-Amsterdam.jpg")
+    plotDiff25(NL49703, NL49556, title="Difference North-South harbour amsterdam and de Rijp", knmiFrame=KNMI_240, filename=projectdir+"/PM25-NS-harbour-Amsterddam-deRijp.jpg")
 
     # Amsterdam including highways
     # 49561: schiphol
     # 49017: Amsterdam east
-    plotDiff25(NL49561, NL49017, title="Difference east-west Amsterdam Zuidoost", knmiFrame=KNMI_240)
+    plotDiff25(NL49561, NL49017, title="Difference east-west Amsterdam Zuidoost", knmiFrame=KNMI_240, filename=projectdir+"/PM25-Schiphol-Amsterdam-East.jpg")
 
     # remote distance from beverwijk
     #  49556: de rijp
     #  49701: zaanstad
     #  49703: halfweg
-    plotDiff25(NL49556, NL49703, title="Difference Norht and south", knmiFrame=KNMI_240)
-
-
+    plotDiff25(NL49556, NL49703, title="Difference North (de Rijp) and south (Halfweg)", knmiFrame=KNMI_240, filename=projectdir+"/PM25-deRijp-Halfweg.jpg")
 
     return
 
@@ -169,6 +128,7 @@ def runit():
     lplot = sns.lineplot(loc_all_max, x="datetime", y="pm25")
     smootifyLineplot(lplot)
     plt.show()
+    plt.savefig(projectdir + "/NLMediansensor.jpg")
 
     # plot the min concentrations of all the sensors
     loc_all_min = minvalues([westdata, middledata, eastdata], "datetime", "pm25")
@@ -191,10 +151,6 @@ def runit():
     plotPM25series(loc_middle, title="Middle PM25 data 2023 vs winddirection Schiphol", knmiFrame=KNMI_240)
     plotPM25series(loc_east, title="East PM25 data 2023vs winddirection Schiphol", knmiFrame=KNMI_240)
     plotPM25series(loc_west, title="West PM25 data 2023 vs winddirection IJmuiden Zuidpier", knmiFrame=KNMI_225)
-
-
-
-
 
     # setup wind concentrationplots on the mediam
 #    plotPM25series(loc_all, "PM25 concentration all stations vs winddirection Schiphol", KNMI_240)
