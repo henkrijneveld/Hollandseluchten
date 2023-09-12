@@ -89,6 +89,9 @@ def compareSameSensorsColocation():
     comparePlot(HLL_420, HLL_541, KNMI_240, "HLL_420 vs HLL_541", filename=projectdir + "/same-HLL_420-HLL_541")
     comparePlot(OZK_1845, OZK_1850, KNMI_225, "OZK_1845 vs OZK_1850", filename=projectdir + "/same-OZK_1845-OZK_1850")
 
+#    KNMI_240_subset541 = removeDatesBefore(KNMI_240, aDate="2023-07-28 07:00:00+00:00")
+#    windcountplot(KNMI_240_subset541, True, "Windcountplot dates HLL_541 Active")
+
 def compareDifferentTypesColocation():
     # Beverwijk: no much difference with same types, just take the first
     comparePlot(HLL_545, NL49570, KNMI_225, "HLL_545 vs NL49570", filename=projectdir + "/different-coloc-HLL_545-NL49570", xlim=(-20,20))
@@ -141,7 +144,7 @@ def runit():
 #    printSeries(HLL_420_After, "HLL_420 After 25 may spike", projectdir + "/timeseries-420-Zaandam-after-25may")
 
 # STEP 2 compare same sensors
-#    compareSameSensorsColocation()
+    compareSameSensorsColocation()
 
 # STEP 3 compare different sensors on colocation
 #    compareDifferentTypesColocation()
@@ -172,13 +175,13 @@ def runit():
 #    comparePlot(HLL_230, HLL_512, KNMI_240, "HLL_230 vs HLL_512 (Driehuis)",
 #                filename=projectdir + "/coloqsodaq-VelsenSouth", xlim=(-20, 20))
 
-    createTimeSeries(setZaandam, "SetZaandam")
-    comparePlot(HLL_298, HLL_326, KNMI_240, "HLL_298 vs HLL_326 (OFI)",
-                filename=projectdir + "/Zaandam-OFI", xlim=(-20, 20))
-    comparePlot(HLL_326, HLL_320, KNMI_240, "HLL_326 vs HLL_320 (A8)",
-                filename=projectdir + "/Zaandam-A8", xlim=(-20, 20))
-    comparePlot(HLL_332, HLL_444, KNMI_240, "HLL_332 vs HLL_444 (A7)",
-                filename=projectdir + "/Zaandam-A7", xlim=(-20, 20))
+#    createTimeSeries(setZaandam, "SetZaandam")
+#    comparePlot(HLL_298, HLL_326, KNMI_240, "HLL_298 vs HLL_326 (OFI)",
+#                filename=projectdir + "/Zaandam-OFI", xlim=(-20, 20))
+#    comparePlot(HLL_326, HLL_320, KNMI_240, "HLL_326 vs HLL_320 (A8)",
+#                filename=projectdir + "/Zaandam-A8", xlim=(-20, 20))
+#    comparePlot(HLL_332, HLL_444, KNMI_240, "HLL_332 vs HLL_444 (A7)",
+#                filename=projectdir + "/Zaandam-A7", xlim=(-20, 20))
 
     return
 
