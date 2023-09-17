@@ -264,3 +264,4 @@ def plotDiff25(leftFrame, rightFrame, title="difference", knmiFrame=None, filena
 
 #    diff2 = weatherFrame(diff2, knmiFrame)
 #    windplot(diff2, "delta_pm25", True, True, title=title, smooth=0)
+
