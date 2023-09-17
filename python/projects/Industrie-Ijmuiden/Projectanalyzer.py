@@ -53,6 +53,8 @@ def createSuperFrame(sensors, knmi):
                               suffixes=("", "_" + sensor))
             merged.drop(['sensorname'+'_'+sensor], axis=1, inplace=True)
     merged.drop(['sensorname'], axis=1, inplace=True)
+    # delete 0 and 990
+    knmi = knmi[(knmi["winddirection"] < 369) & (knmi["winddirection"] > 5)]
     merged = pd.merge(merged, knmi, on='datetime',
                       suffixes=("", "_knmi"))
     merged.drop(['sensorname'], axis=1, inplace=True)
@@ -125,7 +127,7 @@ def runit():
     allSensors = ["NLMedian", "NL49570", "NL49557", "NL49553", "NL49572", "NL49573", "NL49551"]
 #    createTimeSeries(allSensors, namesuffix="pm25")
 #    createSuperFrame(allSensors, KNMI_225)
-#    augmentSuperframe()
+    augmentSuperframe()
 
     windplot(superFrameAugmented, "pm25_diff_WE", polar=True,
              useMedian=True, title="Windplot WE", smooth=2,
@@ -149,8 +151,8 @@ def runit():
 
 # run stand alone entry point
 if __name__ == '__main__':
-#    pd.options.mode.copy_on_write = True
-#    printGlobals(os.getcwd())
+ #   pd.options.mode.copy_on_write = True
+ #   printGlobals(os.getcwd())
     importDataframes(os.getcwd(), globals())
     runit()
 
