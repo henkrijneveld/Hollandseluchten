@@ -11,9 +11,11 @@ import math
 
 import analyzer
 
-def printSeries(aSensor, title="PM Series", filename=False):
+def printSeries(aSensor, title="PM Series", filename=False, ylim=None):
     lplot = sns.lineplot(aSensor, x="datetime", y="pm25")
     lplot.set(title=title)
+    if ylim:
+        lplot.set(ylim=ylim)
     lplot.tick_params(axis='x', labelrotation=30, bottom=True)
     plt.tight_layout()
     plt.show()
@@ -56,32 +58,43 @@ def diffWindPlot(leftframe, rightframe, xlim=(-170.0, 170.0), title="Winddiffere
         lplot.get_figure().savefig(filename)
     return
 
+# fill missing wind directions and remove 0 and 990
+def fillmissingwinddirections(aFrame):
+    directions = range(10, 370, 10)
+    target = pd.DataFrame(directions, columns=['winddirection'])
+    target = pd.merge(target, aFrame, on="winddirection", how="inner") # make sure everything from 10 - 260 is there
+    target.at[35, "winddirection"] = 0
+    target.sort_values(by=["winddirection"], inplace=True)
+    target.reset_index(inplace=True, drop=True)
+    target.loc[36] = target.loc[0].copy()  # make the circle round
+    target.at[36, "winddirection"] = 360
+    return target
+
 # show median of values in the winddirection of frame, value in steps + and - 10 degrees
 def windplot(frame, values, polar=True, useMedian=True, title="Windplot", smooth=1, method="medianvalues", filename=False):
     global functions
     conc = frame.copy()
 #   conc = medianvalues([conc], "winddirection", values)
     conc = getattr(analyzer, method)([conc], "winddirection", values)
+    conc = fillmissingwinddirections(conc)
 
     if not useMedian:
         values = values + "_mean"
+    if smooth:
+        # dirty
+        svalues = values + "_smooth"
+        conc = conc.assign(newcolumn=0)
+        conc = conc.rename(columns={"newcolumn": svalues})
+        conc = conc.astype({svalues: 'float64'})
+        for i in range(0,37):
+            for j in range(-smooth, smooth+1):
+                conc.at[i, svalues] += conc[values][(i+j) % 36]
+            conc.at[i, svalues] /= smooth * 2 + 1
+        values = svalues
+
     if polar:
         conc["winddirection"] = conc["winddirection"] / 180 * math.pi
-        if 37 in conc.index:
-            conc.drop(index=37, inplace=True) # this is value 990: variable winds
-        conc.loc[0] = conc.loc[36].copy() # direction 0: no wind
         conc["winddirection"][0] = 0
-        if smooth:
-            # dirty
-            svalues = values + "_smooth"
-            conc = conc.assign(newcolumn=0)
-            conc = conc.rename(columns={"newcolumn": svalues})
-            conc = conc.astype({svalues: 'float64'})
-            for i in range(0,37):
-                for j in range(-smooth, smooth+1):
-                    conc.at[i, svalues] += conc[values][(i+j) % 36]
-                conc.at[i, svalues] /= smooth * 2 + 1
-            values = svalues
 
         g = sns.FacetGrid(conc, subplot_kws=dict(projection='polar', theta_offset=math.pi/2,
                           theta_direction=-1), height=10, sharex=False, sharey=False,
@@ -92,8 +105,8 @@ def windplot(frame, values, polar=True, useMedian=True, title="Windplot", smooth
             g.savefig(filename)
 
     else:
-        lplot = (sns.scatterplot(data=conc, x="winddirection", y=values))
-        lplot.set(xlim=(5.0, 365.0))
+        lplot = (sns.lineplot(data=conc, x="winddirection", y=values))
+        lplot.set(xlim=(-5.0, 355.0))
         if filename:
             lplot.get_figure().savefig(filename)
 

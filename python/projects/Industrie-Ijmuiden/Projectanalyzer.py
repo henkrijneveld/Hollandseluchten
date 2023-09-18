@@ -30,7 +30,8 @@ projectdir = "/home/henk/Projects/Hollandseluchten/python/projects/Industrie-Ijm
 def createTimeSeries(aCollection, namesuffix=""):
     for sensor in aCollection:
         sensordata = globals()[sensor]
-        printSeries(sensordata, sensor + " " + namesuffix, projectdir + "/timeseries-" + sensor + "-" + namesuffix)
+        printSeries(sensordata, sensor + " " + namesuffix, projectdir + "/timeseries-" + sensor + "-" + namesuffix,
+                    ylim=(-20,50))
 
 # return a dataframe with all relevant data
 #  datetime
@@ -69,6 +70,7 @@ def diffWE(aRow):
 
 def diffNS(aRow):
     north = aRow["pm25_NL49557"]
+    #north = aRow["pm25_NL49553"]
     south = aRow["pm25_NL49551"]
     return north - south
 
@@ -88,21 +90,28 @@ def pm25Upwind(aRow):
         pm25 = aRow["pm25_NL49573"]
     if wind > 315 or wind < 45:
         pm25 = aRow["pm25_NL49557"]
+        #pm25 = aRow["pm25_NL49553"]
+    return pm25
+
+def pm25Downwind(aRow):
+    wind = aRow["winddirection"]
+    pm25 = 0
+    if wind > 45 and wind < 135:
+        pm25 = aRow["pm25_NL49573"]
+    if wind > 135 and wind < 225:
+        pm25 = aRow["pm25_NL49557"]
+        #pm25 = aRow["pm25_NL49553"]
+    if wind > 225 and wind < 315:
+        pm25 = aRow["pm25_NL49572"]
+    if wind > 315 or wind < 45:
+        pm25 = aRow["pm25_NL49551"]
     return pm25
 
 def pm25diff(aRow):
     wind = aRow["winddirection"]
-    pm25_down = 0
-    pm25 = aRow["pm25_upwind"]
-    if wind > 45 and wind < 135:
-        pm25_down = aRow["pm25_NL49573"]
-    if wind > 135 and wind < 225:
-        pm25_down = aRow["pm25_NL49557"]
-    if wind > 225 and wind < 315:
-        pm25_down = aRow["pm25_NL49572"]
-    if wind > 315 or wind < 45:
-        pm25_down = aRow["pm25_NL49551"]
-    return pm25_down - pm25
+    downwind = aRow["pm25_downwind"]
+    upwind = aRow["pm25_upwind"]
+    return downwind - upwind
 
 # add columns:
 #   pm25_diff_WE
@@ -117,6 +126,7 @@ def augmentSuperframe():
     superFrame["pm25_diff_NS"] = superFrame.apply(diffNS, axis=1)
     superFrame["pm25_diff_coloc"] = superFrame.apply(diffcoloc, axis=1)
     superFrame["pm25_upwind"] = superFrame.apply(pm25Upwind, axis=1)
+    superFrame["pm25_downwind"] = superFrame.apply(pm25Downwind, axis=1)
     superFrame["pm25_diff_winddirection"] = superFrame.apply(pm25diff, axis=1)
     superFrame.to_csv(projectdir + "/superFrameAugmented.csv", index=False)
 
@@ -129,24 +139,27 @@ def runit():
 #    createSuperFrame(allSensors, KNMI_225)
     augmentSuperframe()
 
-    windplot(superFrameAugmented, "pm25_diff_WE", polar=True,
+    windplot(superFrameAugmented, "pm25_diff_WE", polar=False,
              useMedian=True, title="Windplot WE", smooth=2,
-             method="medianvalues", filename=False)
-    windplot(superFrameAugmented, "pm25_diff_NS", polar=True,
+             method="medianvalues", filename=projectdir+"/windplotWE")
+    windplot(superFrameAugmented, "pm25_diff_NS", polar=False,
              useMedian=True, title="Windplot NS", smooth=2,
-             method="medianvalues", filename=False)
+             method="medianvalues", filename=projectdir+"/windplotNS")
     windplot(superFrameAugmented, "pm25_diff_coloc", polar=True,
              useMedian=True, title="Windplot diff_coloc", smooth=2,
-             method="medianvalues", filename=False)
+             method="medianvalues", filename=projectdir+"/windplotcoloc")
     windplot(superFrameAugmented, "pm25_upwind", polar=True,
              useMedian=True, title="Windplot upwind", smooth=2,
-             method="medianvalues", filename=False)
-    windplot(superFrameAugmented, "pm25_diff_winddirection", polar=True,
-             useMedian=True, title="Windplot diff_winddirection", smooth=2,
-             method="medianvalues", filename=False)
+             method="medianvalues", filename=projectdir+"/windplotUpwind")
+    windplot(superFrameAugmented, "pm25_downwind", polar=True,
+             useMedian=True, title="Windplot downwind", smooth=2,
+             method="medianvalues", filename=projectdir+"/windplotDownwind")
+    windplot(superFrameAugmented, "pm25_diff_winddirection", polar=False,
+             useMedian=True, title="Windplot Downwind - Upwind", smooth=2,
+             method="medianvalues", filename=projectdir+"/windplotDownMinusUp")
     windplot(superFrameAugmented, "pm25", polar=True,
              useMedian=True, title="Windplot median all sensors", smooth=2,
-             method="medianvalues", filename=False)
+             method="medianvalues", filename=projectdir+"/windplotAll")
     return
 
 # run stand alone entry point
