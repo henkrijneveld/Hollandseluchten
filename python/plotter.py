@@ -12,6 +12,9 @@ import math
 import analyzer
 
 sns.set(font_scale=2)
+sns.set_style("whitegrid", {'grid.color': 'black',
+                            'text.color': 'Blue'})
+sns.axes_style("whitegrid", {'axes.labelcolor': 'blue'})
 
 def printSeries(aSensor, title="PM Series", filename=False, ylim=None):
     lplot = sns.lineplot(aSensor, x="datetime", y="pm25")
