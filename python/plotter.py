@@ -11,6 +11,8 @@ import math
 
 import analyzer
 
+sns.set(font_scale=2)
+
 def printSeries(aSensor, title="PM Series", filename=False, ylim=None):
     lplot = sns.lineplot(aSensor, x="datetime", y="pm25")
     lplot.set(title=title)
