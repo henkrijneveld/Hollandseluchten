@@ -13,8 +13,13 @@ import analyzer
 
 sns.set(font_scale=2)
 sns.set_style("whitegrid", {'grid.color': 'black',
-                            'text.color': 'Blue'})
-sns.axes_style("whitegrid", {'axes.labelcolor': 'blue'})
+                            'text.color': 'Blue',
+                            'axes.labelcolor': 'blue'
+})
+
+myPalette = ["#FF0000", "#00FF00", "#0000FF"]
+sns.set_palette(myPalette)
+
 
 def printSeries(aSensor, title="PM Series", filename=False, ylim=None):
     lplot = sns.lineplot(aSensor, x="datetime", y="pm25")
@@ -79,15 +84,15 @@ def fillmissingwinddirections(aFrame):
 def windplot(frame, values, polar=True, useMedian=True, title="Windplot", smooth=1, method="medianvalues", filename=False):
     global functions
     conc = frame.copy()
+    if not useMedian:
+        values = values + "_mean"
 #   conc = medianvalues([conc], "winddirection", values)
     conc = getattr(analyzer, method)([conc], "winddirection", values)
     conc = fillmissingwinddirections(conc)
 
-    if not useMedian:
-        values = values + "_mean"
     if smooth:
         # dirty
-        svalues = values + "_smooth"
+        svalues = values + "_avg_" + str(smooth * 20) + "°"
         conc = conc.assign(newcolumn=0)
         conc = conc.rename(columns={"newcolumn": svalues})
         conc = conc.astype({svalues: 'float64'})
@@ -106,12 +111,20 @@ def windplot(frame, values, polar=True, useMedian=True, title="Windplot", smooth
                           despine=False)
         g.fig.suptitle(title)
         g.map_dataframe(sns.lineplot, x="winddirection", y=values, linewidth=4.0)
+        g.set(xlabel=None)
+        g.set(ylabel=None)
+
         if filename:
             g.savefig(filename)
 
     else:
-        lplot = (sns.lineplot(data=conc, x="winddirection", y=values))
+        lplot = (sns.lineplot(data=conc, x="winddirection", y=values, linewidth=2.5))
         lplot.set(xlim=(-5.0, 355.0))
+        lplot.set(title=title)
+        lplot.set_ylabel(values.replace("_", " "), fontsize=15)
+        lplot.set_xlabel("winddirection", fontsize=15)
+        lplot.axes.set_title(title, fontsize=18)
+
         if filename:
             lplot.get_figure().savefig(filename)
 

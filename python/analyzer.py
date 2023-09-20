@@ -96,7 +96,7 @@ def smootifyLineplot(lplot):
 # the framelist values are concatenated, and the median and mean values are determined on the groupby attribute
 # a dataframe with a single row for every groupby value is returned
 def medianvalues(framelist, groupby, value):
-    totalframe = pd.concat(framelist)
+    totalframe = pd.concat(framelist).copy()
     totalframe.sort_values(groupby, inplace=True)
     result = totalframe.groupby(groupby)[value].median().to_frame()
     result = result.reset_index()
