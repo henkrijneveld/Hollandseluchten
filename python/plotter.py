@@ -32,6 +32,15 @@ def printSeries(aSensor, title="PM Series", filename=False, ylim=None):
     if filename:
         lplot.get_figure().savefig(filename)
 
+def printSeries_on_ax(aSensor, title="PM Series", filename=False, ylim=None, ax=None):
+    ax.set(title=title)
+    ax.tick_params(axis='x', which="both", labelrotation=30, bottom=True)
+    lplot = sns.lineplot(aSensor, x="datetime", y="pm25", ax=ax)
+    if ylim:
+        lplot.set(ylim=ylim)
+    if filename:
+        lplot.get_figure().savefig(filename)
+
 # difplot on attribute name
 def diffPlot(leftframe, rightframe, attr, xlim=(-40.0, 40.0), title="Difference", filename=False):
     deltas = analyzer.diffFrame(leftframe, rightframe, attr)

@@ -34,6 +34,28 @@ def createTimeSeries(aCollection, namesuffix=""):
         printSeries(sensordata, sensor + " " + namesuffix, projectdir + "/timeseries-" + sensor + "-" + namesuffix,
                     ylim=(-20,50))
 
+def createTimeSeries_Multiple(aCollection, namesuffix=""):
+    total = len(aCollection)
+    nrcols = min(total, 3)
+    nrrows = math.ceil(total / 3)
+    fig, axes = plt.subplots(nrrows, nrcols, figsize=(20,20), sharey=True, sharex=True)
+    for lastcomn in range(0, nrcols):
+        axes[nrrows - 1, lastcomn].tick_params(axis='x', which="both", labelrotation=30, bottom=True)
+    colnr = 0
+    rownr = 0
+    for sensor in aCollection:
+        sensordata = globals()[sensor]
+        printSeries_on_ax(sensordata, sensor + " " + namesuffix, projectdir + "/timeseries-" + sensor + "-" + namesuffix,
+                    ylim=(-20,50), ax=axes[rownr, colnr])
+        colnr += 1
+        if colnr > 2:
+            colnr = 0
+            rownr += 1
+
+    plt.tight_layout()
+    plt.show()
+
+
 # return a dataframe with all relevant data
 #  datetime
 #  pm25 virtual median value
@@ -155,7 +177,9 @@ def runit():
     NLMedian["sensorname"] = "NLMedian"
 
 #    createTimeSeries(allSensors, namesuffix="pm25")
+#    createTimeSeries_Multiple(allSensors, namesuffix="pm25")
 
+    return
     createSuperFrame(allSensors, KNMI_225)
     augmentSuperframe()
 
