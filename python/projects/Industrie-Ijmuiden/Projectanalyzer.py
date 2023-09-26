@@ -96,25 +96,38 @@ def createSuperFrame(sensors, knmi):
 
     return merged
 
+def diff_N557_SHLL513(aRow):
+    north = aRow["pm25_NL49557"]
+    #north = aRow["pm25_NL49553"]
+    south = aRow["pm25_HLL_513"]
+    return north - south
+
+def diff_NHLL226_S551(aRow):
+    north = aRow["pm25_HLL_226"]
+    #north = aRow["pm25_NL49553"]
+    south = aRow["pm25_NL49551"]
+    return north - south
+
+def diff_NHLL226_SHLL513(aRow):
+    north = aRow["pm25_HLL_226"]
+    south = aRow["pm25_HLL_513"]
+    return north - south
+
+def diff_W573_EHLL452(aRow):
+    west = aRow["pm25_NL49573"]
+    east = aRow["pm25_HLL_452"]
+    return west - east
+
+def diff_WHLL433_E572(aRow):
+    west = aRow["pm25_HLL_433"]
+    east = aRow["pm25_NL49572"]
+    return west - east
+
 def diffWE(aRow):
     west = aRow["pm25_NL49573"]
     east = aRow["pm25_NL49572"]
     return west - east
 
-def diffWEHLL(aRow):
-    west = aRow["pm25_HLL_433"]
-    east = aRow["pm25_HLL_452"]
-    return west - east
-
-def diffWNLEHLL(aRow):
-    west = aRow["pm25_NL49573"]
-    east = aRow["pm25_HLL_452"]
-    return west - east
-
-def diffWHLLENL(aRow):
-    west = aRow["pm25_HLL_433"]
-    east = aRow["pm25_NL49572"]
-    return west - east
 
 def diffNS(aRow):
     north = aRow["pm25_NL49557"]
@@ -126,11 +139,6 @@ def diffNS553(aRow):
 #    north = aRow["pm25_NL49557"]
     north = aRow["pm25_NL49553"]
     south = aRow["pm25_NL49551"]
-    return north - south
-
-def diffNSHLL(aRow):
-    north = aRow["pm25_HLL_226"]
-    south = aRow["pm25_HLL_513"]
     return north - south
 
 def diffcoloc(aRow):
@@ -183,11 +191,12 @@ def pm25diff(aRow):
 def augmentSuperframe():
     global superFrameAugmented
 
-    superFrame["pm25_diff_WE_HLL"] = superFrame.apply(diffWEHLL, axis=1)
-    superFrame["pm25_diff_NS_HLL"] = superFrame.apply(diffNSHLL, axis=1)
-    superFrame["pm25_diff_NS_553"] = superFrame.apply(diffNS553, axis=1)
-    superFrame["pm25_diff_WE_NL_HLL"] = superFrame.apply(diffWNLEHLL, axis=1)
-    superFrame["pm25_diff_WE_HLL_NL"] = superFrame.apply(diffWHLLENL, axis=1)
+    superFrame["pm25_diff_N557_SHLL513"] = superFrame.apply(diff_N557_SHLL513, axis=1)
+    superFrame["pm25_diff_NHLL226_S551"] = superFrame.apply(diff_NHLL226_S551, axis=1)
+    superFrame["pm25_diff_W573_EHLL452"] = superFrame.apply(diff_W573_EHLL452, axis=1)
+    superFrame["pm25_diff_WHLL433_E572"] = superFrame.apply(diff_WHLL433_E572, axis=1)
+    superFrame["pm25_diff_NHLL226_SHLL513"] = superFrame.apply(diff_NHLL226_SHLL513, axis=1)
+
 
     superFrame["pm25_diff_WE"] = superFrame.apply(diffWE, axis=1)
     superFrame["pm25_diff_NS"] = superFrame.apply(diffNS, axis=1)
@@ -224,20 +233,43 @@ def runit():
     createSuperFrame(allSensors + allHLLSensors, KNMI_225)
     augmentSuperframe()
 
-    windplot(superFrameAugmented, "pm25_diff_WE_HLL", polar=False,
-             useMedian=True, title="PM25 difference W-E HLL Median", smooth=2,
-             method="medianvalues", filename=projectdir+"/windplotWE_HLL")
-    windplot(superFrameAugmented, "pm25_diff_NS_HLL", polar=False,
-             useMedian=True, title="PM25 difference N-S HLL Median", smooth=2,
-             method="medianvalues", filename=projectdir+"/windplotNS_HLL")
-    windplot(superFrameAugmented, "pm25_diff_WE_HLL", polar=False,
-             useMedian=True, title="PM25 difference W-E HLL Mean", smooth=2,
-             method="meanvalues", filename=projectdir+"/windplotWE_HLL")
-    windplot(superFrameAugmented, "pm25_diff_NS_HLL", polar=False,
-             useMedian=True, title="PM25 difference N-S HLL Mean", smooth=2,
-             method="meanvalues", filename=projectdir+"/windplotNS_HLL")
+    diffPlot(HLL_226, HLL_513, "pm25", xlim=(-20.0, 20.0), title="Difference HLL 226 vs HLL 513 ",
+             filename=projectdir + "/diffplot_HLL_226_HLL_513")
+    diffPlot(HLL_226, NL49557, "pm25", xlim=(-25.0, 25.0), title="Difference HLL 226 vs Meetnet 557 ",
+             filename = projectdir + "/diffplot_HLL_226_Meetnet_557")
+    diffPlot(HLL_513, NL49551, "pm25", xlim=(-25.0, 25.0), title="Difference HLL 513 vs Meetnet 551 ",
+             filename = projectdir + "/diffplot_HLL_513_Meetnet_551")
+    diffPlot(NL49557, NL49551, "pm25", xlim=(-25.0, 25.0), title="Difference Meetnet 557 vs Meetnet 551 ",
+             filename = projectdir + "/diffplot_Meetnet_557_Meetnet_551")
+    diffPlot(NL49553, NL49551, "pm25", xlim=(-25.0, 25.0), title="Difference Meetnet 553 vs Meetnet 551 ",
+             filename = projectdir + "/diffplot_Meetnet_553_Meetnet_551")
+    diffPlot(NL49553, NL49557, "pm25", xlim=(-25.0, 25.0), title="Difference Meetnet 553 vs Meetnet 557 ",
+             filename = projectdir + "/diffplot_Meetnet_553_Meetnet_557")
+
 
     return
+
+
+    windplot(superFrameAugmented, "pm25_diff_N557_SHLL513", polar=False,
+             useMedian=True, title="PM25 difference N (meetnet) - S (HLL)", smooth=3,
+             method="medianvalues", filename=projectdir+"/windplotNS_N557_SHLL513")
+
+    windplot(superFrameAugmented, "pm25_diff_NHLL226_S551", polar=False,
+             useMedian=True, title="PM25 difference N (HLL) - S (meetnet)", smooth=3,
+             method="medianvalues", filename=projectdir + "/windplotNS_NHLL226_S551")
+
+    windplot(superFrameAugmented, "pm25_diff_NHLL226_SHLL513", polar=False,
+             useMedian=True, title="PM25 difference N (HLL) - S (HLL)", smooth=3,
+             method="medianvalues", filename=projectdir + "/windplotNS_NHLL226_SHLL513")
+
+    windplot(superFrameAugmented, "pm25_diff_W573_EHLL452", polar=False,
+             useMedian=True, title="PM25 difference W (meetnet) - E (HLL)", smooth=3,
+             method="medianvalues", filename=projectdir + "/windplotWE_W573_EHLL452")
+
+    windplot(superFrameAugmented, "pm25_diff_WHLL433_E572", polar=False,
+         useMedian=True, title="PM25 difference W (HLL) - E (meetnet)", smooth=3,
+         method="medianvalues", filename=projectdir + "/windplotWE_WHLL433_E572")
+
     windplot(superFrameAugmented, "pm25_diff_NS_553", polar=False,
              useMedian=True, title="PM25 difference N-S 553", smooth=2,
              method="medianvalues", filename=projectdir+"/windplotNS_553")

@@ -11,7 +11,7 @@ import math
 
 import analyzer
 
-sns.set(font_scale=2)
+sns.set(font_scale=1.75)
 sns.set_style("whitegrid", {'grid.color': 'black',
                             'text.color': 'Blue',
                             'axes.labelcolor': 'blue'
@@ -19,7 +19,8 @@ sns.set_style("whitegrid", {'grid.color': 'black',
 
 myPalette = ["#FF0000", "#00FF00", "#0000FF"]
 sns.set_palette(myPalette)
-
+my_dpi = 300
+plt.figure(figsize=(2000 / my_dpi, 1600 / my_dpi), dpi=my_dpi)
 
 def printSeries(aSensor, title="PM Series", filename=False, ylim=None):
     lplot = sns.lineplot(aSensor, x="datetime", y="pm25")
