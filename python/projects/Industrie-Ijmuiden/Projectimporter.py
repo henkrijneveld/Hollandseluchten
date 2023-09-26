@@ -29,7 +29,9 @@ def runit():
 #    meetnetselection = None
 
     # list sensors to retrieve. Every entry is a tuple: (project, sensornumber). None if nothing to retrieve
-    sensorselection = None
+#    sensorselection = None
+    sensorselection = [("HLL", "513"),("HLL", "226"), ("HLL", "452"), ("HLL", "433")]  # S-N-E-W
+
 
     # fastimport: if True existing files will not be reloaded (no check on dates is done!)
     fastimport = True

@@ -15,6 +15,11 @@ import pprint as pp
 # General
 superFrame = pd.DataFrame()
 superFrameAugmented = pd.DataFrame()
+HLL_452 = pd.DataFrame()  # East
+HLL_226 = pd.DataFrame()  # North
+HLL_433 = pd.DataFrame()  # West
+HLL_513 = pd.DataFrame()  # South
+
 NLMedian = pd.DataFrame()
 NL49570 = pd.DataFrame()
 NL49557 = pd.DataFrame()
@@ -96,10 +101,36 @@ def diffWE(aRow):
     east = aRow["pm25_NL49572"]
     return west - east
 
+def diffWEHLL(aRow):
+    west = aRow["pm25_HLL_433"]
+    east = aRow["pm25_HLL_452"]
+    return west - east
+
+def diffWNLEHLL(aRow):
+    west = aRow["pm25_NL49573"]
+    east = aRow["pm25_HLL_452"]
+    return west - east
+
+def diffWHLLENL(aRow):
+    west = aRow["pm25_HLL_433"]
+    east = aRow["pm25_NL49572"]
+    return west - east
+
 def diffNS(aRow):
     north = aRow["pm25_NL49557"]
     #north = aRow["pm25_NL49553"]
     south = aRow["pm25_NL49551"]
+    return north - south
+
+def diffNS553(aRow):
+#    north = aRow["pm25_NL49557"]
+    north = aRow["pm25_NL49553"]
+    south = aRow["pm25_NL49551"]
+    return north - south
+
+def diffNSHLL(aRow):
+    north = aRow["pm25_HLL_226"]
+    south = aRow["pm25_HLL_513"]
     return north - south
 
 def diffcoloc(aRow):
@@ -152,6 +183,12 @@ def pm25diff(aRow):
 def augmentSuperframe():
     global superFrameAugmented
 
+    superFrame["pm25_diff_WE_HLL"] = superFrame.apply(diffWEHLL, axis=1)
+    superFrame["pm25_diff_NS_HLL"] = superFrame.apply(diffNSHLL, axis=1)
+    superFrame["pm25_diff_NS_553"] = superFrame.apply(diffNS553, axis=1)
+    superFrame["pm25_diff_WE_NL_HLL"] = superFrame.apply(diffWNLEHLL, axis=1)
+    superFrame["pm25_diff_WE_HLL_NL"] = superFrame.apply(diffWHLLENL, axis=1)
+
     superFrame["pm25_diff_WE"] = superFrame.apply(diffWE, axis=1)
     superFrame["pm25_diff_NS"] = superFrame.apply(diffNS, axis=1)
     superFrame["pm25_diff_coloc"] = superFrame.apply(diffcoloc, axis=1)
@@ -168,8 +205,12 @@ def augmentSuperframe():
 def runit():
     global NLMedian
     global superFrameAugmented
+    global HLL_433
+
+    HLL_433 =  removeDatesBefore(HLL_433, aDate="2023-04-01 00:00:00+00:00")
 
     allSensors = ["NLMedian", "NL49570", "NL49557", "NL49553", "NL49572", "NL49573", "NL49551"]
+    allHLLSensors = ["HLL_513", "HLL_226", "HLL_452", "HLL_433"]
 
     # replace NLMedian  with valuse from Velsen Noord
     NLMedian = medianvalues([NL49570, NL49557, NL49553, NL49572, NL49573, NL49551],
@@ -177,12 +218,40 @@ def runit():
     NLMedian["sensorname"] = "NLMedian"
 
 #    createTimeSeries(allSensors, namesuffix="pm25")
+#    createTimeSeries(allHLLSensors, namesuffix="pm25")
 #    createTimeSeries_Multiple(allSensors, namesuffix="pm25")
 
-    return
-    createSuperFrame(allSensors, KNMI_225)
+    createSuperFrame(allSensors + allHLLSensors, KNMI_225)
     augmentSuperframe()
 
+    windplot(superFrameAugmented, "pm25_diff_WE_HLL", polar=False,
+             useMedian=True, title="PM25 difference W-E HLL Median", smooth=2,
+             method="medianvalues", filename=projectdir+"/windplotWE_HLL")
+    windplot(superFrameAugmented, "pm25_diff_NS_HLL", polar=False,
+             useMedian=True, title="PM25 difference N-S HLL Median", smooth=2,
+             method="medianvalues", filename=projectdir+"/windplotNS_HLL")
+    windplot(superFrameAugmented, "pm25_diff_WE_HLL", polar=False,
+             useMedian=True, title="PM25 difference W-E HLL Mean", smooth=2,
+             method="meanvalues", filename=projectdir+"/windplotWE_HLL")
+    windplot(superFrameAugmented, "pm25_diff_NS_HLL", polar=False,
+             useMedian=True, title="PM25 difference N-S HLL Mean", smooth=2,
+             method="meanvalues", filename=projectdir+"/windplotNS_HLL")
+
+    return
+    windplot(superFrameAugmented, "pm25_diff_NS_553", polar=False,
+             useMedian=True, title="PM25 difference N-S 553", smooth=2,
+             method="medianvalues", filename=projectdir+"/windplotNS_553")
+    windplot(superFrameAugmented, "pm25_diff_NS", polar=False,
+             useMedian=True, title="PM25 difference N-S", smooth=2,
+             method="medianvalues", filename=projectdir+"/windplotNS")
+    windplot(superFrameAugmented, "pm25_diff_WE_NL_HLL", polar=False,
+             useMedian=True, title="PM25 difference W (NL) - E (HLL)", smooth=2,
+             method="medianvalues", filename=projectdir+"/windplotWE_NL_HLL")
+    windplot(superFrameAugmented, "pm25_diff_WE_HLL_NL", polar=False,
+             useMedian=True, title="PM25 difference W (HLL) - E (NL) ", smooth=2,
+             method="medianvalues", filename=projectdir+"/windplotWE_HLL_NL")
+
+    return
     windplot(superFrameAugmented, "pm25_diff_WE", polar=False,
              useMedian=True, title="PM25 difference W-E", smooth=2,
              method="medianvalues", filename=projectdir+"/windplotWE")
@@ -211,8 +280,8 @@ def runit():
 
 # run stand alone entry point
 if __name__ == '__main__':
- #   pd.options.mode.copy_on_write = True
- #   printGlobals(os.getcwd())
+#    pd.options.mode.copy_on_write = True
+#    printGlobals(os.getcwd())
     importDataframes(os.getcwd(), globals())
     runit()
 
