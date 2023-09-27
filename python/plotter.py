@@ -136,7 +136,7 @@ def windplot(frame, values, polar=True, useMedian=True, title="Windplot", smooth
 
     else:
         lplot = (sns.lineplot(data=conc, x="winddirection", y=values, linewidth=2.5))
-        lplot.set(xlim=(-5.0, 355.0))
+        lplot.set(xlim=(-5.0, 365.0))
         lplot.set(title=title)
         lplot.set_ylabel(values.replace("_", " "), fontsize=14)
         lplot.set_xlabel("winddirection", fontsize=14)
