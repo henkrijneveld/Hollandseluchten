@@ -194,7 +194,7 @@ def augmentSuperframe():
     superFrame["pm25_diff_N557_SHLL513"] = superFrame.apply(diff_N557_SHLL513, axis=1)
     superFrame["pm25_diff_NHLL226_S551"] = superFrame.apply(diff_NHLL226_S551, axis=1)
     superFrame["pm25_diff_W573_EHLL452"] = superFrame.apply(diff_W573_EHLL452, axis=1)
-    superFrame["pm25_diff_WHLL433_E572"] = superFrame.apply(diff_WHLL433_E572, axis=1)
+#    superFrame["pm25_diff_WHLL433_E572"] = superFrame.apply(diff_WHLL433_E572, axis=1)
     superFrame["pm25_diff_NHLL226_SHLL513"] = superFrame.apply(diff_NHLL226_SHLL513, axis=1)
 
 
@@ -231,8 +231,14 @@ def runit():
 #    createTimeSeries(allHLLSensors, namesuffix="pm25")
 #    createTimeSeries_Multiple(allSensors, namesuffix="pm25")
 
+#@todo these functions generate the intersection of the frames. As 433 has two
+    # months without data, these months are now ignored
     createSuperFrame(allSensors + allHLLSensors, KNMI_225)
     augmentSuperframe()
+
+    windplot(superFrameAugmented, "pm25_diff_NS", polar=False,
+             useMedian=True, title="PM25 difference N-S", smooth=3,
+             method="medianvalues", filename=projectdir+"/windplotNS")
 
     printSeries(HLL_433, "HLL_433 pm25", projectdir + "/timeseries-" + "HLL_433-pm25",
                 ylim=(-20, 150))
