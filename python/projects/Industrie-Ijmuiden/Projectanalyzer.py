@@ -234,17 +234,11 @@ def runit():
     createSuperFrame(allSensors + allHLLSensors, KNMI_225)
     augmentSuperframe()
 
-    windplot(superFrameAugmented, "pm25_diff_NS", polar=False,
-             useMedian=True, title="PM25 difference N-S", smooth=3,
-             method="medianvalues", filename=projectdir+"/windplotNS")
-    return
-
-
     printSeries(HLL_433, "HLL_433 pm25", projectdir + "/timeseries-" + "HLL_433-pm25",
                 ylim=(-20, 150))
     printSeries(HLL_513, "HLL_513 pm25", projectdir + "/timeseries-" + "HLL_433-pm25",
                 ylim=(-20, 150))
-    return
+
     diffPlot(HLL_226, NL49557, "pm25", xlim=(-25.0, 25.0), title="Difference HLL 226 vs Meetnet 557 ",
              filename = projectdir + "/diffplot_HLL_226_Meetnet_557")
     diffPlot(HLL_226, HLL_513, "pm25", xlim=(-20.0, 20.0), title="Difference HLL 226 vs HLL 513 ",
@@ -282,7 +276,7 @@ def runit():
              useMedian=True, title="PM25 difference N-S 553", smooth=3,
              method="medianvalues", filename=projectdir+"/windplotNS_553")
     windplot(superFrameAugmented, "pm25_diff_NS", polar=False,
-             useMedian=True, title="PM25 difference N-S", smooth=2,
+             useMedian=True, title="PM25 difference N-S", smooth=3,
              method="medianvalues", filename=projectdir+"/windplotNS")
 
     windplot(superFrameAugmented, "pm25_diff_WE", polar=False,

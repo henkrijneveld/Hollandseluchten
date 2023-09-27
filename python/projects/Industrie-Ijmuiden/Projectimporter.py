@@ -17,7 +17,7 @@ def runit():
     end = "20230901"
 
     # not None if knmi data must be retrieved
-    knmiselection = ["225"]
+    knmiselection = ["225", "240"]
 #    knmiselection = False
 
     # list of meetnet sensors to retrieve
