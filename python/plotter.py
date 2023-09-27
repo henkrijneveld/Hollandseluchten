@@ -19,8 +19,11 @@ sns.set_style("whitegrid", {'grid.color': 'black',
 
 myPalette = ["#FF0000", "#00FF00", "#0000FF"]
 sns.set_palette(myPalette)
-my_dpi = 300
-plt.figure(figsize=(2000 / my_dpi, 1600 / my_dpi), dpi=my_dpi)
+
+#@todo: wtf with figure sizes
+#my_dpi = 300
+#plt.figure(figsize=(1000 / my_dpi, 800 / my_dpi), dpi=my_dpi)
+
 
 def printSeries(aSensor, title="PM Series", filename=False, ylim=None):
     lplot = sns.lineplot(aSensor, x="datetime", y="pm25")
@@ -48,6 +51,7 @@ def diffPlot(leftframe, rightframe, attr, xlim=(-40.0, 40.0), title="Difference"
     lplot = sns.histplot(data=deltas, x="delta_"+attr, binwidth=0.10, kde=True)
     lplot.set(xlim=xlim)
     lplot.set(title=title)
+    plt.tight_layout()
     plt.show()
     if filename:
         lplot.get_figure().savefig(filename)
@@ -73,6 +77,7 @@ def diffWindPlot(leftframe, rightframe, xlim=(-170.0, 170.0), title="Winddiffere
     lplot = sns.histplot(data=deltas, x="delta_winddirection", binwidth=10, kde=False)
     lplot.set(title=title)
     lplot.set(xlim=xlim)
+    plt.tight_layout()
     plt.show()
     if filename:
         lplot.get_figure().savefig(filename)
@@ -117,12 +122,14 @@ def windplot(frame, values, polar=True, useMedian=True, title="Windplot", smooth
         conc["winddirection"][0] = 0
 
         g = sns.FacetGrid(conc, subplot_kws=dict(projection='polar', theta_offset=math.pi/2,
-                          theta_direction=-1), height=10, sharex=False, sharey=False,
+                          theta_direction=-1), height=6.4, sharex=False, sharey=False,
                           despine=False)
-        g.fig.suptitle(title)
+        g.fig.suptitle(title, fontsize=17)
         g.map_dataframe(sns.lineplot, x="winddirection", y=values, linewidth=4.0)
         g.set(xlabel=None)
         g.set(ylabel=None)
+
+        plt.tight_layout()
 
         if filename:
             g.savefig(filename)
@@ -131,14 +138,15 @@ def windplot(frame, values, polar=True, useMedian=True, title="Windplot", smooth
         lplot = (sns.lineplot(data=conc, x="winddirection", y=values, linewidth=2.5))
         lplot.set(xlim=(-5.0, 355.0))
         lplot.set(title=title)
-        lplot.set_ylabel(values.replace("_", " "), fontsize=15)
-        lplot.set_xlabel("winddirection", fontsize=15)
-        lplot.axes.set_title(title, fontsize=18)
+        lplot.set_ylabel(values.replace("_", " "), fontsize=14)
+        lplot.set_xlabel("winddirection", fontsize=14)
+        lplot.axes.set_title(title, fontsize=17)
+
+        plt.tight_layout()
 
         if filename:
             lplot.get_figure().savefig(filename)
 
-    plt.tight_layout()
     plt.show()
 
 # show number of count of every winddirection in frame

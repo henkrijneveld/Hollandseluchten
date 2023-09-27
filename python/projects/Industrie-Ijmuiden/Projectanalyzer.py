@@ -200,6 +200,7 @@ def augmentSuperframe():
 
     superFrame["pm25_diff_WE"] = superFrame.apply(diffWE, axis=1)
     superFrame["pm25_diff_NS"] = superFrame.apply(diffNS, axis=1)
+    superFrame["pm25_diff_NS_553"] = superFrame.apply(diffNS553, axis=1)
     superFrame["pm25_diff_coloc"] = superFrame.apply(diffcoloc, axis=1)
     superFrame["pm25_upwind"] = superFrame.apply(pm25Upwind, axis=1)
     superFrame["pm25_downwind"] = superFrame.apply(pm25Downwind, axis=1)
@@ -233,10 +234,21 @@ def runit():
     createSuperFrame(allSensors + allHLLSensors, KNMI_225)
     augmentSuperframe()
 
-    diffPlot(HLL_226, HLL_513, "pm25", xlim=(-20.0, 20.0), title="Difference HLL 226 vs HLL 513 ",
-             filename=projectdir + "/diffplot_HLL_226_HLL_513")
+    windplot(superFrameAugmented, "pm25_diff_NS", polar=False,
+             useMedian=True, title="PM25 difference N-S", smooth=3,
+             method="medianvalues", filename=projectdir+"/windplotNS")
+    return
+
+
+    printSeries(HLL_433, "HLL_433 pm25", projectdir + "/timeseries-" + "HLL_433-pm25",
+                ylim=(-20, 150))
+    printSeries(HLL_513, "HLL_513 pm25", projectdir + "/timeseries-" + "HLL_433-pm25",
+                ylim=(-20, 150))
+    return
     diffPlot(HLL_226, NL49557, "pm25", xlim=(-25.0, 25.0), title="Difference HLL 226 vs Meetnet 557 ",
              filename = projectdir + "/diffplot_HLL_226_Meetnet_557")
+    diffPlot(HLL_226, HLL_513, "pm25", xlim=(-20.0, 20.0), title="Difference HLL 226 vs HLL 513 ",
+             filename=projectdir + "/diffplot_HLL_226_HLL_513")
     diffPlot(HLL_513, NL49551, "pm25", xlim=(-25.0, 25.0), title="Difference HLL 513 vs Meetnet 551 ",
              filename = projectdir + "/diffplot_HLL_513_Meetnet_551")
     diffPlot(NL49557, NL49551, "pm25", xlim=(-25.0, 25.0), title="Difference Meetnet 557 vs Meetnet 551 ",
@@ -245,10 +257,6 @@ def runit():
              filename = projectdir + "/diffplot_Meetnet_553_Meetnet_551")
     diffPlot(NL49553, NL49557, "pm25", xlim=(-25.0, 25.0), title="Difference Meetnet 553 vs Meetnet 557 ",
              filename = projectdir + "/diffplot_Meetnet_553_Meetnet_557")
-
-
-    return
-
 
     windplot(superFrameAugmented, "pm25_diff_N557_SHLL513", polar=False,
              useMedian=True, title="PM25 difference N (meetnet) - S (HLL)", smooth=3,
@@ -271,43 +279,43 @@ def runit():
          method="medianvalues", filename=projectdir + "/windplotWE_WHLL433_E572")
 
     windplot(superFrameAugmented, "pm25_diff_NS_553", polar=False,
-             useMedian=True, title="PM25 difference N-S 553", smooth=2,
+             useMedian=True, title="PM25 difference N-S 553", smooth=3,
              method="medianvalues", filename=projectdir+"/windplotNS_553")
     windplot(superFrameAugmented, "pm25_diff_NS", polar=False,
              useMedian=True, title="PM25 difference N-S", smooth=2,
              method="medianvalues", filename=projectdir+"/windplotNS")
-    windplot(superFrameAugmented, "pm25_diff_WE_NL_HLL", polar=False,
-             useMedian=True, title="PM25 difference W (NL) - E (HLL)", smooth=2,
-             method="medianvalues", filename=projectdir+"/windplotWE_NL_HLL")
-    windplot(superFrameAugmented, "pm25_diff_WE_HLL_NL", polar=False,
-             useMedian=True, title="PM25 difference W (HLL) - E (NL) ", smooth=2,
-             method="medianvalues", filename=projectdir+"/windplotWE_HLL_NL")
 
-    return
     windplot(superFrameAugmented, "pm25_diff_WE", polar=False,
-             useMedian=True, title="PM25 difference W-E", smooth=2,
+             useMedian=True, title="PM25 difference W-E", smooth=3,
              method="medianvalues", filename=projectdir+"/windplotWE")
-    windplot(superFrameAugmented, "pm25_diff_NS", polar=False,
-             useMedian=True, title="PM25 difference N-S", smooth=2,
-             method="medianvalues", filename=projectdir+"/windplotNS")
     windplot(superFrameAugmented, "pm25_diff_coloc", polar=True,
-             useMedian=True, title="PM25 difference colocation", smooth=2,
+             useMedian=True, title="PM25 difference colocation", smooth=3,
              method="medianvalues", filename=projectdir+"/windplotcoloc")
     windplot(superFrameAugmented, "pm25_upwind", polar=True,
-             useMedian=True, title="PM25 upwind concentration", smooth=2,
+             useMedian=True, title="PM25 upwind concentration", smooth=3,
              method="medianvalues", filename=projectdir+"/windplotUpwind")
     windplot(superFrameAugmented, "pm25_downwind", polar=True,
-             useMedian=True, title="PM25 downwind concentration", smooth=2,
+             useMedian=True, title="PM25 downwind concentration", smooth=3,
              method="medianvalues", filename=projectdir+"/windplotDownwind")
     windplot(superFrameAugmented, "pm25_diff_winddirection", polar=False,
-             useMedian=True, title="PM25 difference downwind - upwind", smooth=2,
+             useMedian=True, title="PM25 difference downwind - upwind", smooth=3,
              method="medianvalues", filename=projectdir+"/windplotDownMinusUp")
     windplot(superFrameAugmented, "pm25", polar=True,
-             useMedian=True, title="PM25 median all 6 luchtmeetnet stations", smooth=2,
+             useMedian=True, title="PM25 median all 6 luchtmeetnet stations", smooth=3,
              method="medianvalues", filename=projectdir+"/windplotAll")
     windplot(superFrameAugmented, "pm25", polar=True,
-             useMedian=False, title="PM25 mean all 6 luchtmeetnet stations", smooth=2,
+             useMedian=False, title="PM25 mean all 6 luchtmeetnet stations", smooth=3,
              method="meanvalues", filename=projectdir + "/windplotAllMean")
+    windplot(superFrameAugmented, "pm25_NL49557", polar=True,
+             useMedian=True, title="PM25 median Meetnet 49557 (North)", smooth=3,
+             method="medianvalues", filename=projectdir + "/windplot557Median")
+    windplot(superFrameAugmented, "pm25_NL49553", polar=True,
+             useMedian=True, title="PM25 median Meetnet 49553 (North)", smooth=3,
+             method="medianvalues", filename=projectdir + "/windplot553Median")
+    windplot(superFrameAugmented, "pm25_NL49551", polar=True,
+             useMedian=True, title="PM25 median Meetnet 49551 (South)", smooth=3,
+             method="medianvalues", filename=projectdir + "/windplot551Median")
+
     return
 
 # run stand alone entry point
