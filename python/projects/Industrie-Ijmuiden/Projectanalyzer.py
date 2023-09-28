@@ -217,10 +217,10 @@ def runit():
     global superFrameAugmented
     global HLL_433
 
-    HLL_433 =  removeDatesBefore(HLL_433, aDate="2023-04-01 00:00:00+00:00")
+#    HLL_433 =  removeDatesBefore(HLL_433, aDate="2023-04-01 00:00:00+00:00")
 
     allSensors = ["NLMedian", "NL49570", "NL49557", "NL49553", "NL49572", "NL49573", "NL49551"]
-    allHLLSensors = ["HLL_513", "HLL_226", "HLL_452", "HLL_433"]
+    allHLLSensors = ["HLL_513", "HLL_226", "HLL_452"]
 
     # replace NLMedian  with valuse from Velsen Noord
     NLMedian = medianvalues([NL49570, NL49557, NL49553, NL49572, NL49573, NL49551],
@@ -239,6 +239,18 @@ def runit():
     windplot(superFrameAugmented, "pm25_diff_NS", polar=False,
              useMedian=True, title="PM25 difference N-S", smooth=3,
              method="medianvalues", filename=projectdir+"/windplotNS")
+
+    windplot(superFrameAugmented, "pm25_diff_NS_553", polar=False,
+             useMedian=True, title="PM25 difference N-S 553", smooth=3,
+             method="medianvalues", filename=projectdir+"/windplotNS_553")
+    windplot(superFrameAugmented, "pm25_diff_NS", polar=False,
+             useMedian=True, title="PM25 difference N-S", smooth=3,
+             method="medianvalues", filename=projectdir+"/windplotNS")
+
+    windplot(superFrameAugmented, "pm25_diff_NHLL226_SHLL513", polar=False,
+             useMedian=True, title="PM25 difference N (HLL) - S (HLL)", smooth=3,
+             method="medianvalues", filename=projectdir + "/windplotNS_NHLL226_SHLL513")
+    return
 
     printSeries(HLL_433, "HLL_433 pm25", projectdir + "/timeseries-" + "HLL_433-pm25",
                 ylim=(-20, 150))
