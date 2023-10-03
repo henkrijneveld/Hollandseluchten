@@ -45,6 +45,18 @@ def printSeries_on_ax(aSensor, title="PM Series", filename=False, ylim=None, ax=
     if filename:
         lplot.get_figure().savefig(filename)
 
+# histogram attributeplot on attribute name
+def attrPlot(aDataFrame, attr, xlim=(-40.0, 40.0), title="Difference", filename=False, binwidth=0.10):
+    lplot = sns.histplot(data=aDataFrame, x=attr, binwidth=binwidth, kde=True)
+    lplot.set(xlim=xlim)
+    lplot.set(title=title)
+    plt.tight_layout()
+    plt.show()
+    if filename:
+        lplot.get_figure().savefig(filename)
+
+    return
+
 # difplot on attribute name
 def diffPlot(leftframe, rightframe, attr, xlim=(-40.0, 40.0), title="Difference", filename=False):
     deltas = analyzer.diffFrame(leftframe, rightframe, attr)
