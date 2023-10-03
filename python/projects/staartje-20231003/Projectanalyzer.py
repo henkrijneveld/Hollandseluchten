@@ -2,6 +2,8 @@
 # - panda and dependencies installed
 # - csv projects in directory
 
+# STAARTEN, WINDPUFJES EN GOUDEN STANDAARDS
+
 import sys
 
 import matplotlib.pyplot as plt
@@ -69,7 +71,7 @@ def createSuperFrame(sensors, knmi):
                 merged.rename(columns={'humidity': 'humidity_' + sensor}, inplace=True)
                 merged["humidity"] = math.nan
         else:
-            merged = pd.merge(merged, sensorFrame, how='outer', on='datetime',
+            merged = pd.merge(merged, sensorFrame, how='inner', on='datetime',
                               suffixes=("", "_" + sensor))
             merged.drop(['sensorname'+'_'+sensor], axis=1, inplace=True)
     merged.drop(['sensorname'], axis=1, inplace=True)
@@ -139,15 +141,101 @@ def runit():
     augmentSuperframe()
 
     attrPlot(superFrameAugmented, "pm25_diff_545_NL", binwidth=0.25, xlim=(-20, 60))
-    attrPlot(superFrameAugmented, "pm25_diff_549_NL", binwidth=0.25, xlim=(-20, 60))
-    attrPlot(superFrameAugmented, "pm25_diff_1845_NL", binwidth=0.25, xlim=(-20, 60))
-    attrPlot(superFrameAugmented, "pm25_diff_1850_NL", binwidth=0.25, xlim=(-20, 60))
+#    attrPlot(superFrameAugmented, "pm25_diff_549_NL", binwidth=0.25, xlim=(-20, 60))
+#    attrPlot(superFrameAugmented, "pm25_diff_1845_NL", binwidth=0.25, xlim=(-20, 60))
+#    attrPlot(superFrameAugmented, "pm25_diff_1850_NL", binwidth=0.25, xlim=(-20, 60))
     diffPlot(HLL_545, HLL_549, attr="pm25", title="Difference 545 vs 549", xlim=(-10, 10))
     diffPlot(OZK_1845, OZK_1850, attr="pm25", title="Difference 1845 vs 1850", xlim=(-10, 10))
-    diffPlot(HLL_545, OZK_1850, attr="pm25", title="Difference 545 vs 1850", xlim=(-10, 10))
-    diffPlot(HLL_549, OZK_1850, attr="pm25", title="Difference 549 vs 1850", xlim=(-10, 10))
+#    diffPlot(HLL_545, OZK_1850, attr="pm25", title="Difference 545 vs 1850", xlim=(-10, 10))
+#    diffPlot(HLL_549, OZK_1850, attr="pm25", title="Difference 549 vs 1850", xlim=(-10, 10))
     diffPlot(HLL_545, OZK_1845, attr="pm25", title="Difference 545 vs 1845", xlim=(-10, 10))
-    diffPlot(HLL_549, OZK_1845, attr="pm25", title="Difference 549 vs 1845", xlim=(-10, 10))
+#   diffPlot(HLL_549, OZK_1845, attr="pm25", title="Difference 549 vs 1845", xlim=(-10, 10))
+
+
+    scatter = sns.scatterplot(superFrameAugmented, x="pm25_NL49570", y="pm25_HLL_545")
+    scatter.set(title="Scatterplot NL - 545")
+    scatter.set(xlim=(-20, 80))
+    scatter.set(ylim=(-20, 80))
+    plt.tight_layout()
+    plt.show()
+
+    scatter = sns.scatterplot(superFrameAugmented, x="pm25_NL49570", y="pm25_diff_545_NL")
+    scatter.set(title="Scatterplot NL - 545 Diff")
+    scatter.set(xlim=(-20, 80))
+    scatter.set(ylim=(-80, 80))
+    plt.tight_layout()
+    plt.show()
+
+    scatter = sns.scatterplot(superFrameAugmented, x="winddirection", y="pm25_diff_545_NL")
+    scatter.set(title="Scatterplot winddirection - 545 Diff")
+    scatter.set(xlim=(5, 365))
+    scatter.set(ylim=(-50, 80))
+    plt.tight_layout()
+    plt.show()
+
+    scatter = sns.scatterplot(superFrameAugmented, x="winddirection", y="pm25_diff_1845_NL")
+    scatter.set(title="Scatterplot winddirection - 1845 Diff")
+    scatter.set(xlim=(5, 365))
+    scatter.set(ylim=(-50, 80))
+    plt.tight_layout()
+    plt.show()
+
+    scatter = sns.scatterplot(superFrameAugmented, x="windspeed", y="pm25_diff_545_NL")
+    scatter.set(title="Scatterplot windspeed - 545 Diff")
+    scatter.set(xlim=(0, 30))
+    scatter.set(ylim=(-50, 80))
+    plt.tight_layout()
+    plt.show()
+
+    scatter = sns.scatterplot(superFrameAugmented, x="windspeed", y="pm25_diff_1845_NL")
+    scatter.set(title="Scatterplot windspeed - 1845 Diff")
+    scatter.set(xlim=(0, 30))
+    scatter.set(ylim=(-50, 80))
+    plt.tight_layout()
+    plt.show()
+
+    scatter = sns.scatterplot(superFrameAugmented, x="temperature_HLL_545", y="pm25_diff_545_NL")
+    scatter.set(title="Scatterplot temperature - 545 Diff")
+    scatter.set(xlim=(-20, 60))
+    scatter.set(ylim=(-50, 80))
+    plt.tight_layout()
+    plt.show()
+
+    scatter = sns.scatterplot(superFrameAugmented, x="temperature_OZK_1845", y="pm25_diff_1845_NL")
+    scatter.set(title="Scatterplot temperature - 1845 Diff")
+    scatter.set(xlim=(-20, 60))
+    scatter.set(ylim=(-50, 80))
+    plt.tight_layout()
+    plt.show()
+
+
+    scatter = sns.scatterplot(superFrameAugmented, x="temperature_HLL_549", y="pm25_diff_549_NL")
+    scatter.set(title="Scatterplot temperature - 549 Diff")
+    scatter.set(xlim=(-20, 60))
+    scatter.set(ylim=(-50, 80))
+    plt.tight_layout()
+    plt.show()
+
+    scatter = sns.scatterplot(superFrameAugmented, x="humidity_HLL_545", y="pm25_diff_545_NL")
+    scatter.set(title="Scatterplot humidity - 545 Diff")
+    scatter.set(xlim=(0, 100))
+    scatter.set(ylim=(-50, 80))
+    plt.tight_layout()
+    plt.show()
+
+    # only select the tail for 545 difference NL > 10
+    tempSelection = superFrameAugmented[(superFrameAugmented['temperature_HLL_545'] > 17) &
+                                        (superFrameAugmented['temperature_HLL_545'] < 23)]
+    tempSelection = tempSelection.reset_index(drop=True)
+
+    scatter = sns.scatterplot(superFrameAugmented, x="temperature_HLL_545", y="pm25_NL49570")
+    scatter.set(title="Scatterplot temperature - 49570")
+    scatter.set(xlim=(-20, 40))
+    scatter.set(ylim=(-10, 50))
+    plt.tight_layout()
+    plt.show()
+
+
 
 
 
