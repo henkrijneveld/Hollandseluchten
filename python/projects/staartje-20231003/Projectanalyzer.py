@@ -71,7 +71,7 @@ def createSuperFrame(sensors, knmi):
                 merged.rename(columns={'humidity': 'humidity_' + sensor}, inplace=True)
                 merged["humidity"] = math.nan
         else:
-            merged = pd.merge(merged, sensorFrame, how='inner', on='datetime',
+            merged = pd.merge(merged, sensorFrame, how='outer', on='datetime',
                               suffixes=("", "_" + sensor))
             merged.drop(['sensorname'+'_'+sensor], axis=1, inplace=True)
     merged.drop(['sensorname'], axis=1, inplace=True)
@@ -159,12 +159,28 @@ def runit():
     plt.tight_layout()
     plt.show()
 
+    scatter = sns.scatterplot(superFrameAugmented, x="pm25_NL49570", y="pm25_HLL_549")
+    scatter.set(title="Scatterplot NL - 549")
+    scatter.set(xlim=(-20, 80))
+    scatter.set(ylim=(-20, 80))
+    plt.tight_layout()
+    plt.show()
+
     scatter = sns.scatterplot(superFrameAugmented, x="pm25_NL49570", y="pm25_diff_545_NL")
     scatter.set(title="Scatterplot NL - 545 Diff")
     scatter.set(xlim=(-20, 80))
     scatter.set(ylim=(-80, 80))
     plt.tight_layout()
     plt.show()
+
+    scatter = sns.scatterplot(superFrameAugmented, x="pm25_NL49570", y="pm25_diff_549_NL")
+    scatter.set(title="Scatterplot NL - 549 Diff")
+    scatter.set(xlim=(-20, 80))
+    scatter.set(ylim=(-80, 80))
+    plt.tight_layout()
+    plt.show()
+
+
 
     scatter = sns.scatterplot(superFrameAugmented, x="winddirection", y="pm25_diff_545_NL")
     scatter.set(title="Scatterplot winddirection - 545 Diff")
@@ -222,6 +238,31 @@ def runit():
     scatter.set(ylim=(-50, 80))
     plt.tight_layout()
     plt.show()
+
+    scatter = sns.scatterplot(superFrameAugmented, x="windspeed", y="humidity_HLL_545")
+    scatter.set(title="Scatterplot windspeed - 545 humidity")
+    scatter.set(xlim=(0, 30))
+    scatter.set(ylim=(0, 100))
+    plt.tight_layout()
+    plt.show()
+
+    scatter = sns.scatterplot(superFrameAugmented, x="windspeed", y="temperature_HLL_545")
+    scatter.set(title="Scatterplot windspeed - 545 temperature")
+    scatter.set(xlim=(0, 30))
+    scatter.set(ylim=(-10, 40))
+    plt.tight_layout()
+    plt.show()
+
+    scatter = sns.scatterplot(superFrameAugmented, x="windspeed", y="winddirection")
+    scatter.set(title="Scatterplot windspeed - winddirection")
+    scatter.set(xlim=(0, 30))
+    scatter.set(ylim=(0, 370))
+    plt.tight_layout()
+    plt.show()
+
+
+
+
 
     # only select the tail for 545 difference NL > 10
     tempSelection = superFrameAugmented[(superFrameAugmented['temperature_HLL_545'] > 17) &
