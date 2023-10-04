@@ -161,7 +161,6 @@ def diffFrame(leftframe, rightframe, attr):
     deltas["delta_"+attr] = merged["delta"].copy()
     deltas["datetime"] = merged["datetime"].copy()
     deltas.sort_values(inplace=True, ignore_index=True, by="delta_"+attr)
-    print(deltas.describe())
     return deltas
 
 

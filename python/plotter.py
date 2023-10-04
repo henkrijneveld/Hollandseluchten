@@ -25,6 +25,21 @@ sns.set_palette(myPalette)
 #plt.figure(figsize=(1000 / my_dpi, 800 / my_dpi), dpi=my_dpi)
 
 
+def simpleScatterPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0), title="Scatterplot", filename=False,
+                      describe=False):
+    scatter = sns.scatterplot(aDataFrame, x=x, y=y)
+    scatter.set(title=title)
+    scatter.set(xlim=xlim)
+    scatter.set(ylim=ylim)
+    plt.tight_layout()
+    plt.show()
+    if describe:
+        print("Describe: " + title)
+        print(aDataFrame[y].describe())
+        print("---")
+    if filename:
+        scatter.get_figure().savefig(filename)
+
 def printSeries(aSensor, title="PM Series", filename=False, ylim=None):
     lplot = sns.lineplot(aSensor, x="datetime", y="pm25")
     lplot.set(title=title)
@@ -58,13 +73,18 @@ def attrPlot(aDataFrame, attr, xlim=(-40.0, 40.0), title="Difference", filename=
     return
 
 # difplot on attribute name
-def diffPlot(leftframe, rightframe, attr, xlim=(-40.0, 40.0), title="Difference", filename=False):
+def diffPlot(leftframe, rightframe, attr, xlim=(-40.0, 40.0), title="Difference", filename=False,
+             describe=False):
     deltas = analyzer.diffFrame(leftframe, rightframe, attr)
     lplot = sns.histplot(data=deltas, x="delta_"+attr, binwidth=0.10, kde=True)
     lplot.set(xlim=xlim)
     lplot.set(title=title)
     plt.tight_layout()
     plt.show()
+    if describe:
+        print("Describe: " + title)
+        print(deltas["delta_"+attr].describe())
+        print("---")
     if filename:
         lplot.get_figure().savefig(filename)
 

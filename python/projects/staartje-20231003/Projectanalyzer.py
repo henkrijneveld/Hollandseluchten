@@ -46,7 +46,13 @@ def convertTextToDataFrame(aTextCollection):
 # everytime.
 def createSuperFrame(sensors, knmi):
     global superFrame
+    global OZK_1845
+    global OZK_1850
     merged = pd.DataFrame()
+
+    # Both OVK's where in a different location in januari
+    OZK_1845 = removeDatesBefore(OZK_1845, aDate="2023-02-01 21:00:00+00:00")
+    OZK_1850 = removeDatesBefore(OZK_1850, aDate="2023-02-01 21:00:00+00:00")
 
     for sensor in sensors:
         sensorFrame = globals()[sensor]
@@ -77,7 +83,7 @@ def createSuperFrame(sensors, knmi):
     merged.drop(['sensorname'], axis=1, inplace=True)
     # delete 0 and 990
     knmi = knmi[(knmi["winddirection"] < 369) & (knmi["winddirection"] > 5)]
-    merged = pd.merge(merged, knmi, on='datetime',
+    merged = pd.merge(merged, knmi, on='datetime', 
                       suffixes=("", "_knmi"))
     merged.drop(['sensorname', "pm25", "temperature", "humidity"], axis=1, inplace=True)
 #    merged.drop(merged.columns[0], axis=1, inplace=True)
@@ -140,24 +146,33 @@ def runit():
     createSuperFrame(allSensorsText, KNMI_225)
     augmentSuperframe()
 
-    attrPlot(superFrameAugmented, "pm25_diff_545_NL", binwidth=0.25, xlim=(-20, 60))
+#    attrPlot(superFrameAugmented, "pm25_diff_545_NL", binwidth=0.25, xlim=(-20, 60))
 #    attrPlot(superFrameAugmented, "pm25_diff_549_NL", binwidth=0.25, xlim=(-20, 60))
 #    attrPlot(superFrameAugmented, "pm25_diff_1845_NL", binwidth=0.25, xlim=(-20, 60))
 #    attrPlot(superFrameAugmented, "pm25_diff_1850_NL", binwidth=0.25, xlim=(-20, 60))
-    diffPlot(HLL_545, HLL_549, attr="pm25", title="Difference 545 vs 549", xlim=(-10, 10))
-    diffPlot(OZK_1845, OZK_1850, attr="pm25", title="Difference 1845 vs 1850", xlim=(-10, 10))
+    diffPlot(HLL_545, HLL_549, attr="pm25", title="Difference 545 vs 549", xlim=(-4, 4), describe=True)
+
+    diffPlot(OZK_1845, OZK_1850, attr="pm25", title="Difference 1845 vs 1850", xlim=(-4, 4), describe=True)
 #    diffPlot(HLL_545, OZK_1850, attr="pm25", title="Difference 545 vs 1850", xlim=(-10, 10))
 #    diffPlot(HLL_549, OZK_1850, attr="pm25", title="Difference 549 vs 1850", xlim=(-10, 10))
-    diffPlot(HLL_545, OZK_1845, attr="pm25", title="Difference 545 vs 1845", xlim=(-10, 10))
+#    diffPlot(HLL_545, OZK_1845, attr="pm25", title="Difference 545 vs 1845", xlim=(-10, 10))
 #   diffPlot(HLL_549, OZK_1845, attr="pm25", title="Difference 549 vs 1845", xlim=(-10, 10))
 
+    return
+    simpleScatterPlot(superFrameAugmented, x="pm25_NL49570", y="pm25_diff_545_NL",
+                      xlim=(-15, 15), ylim=(-50, 50), title="Scatterplot describe test",
+                      filename=projectdir+"/scatter-month-545Diff")
 
-    scatter = sns.scatterplot(superFrameAugmented, x="pm25_NL49570", y="pm25_HLL_545")
-    scatter.set(title="Scatterplot NL - 545")
-    scatter.set(xlim=(-20, 80))
-    scatter.set(ylim=(-20, 80))
-    plt.tight_layout()
-    plt.show()
+
+    monthmedians = superFrameAugmented.groupby(superFrameAugmented.datetime.dt.month).median()
+    monthmedians["datetime"] = monthmedians.datetime.dt.month
+    simpleScatterPlot(monthmedians, x="datetime", y="pm25_diff_545_NL",
+                      xlim=(0, 10.0), ylim=(-50.0, 50.0), title="Scatterplot month - 545 Diff",
+                      filename=projectdir+"/scatter-month-545Diff")
+
+    simpleScatterPlot(superFrameAugmented, x="pm25_NL49570", y="pm25_HLL_545",
+                      xlim=(-20, 80), ylim=(-20.0, 80.0), title="Scatterplot NL - 545",
+                      filename=projectdir+"/scatter-NL-545")
 
     scatter = sns.scatterplot(superFrameAugmented, x="pm25_NL49570", y="pm25_HLL_549")
     scatter.set(title="Scatterplot NL - 549")
@@ -256,12 +271,9 @@ def runit():
     scatter = sns.scatterplot(superFrameAugmented, x="windspeed", y="winddirection")
     scatter.set(title="Scatterplot windspeed - winddirection")
     scatter.set(xlim=(0, 30))
-    scatter.set(ylim=(0, 370))
+    scatter.set(ylim=(0, 370 ))
     plt.tight_layout()
     plt.show()
-
-
-
 
 
     # only select the tail for 545 difference NL > 10
