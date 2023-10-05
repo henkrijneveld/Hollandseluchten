@@ -21,12 +21,31 @@ myPalette = ["#FF0000", "#00FF00", "#0000FF"]
 sns.set_palette(myPalette)
 
 #@todo: wtf with figure sizes
-#my_dpi = 300
+my_dpi = 300
 #plt.figure(figsize=(1000 / my_dpi, 800 / my_dpi), dpi=my_dpi)
 
+def describePlot(aFrame, aTitle):
+    print("Describe: " + aTitle)
+    print(aFrame.describe())
+    print("---")
+
+
+def setPlotSizeSquare():
+    global my_dpi
+    plt.figure(figsize=(2000 / my_dpi, 2000 / my_dpi), dpi=my_dpi)
+
+def setPlotSizeLandscape():
+    global my_dpi
+    plt.figure(figsize=(2000 / my_dpi, 1600 / my_dpi), dpi=my_dpi)
 
 def simpleScatterPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0), title="Scatterplot", filename=False,
                       describe=False):
+    # same length on x and y, assume square, otherwise landscape
+    if (xlim[1]-xlim[0]) == (ylim[1]-ylim[0]):
+        setPlotSizeSquare()
+    else:
+        setPlotSizeLandscape()
+
     scatter = sns.scatterplot(aDataFrame, x=x, y=y)
     scatter.set(title=title)
     scatter.set(xlim=xlim)
@@ -61,12 +80,15 @@ def printSeries_on_ax(aSensor, title="PM Series", filename=False, ylim=None, ax=
         lplot.get_figure().savefig(filename)
 
 # histogram attributeplot on attribute name
-def attrPlot(aDataFrame, attr, xlim=(-40.0, 40.0), title="Difference", filename=False, binwidth=0.10):
+def attrPlot(aDataFrame, attr, xlim=(-40.0, 40.0), title="Difference", filename=False, binwidth=0.10, describe=False):
+    setPlotSizeLandscape()
     lplot = sns.histplot(data=aDataFrame, x=attr, binwidth=binwidth, kde=True)
     lplot.set(xlim=xlim)
     lplot.set(title=title)
     plt.tight_layout()
     plt.show()
+    if describe:
+        describePlot(aDataFrame[attr], title)
     if filename:
         lplot.get_figure().savefig(filename)
 
@@ -76,15 +98,13 @@ def attrPlot(aDataFrame, attr, xlim=(-40.0, 40.0), title="Difference", filename=
 def diffPlot(leftframe, rightframe, attr, xlim=(-40.0, 40.0), title="Difference", filename=False,
              describe=False):
     deltas = analyzer.diffFrame(leftframe, rightframe, attr)
-    lplot = sns.histplot(data=deltas, x="delta_"+attr, binwidth=0.10, kde=True)
+    lplot = sns.histplot(data=deltas, x="delta_"+attr, binwidth=0.1, kde=False)
     lplot.set(xlim=xlim)
     lplot.set(title=title)
     plt.tight_layout()
     plt.show()
     if describe:
-        print("Describe: " + title)
-        print(deltas["delta_"+attr].describe())
-        print("---")
+        describePlot(deltas["delta_"+attr], title)
     if filename:
         lplot.get_figure().savefig(filename)
 

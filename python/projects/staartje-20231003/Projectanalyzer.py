@@ -103,6 +103,11 @@ def diff_549_NL(aRow):
     low = aRow["pm25_NL49570"]
     return high - low
 
+def diff_545_549(aRow):
+    high = aRow["pm25_HLL_545"]
+    low = aRow["pm25_HLL_549"]
+    return high - low
+
 def diff_1850_NL(aRow):
     high = aRow["pm25_OZK_1850"]
     low = aRow["pm25_NL49570"]
@@ -129,6 +134,7 @@ def augmentSuperframe():
     superFrame["pm25_diff_549_NL"] = superFrame.apply(diff_549_NL, axis=1)
     superFrame["pm25_diff_1845_NL"] = superFrame.apply(diff_1845_NL, axis=1)
     superFrame["pm25_diff_1850_NL"] = superFrame.apply(diff_1850_NL, axis=1)
+    superFrame["pm25_diff_545_549"] = superFrame.apply(diff_545_549, axis=1)
 
     superFrameAugmented = superFrame.copy()
     #superFrameAugmented.to_csv(projectdir + "/superFrameAugmented.csv", index=False)
@@ -146,23 +152,76 @@ def runit():
     createSuperFrame(allSensorsText, KNMI_225)
     augmentSuperframe()
 
-#    attrPlot(superFrameAugmented, "pm25_diff_545_NL", binwidth=0.25, xlim=(-20, 60))
+    windplot(superFrameAugmented, "pm25_diff_545_NL", polar=False,
+             useMedian=True, title="PM25 difference 545 - LML", smooth=3,
+             method="medianvalues", filename=projectdir+"/4-windplot-545-NL")
+
+    windplot(superFrameAugmented, "pm25_diff_549_NL", polar=False,
+             useMedian=True, title="PM25 difference 549 - LML", smooth=3,
+             method="medianvalues", filename=projectdir+"/4-windplot-549-NL")
+
+    windplot(superFrameAugmented, "pm25_diff_1845_NL", polar=False,
+             useMedian=True, title="PM25 difference 1845 - LML", smooth=3,
+             method="medianvalues", filename=projectdir+"/4-windplot-1845-NL")
+
+    windplot(superFrameAugmented, "pm25_diff_545_549", polar=False,
+             useMedian=True, title="PM25 difference 545 - 549", smooth=3,
+             method="medianvalues", filename=projectdir+"/4-windplot-545-549")
+
+    simpleScatterPlot(superFrameAugmented, x="windspeed", y="pm25_diff_545_549",
+                      xlim=(0, 30), ylim=(-50, 80), title="Windspeed vs difference 545 - 549",
+                      filename=projectdir+"/4-windspeed-545-549")
+
+
+#    attrPlot(superFrameAugmented, "pm25_diff_545_NL", binwidth=0.25, xlim=(-20, 60), describe=True)
 #    attrPlot(superFrameAugmented, "pm25_diff_549_NL", binwidth=0.25, xlim=(-20, 60))
 #    attrPlot(superFrameAugmented, "pm25_diff_1845_NL", binwidth=0.25, xlim=(-20, 60))
 #    attrPlot(superFrameAugmented, "pm25_diff_1850_NL", binwidth=0.25, xlim=(-20, 60))
-    diffPlot(HLL_545, HLL_549, attr="pm25", title="Difference 545 vs 549", xlim=(-4, 4), describe=True)
 
-    diffPlot(OZK_1845, OZK_1850, attr="pm25", title="Difference 1845 vs 1850", xlim=(-4, 4), describe=True)
+    diffPlot(HLL_545, HLL_549, attr="pm25", title="Difference 545 vs 549", xlim=(-2.5, 2.5),
+             filename=projectdir+"/1-HLL-diffplot")
+    diffPlot(OZK_1845, OZK_1850, attr="pm25", title="Difference 1845 vs 1850", xlim=(-2.5, 2.5),
+             filename=projectdir+"/1-OZK-diffplot")
+    diffPlot(HLL_545, NL49570, attr="pm25", title="Difference 545 vs LML", xlim=(-20, 20),
+             filename=projectdir+"/2-545-NL-diffplot")
+    diffPlot(HLL_549, NL49570, attr="pm25", title="Difference 549 vs LML", xlim=(-20, 20),
+             filename=projectdir+"/2-549-NL-diffplot")
+    diffPlot(OZK_1845, NL49570, attr="pm25", title="Difference 1845 vs LML", xlim=(-20, 20),
+             filename=projectdir+"/2-1845-NL-diffplot")
+    diffPlot(OZK_1850, NL49570, attr="pm25", title="Difference 1850 vs LML", xlim=(-20, 20),
+             filename=projectdir+"/2-1849-NL-diffplot")
+
+    simpleScatterPlot(superFrameAugmented, x="windspeed", y="pm25_diff_545_NL",
+                      xlim=(0, 30), ylim=(-50, 80), title="Windspeed vs difference 545-LML",
+                      filename=projectdir+"/3-windspeed-545Diff")
+
+    simpleScatterPlot(superFrameAugmented, x="windspeed", y="pm25_diff_549_NL",
+                      xlim=(0, 30), ylim=(-50, 80), title="Windspeed vs difference 549-LML",
+                      filename=projectdir+"/3-windspeed-545Diff")
+
+    simpleScatterPlot(superFrameAugmented, x="windspeed", y="pm25_diff_1845_NL",
+                      xlim=(0, 30), ylim=(-50, 80), title="Windspeed vs difference 1845-LML",
+                      filename=projectdir+"/3-windspeed-1845Diff")
+    simpleScatterPlot(superFrameAugmented, x="windspeed", y="pm25_NL49570",
+                      xlim=(0, 30), ylim=(-10, 75), title="Windspeed vs LML Absolute",
+                      filename=projectdir+"/3-windspeed-49570")
+    simpleScatterPlot(superFrameAugmented, x="pm25_NL49570", y="pm25_diff_545_NL",
+                      xlim=(-10, 50), ylim=(-20, 40), title="LML Absolute vs diff545",
+                      filename=projectdir+"/3-49570-Diff545", )
+    simpleScatterPlot(superFrameAugmented, x="pm25_NL49570", y="pm25_HLL_545",
+                      xlim=(-10, 50), ylim=(-20, 40), title="LML Absolute vs 545",
+                      filename=projectdir+"/3-49570-545", )
+
 #    diffPlot(HLL_545, OZK_1850, attr="pm25", title="Difference 545 vs 1850", xlim=(-10, 10))
 #    diffPlot(HLL_549, OZK_1850, attr="pm25", title="Difference 549 vs 1850", xlim=(-10, 10))
 #    diffPlot(HLL_545, OZK_1845, attr="pm25", title="Difference 545 vs 1845", xlim=(-10, 10))
 #   diffPlot(HLL_549, OZK_1845, attr="pm25", title="Difference 549 vs 1845", xlim=(-10, 10))
 
     return
+
     simpleScatterPlot(superFrameAugmented, x="pm25_NL49570", y="pm25_diff_545_NL",
                       xlim=(-15, 15), ylim=(-50, 50), title="Scatterplot describe test",
                       filename=projectdir+"/scatter-month-545Diff")
-
 
     monthmedians = superFrameAugmented.groupby(superFrameAugmented.datetime.dt.month).median()
     monthmedians["datetime"] = monthmedians.datetime.dt.month
