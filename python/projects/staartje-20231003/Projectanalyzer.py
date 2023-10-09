@@ -152,6 +152,36 @@ def runit():
     createSuperFrame(allSensorsText, KNMI_225)
     augmentSuperframe()
 
+    simpleJointPlot(superFrameAugmented, x="pm25_NL49570", y="pm25_HLL_545",
+                      xlim=(-10, 50), ylim=(-20, 40), title="LML Absolute vs 545",
+                      filename=projectdir+"/3-49570-545", )
+
+    return
+
+#    setPlotSizeLandscape()
+#    lplot = sns.catplot(s=1, data=superFrameAugmented, kind="swarm", x="windspeed",
+#                        y="pm25_diff_545_NL")
+#    lplot.set(xlim=(0, 25))
+#    lplot.set(ylim=(-50, 50))
+
+    simpleStripPlot(superFrameAugmented, x="windspeed", y="pm25_diff_545_NL",
+                      xlim=(0, 20), ylim=(-25, 25), title="Windspeed vs difference 545 - NL",
+                      filename=projectdir+"/4-windspeed-545-NL")
+
+    simpleStripPlot(superFrameAugmented, x="windspeed", y="temperature_HLL_545",
+                      xlim=(0, 20), ylim=(0, 40), title="Windspeed vs temperature 545",
+                      filename=projectdir+"/4-windspeed-temperature-545")
+
+    simpleStripPlot(superFrameAugmented, x="windspeed", y="humidity_HLL_545",
+                      xlim=(0, 20), ylim=(20, 100), title="Windspeed vs humidity 545",
+                      filename=projectdir+"/4-windspeed-humidity-545")
+
+    simpleStripPlot(superFrameAugmented, x="windspeed", y="pm25_NL49570",
+                      xlim=(0, 20), ylim=(-10, 50), title="Windspeed vs pm25 NL",
+                      filename=projectdir+"/4-windspeed-pm25-NL")
+
+
+    return
     windplot(superFrameAugmented, "pm25_diff_545_NL", polar=False,
              useMedian=True, title="PM25 difference 545 - LML", smooth=3,
              method="medianvalues", filename=projectdir+"/4-windplot-545-NL")

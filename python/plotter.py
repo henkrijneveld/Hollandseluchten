@@ -47,6 +47,50 @@ def simpleScatterPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0),
         setPlotSizeLandscape()
 
     scatter = sns.scatterplot(aDataFrame, x=x, y=y)
+#    scatter = sns.jointplot(aDataFrame, x=x, y=y)
+
+    scatter.set(title=title)
+    scatter.set(xlim=xlim)
+    scatter.set(ylim=ylim)
+    plt.tight_layout()
+    plt.show()
+    if describe:
+        print("Describe: " + title)
+        print(aDataFrame[y].describe())
+        print("---")
+    if filename:
+        scatter.get_figure().savefig(filename)
+
+def simpleJointPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0), title="Scatterplot", filename=False,
+                      describe=False):
+    # same length on x and y, assume square, otherwise landscape
+    if (xlim[1]-xlim[0]) == (ylim[1]-ylim[0]):
+        setPlotSizeSquare()
+    else:
+        setPlotSizeLandscape()
+
+    scatter = sns.jointplot(aDataFrame, x=x, y=y,
+                            xlim=xlim, ylim=ylim)
+    plt.tight_layout()
+    plt.show()
+    if describe:
+        print("Describe: " + title)
+        print(aDataFrame[y].describe())
+        print("---")
+    if filename:
+        scatter.get_figure().savefig(filename)
+
+
+def simpleStripPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0), title="Scatterplot", filename=False,
+                      describe=False):
+    # same length on x and y, assume square, otherwise landscape
+    if (xlim[1]-xlim[0]) == (ylim[1]-ylim[0]):
+        setPlotSizeSquare()
+    else:
+        setPlotSizeLandscape()
+
+    scatter = sns.stripplot(aDataFrame, x=x, y=y, size=1, jitter=0.2)
+
     scatter.set(title=title)
     scatter.set(xlim=xlim)
     scatter.set(ylim=ylim)
