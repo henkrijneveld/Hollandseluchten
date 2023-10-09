@@ -63,14 +63,19 @@ def simpleScatterPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0),
 
 def simpleJointPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0), title="Scatterplot", filename=False,
                       describe=False):
-    # same length on x and y, assume square, otherwise landscape
-    if (xlim[1]-xlim[0]) == (ylim[1]-ylim[0]):
-        setPlotSizeSquare()
-    else:
-        setPlotSizeLandscape()
+
+    a = sns.plotting_context()
+    sns.set_context(rc={"font.size": 60,
+                        "axes.titlesize": 60,
+                        "axes.labelsize": 40,
+                        "ytick.labelsize": 30,
+                        "xtick.labelsize": 30,
+                        "grid.linewidth": 4})
 
     scatter = sns.jointplot(aDataFrame, x=x, y=y,
-                            xlim=xlim, ylim=ylim)
+                            xlim=xlim, ylim=ylim,
+                            height=20, dropna=False)
+    scatter.fig.suptitle(title)
     plt.tight_layout()
     plt.show()
     if describe:
@@ -78,7 +83,7 @@ def simpleJointPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0), t
         print(aDataFrame[y].describe())
         print("---")
     if filename:
-        scatter.get_figure().savefig(filename)
+        scatter.savefig(filename)
 
 
 def simpleStripPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0), title="Scatterplot", filename=False,

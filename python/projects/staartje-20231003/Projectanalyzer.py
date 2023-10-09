@@ -48,11 +48,13 @@ def createSuperFrame(sensors, knmi):
     global superFrame
     global OZK_1845
     global OZK_1850
+    global HLL_545
     merged = pd.DataFrame()
 
     # Both OVK's where in a different location in januari
     OZK_1845 = removeDatesBefore(OZK_1845, aDate="2023-02-01 21:00:00+00:00")
     OZK_1850 = removeDatesBefore(OZK_1850, aDate="2023-02-01 21:00:00+00:00")
+   # HLL_545 = HLL_545[HLL_545["humidity"] < 80.0]
 
     for sensor in sensors:
         sensorFrame = globals()[sensor]
@@ -152,11 +154,36 @@ def runit():
     createSuperFrame(allSensorsText, KNMI_225)
     augmentSuperframe()
 
+    simpleScatterPlot(superFrameAugmented, x="humidity_HLL_545", y="pm25_HLL_545",
+                      xlim=(0, 100), ylim=(-10, 125), title="Humidity 545 vs pm25 545",
+                      filename=projectdir+"/5-humidity-pm25-545")
+
+    simpleScatterPlot(superFrameAugmented, x="humidity_HLL_545", y="pm25_diff_545_NL",
+                      xlim=(0, 100), ylim=(-80, 80), title="Humidity 545 vs Diff pm25 545",
+                      filename=projectdir+"/5-humidity-pm25-diff-545")
+
+    simpleScatterPlot(superFrameAugmented, x="humidity_HLL_545", y="pm25_OZK_1845",
+                      xlim=(0, 100), ylim=(-10, 125), title="Humidity 545 vs pm25 1845",
+                      filename=projectdir+"/5-humidity-pm25-1845")
+
+    simpleScatterPlot(superFrameAugmented, x="humidity_HLL_545", y="pm25_NL49570",
+                      xlim=(0, 100), ylim=(-10, 125), title="Humidity 545 vs pm25 NL",
+                      filename=projectdir+"/5-humidity-pm25-NL")
+
+    simpleScatterPlot(superFrameAugmented, x="humidity_OZK_1845", y="pm25_OZK_1845",
+                      xlim=(0, 100), ylim=(-10, 125), title="Humidity 1845 vs pm25 1845",
+                      filename=projectdir+"/5-humidity-pm25-1845")
+
+    simpleScatterPlot(superFrameAugmented, x="humidity_OZK_1845", y="humidity_HLL_545",
+                      xlim=(0, 100), ylim=(-10, 125), title="Humidity 1845 vs humidity 545",
+                      filename=projectdir+"/5-humidity-1845-humidity-545")
+
+    return
+
     simpleJointPlot(superFrameAugmented, x="pm25_NL49570", y="pm25_HLL_545",
                       xlim=(-10, 50), ylim=(-20, 40), title="LML Absolute vs 545",
                       filename=projectdir+"/3-49570-545", )
 
-    return
 
 #    setPlotSizeLandscape()
 #    lplot = sns.catplot(s=1, data=superFrameAugmented, kind="swarm", x="windspeed",
@@ -181,7 +208,6 @@ def runit():
                       filename=projectdir+"/4-windspeed-pm25-NL")
 
 
-    return
     windplot(superFrameAugmented, "pm25_diff_545_NL", polar=False,
              useMedian=True, title="PM25 difference 545 - LML", smooth=3,
              method="medianvalues", filename=projectdir+"/4-windplot-545-NL")
@@ -247,7 +273,6 @@ def runit():
 #    diffPlot(HLL_545, OZK_1845, attr="pm25", title="Difference 545 vs 1845", xlim=(-10, 10))
 #   diffPlot(HLL_549, OZK_1845, attr="pm25", title="Difference 549 vs 1845", xlim=(-10, 10))
 
-    return
 
     simpleScatterPlot(superFrameAugmented, x="pm25_NL49570", y="pm25_diff_545_NL",
                       xlim=(-15, 15), ylim=(-50, 50), title="Scatterplot describe test",
