@@ -39,15 +39,14 @@ def setPlotSizeLandscape():
     plt.figure(figsize=(2000 / my_dpi, 1600 / my_dpi), dpi=my_dpi)
 
 def simpleScatterPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0), title="Scatterplot", filename=False,
-                      describe=False):
+                      describe=False, dotsize=3):
     # same length on x and y, assume square, otherwise landscape
     if (xlim[1]-xlim[0]) == (ylim[1]-ylim[0]):
         setPlotSizeSquare()
     else:
         setPlotSizeLandscape()
 
-    scatter = sns.scatterplot(aDataFrame, x=x, y=y)
-#    scatter = sns.jointplot(aDataFrame, x=x, y=y)
+    scatter = sns.scatterplot(aDataFrame, x=x, y=y, s=dotsize)
 
     scatter.set(title=title)
     scatter.set(xlim=xlim)
@@ -62,7 +61,7 @@ def simpleScatterPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0),
         scatter.get_figure().savefig(filename)
 
 def simpleJointPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0), title="Scatterplot", filename=False,
-                      describe=False):
+                      describe=False, dotsize=3, hue=None):
 
     a = sns.plotting_context()
     sns.set_context(rc={"font.size": 60,
@@ -74,7 +73,8 @@ def simpleJointPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0), t
 
     scatter = sns.jointplot(aDataFrame, x=x, y=y,
                             xlim=xlim, ylim=ylim,
-                            height=20, dropna=False)
+                            height=20, dropna=True,
+                            s=dotsize, hue=hue)
     scatter.fig.suptitle(title)
     plt.tight_layout()
     plt.show()
@@ -84,17 +84,17 @@ def simpleJointPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0), t
         print("---")
     if filename:
         scatter.savefig(filename)
-
+    sns.set_context(rc=a)
 
 def simpleStripPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0), title="Scatterplot", filename=False,
-                      describe=False):
+                      describe=False, jitter=0.2):
     # same length on x and y, assume square, otherwise landscape
     if (xlim[1]-xlim[0]) == (ylim[1]-ylim[0]):
         setPlotSizeSquare()
     else:
         setPlotSizeLandscape()
 
-    scatter = sns.stripplot(aDataFrame, x=x, y=y, size=1, jitter=0.2)
+    scatter = sns.stripplot(aDataFrame, x=x, y=y, size=1, jitter=jitter)
 
     scatter.set(title=title)
     scatter.set(xlim=xlim)
