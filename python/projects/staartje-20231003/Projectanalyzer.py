@@ -79,6 +79,7 @@ def createSuperFrame(sensors, knmi):
                 merged.rename(columns={'humidity': 'humidity_' + sensor}, inplace=True)
                 merged["humidity"] = math.nan
         else:
+            sensorFrame.drop_duplicates(inplace=True, ignore_index=True)
             merged = pd.merge(merged, sensorFrame, how='outer', on='datetime',
                               suffixes=("", "_" + sensor))
             merged.drop(['sensorname'+'_'+sensor], axis=1, inplace=True)
@@ -163,11 +164,14 @@ def runit():
     createSuperFrame(allSensorsText, KNMI_225)
     augmentSuperframe()
 
-
+    simpleJointPlot(superFrameAugmented, x="pm25_NL49570", y="pm25_HLL_545",
+                      xlim=(-5, 40), ylim=(-5, 40), title="Scatterplot NL - 545",
+                      filename=projectdir+"/scatter-NL-545", dotsize=60, hue="highhumidity")
+    return
     simpleScatterPlot(superFrameAugmented, x="pm25_NL49570", y="pm25_HLL_545",
                       xlim=(-5, 25), ylim=(-5, 25), title="Scatterplot NL - 545 (detail)",
                       filename=projectdir+"/scatter-NL-545", dotsize=20)
-    return
+
     simpleScatterPlot(superFrameAugmented, x="humidity_HLL_545", y="pm25_HLL_545",
                       xlim=(0, 100), ylim=(-10, 125), title="Humidity 545 vs pm25 545",
                       filename=projectdir+"/5-humidity-pm25-545")

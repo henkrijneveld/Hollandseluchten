@@ -282,7 +282,7 @@ def createTimeSeries_Multiple(aCollection, projectdir, namesuffix=""):
     for sensortuple in aCollection:
         sensordata, sensor = sensortuple
         printSeries_on_ax(sensordata, sensor + " " + namesuffix, projectdir + "/timeseries-" + sensor + "-" + namesuffix,
-                    ylim=(-20,50), ax=axes[rownr, colnr])
+                    ylim=(-5,100), ax=axes[rownr, colnr])
         colnr += 1
         if colnr > 2:
             colnr = 0
