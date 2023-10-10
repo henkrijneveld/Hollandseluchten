@@ -21,8 +21,8 @@ def runit():
 #    knmiselection = False
 
     # list of meetnet sensors to retrieve
-#    meetnetselection = ["NL49570"]   # colocatie NL Beverwijk
-    meetnetselection = None
+    meetnetselection = ["NL49701"]   # colocatie NL Beverwijk
+#    meetnetselection = None
 
     # list sensors to retrieve. Every entry is a tuple: (project, sensornumber). None if nothing to retrieve
 #    sensorselection = None

@@ -145,9 +145,9 @@ def attrPlot(aDataFrame, attr, xlim=(-40.0, 40.0), title="Difference", filename=
 
 # difplot on attribute name
 def diffPlot(leftframe, rightframe, attr, xlim=(-40.0, 40.0), title="Difference", filename=False,
-             describe=False):
+             describe=False,binwidth=0.1):
     deltas = analyzer.diffFrame(leftframe, rightframe, attr)
-    lplot = sns.histplot(data=deltas, x="delta_"+attr, binwidth=0.1, kde=False)
+    lplot = sns.histplot(data=deltas, x="delta_"+attr, binwidth=binwidth, kde=False)
     lplot.set(xlim=xlim)
     lplot.set(title=title)
     plt.tight_layout()

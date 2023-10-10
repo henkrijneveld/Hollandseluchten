@@ -25,6 +25,7 @@ HLL_415 = pd.DataFrame()
 HLL_378 = pd.DataFrame()
 HLL_339 = pd.DataFrame()
 HLL_325 = pd.DataFrame()
+NL49701 = pd.DataFrame()
 startdate = "20230101"
 enddate = "20231001"
 projectdir = "/home/henk/Projects/Hollandseluchten/python/projects/koog-20231010"
@@ -119,7 +120,7 @@ def augmentWideFrame():
     wideFrame["diff_298_326"] = wideFrame.apply(diff_298_326, axis=1)
     wideFrame["diff_326_320"] = wideFrame.apply(diff_326_320, axis=1)
     wideFrame["diff_298_320"] = wideFrame.apply(diff_298_320, axis=1)
-
+    wideFrame["highhumidity"] = wideFrame.apply(highhumidity, axis=1)
     print("Attributes added")
 
     wideFrameAugmented = wideFrame.copy()
@@ -132,7 +133,7 @@ def augmentWideFrame():
 def runit():
     global wideFrameAugmented
 
-    allSensorsText = ["HLL_326", "HLL_298", "HLL_320", "HLL_415",
+    allSensorsText = ["NL49701", "HLL_326", "HLL_298", "HLL_320", "HLL_415",
                       "HLL_378", "HLL_339", "HLL_325"]
 
 #    allSensors = convertTextToDataFrame(allSensorsText)
@@ -144,21 +145,26 @@ def runit():
     print("Wideframe augmented")
 
 #    diffPlot(HLL_298, HLL_339, "pm25", title="Diffplot 298 vs 339", xlim=(-10,10))
-    diffPlot(HLL_298, HLL_326, "pm25", title="Diffplot 298 vs 326", xlim=(-10,10))
-    diffPlot(HLL_326, HLL_320, "pm25", title="Diffplot 326 vs 320", xlim=(-10,10))
-    diffPlot(HLL_298, HLL_320, "pm25", title="Diffplot 298 vs 320", xlim=(-10,10))
+    diffPlot(HLL_298, NL49701, "pm25", title="Diffplot 298 vs NL49701", xlim=(-10,10))
+    diffPlot(HLL_326, NL49701, "pm25", title="Diffplot 326 vs NL49701", xlim=(-10,10))
+    diffPlot(HLL_320, NL49701, "pm25", title="Diffplot 320 vs NL49701", xlim=(-10,10))
 
+    simpleJointPlot(wideFrameAugmented, "pm25_HLL_298", "pm25_HLL_326",
+                    xlim=(0,40), ylim=(0,40),title="298 vs 326", hue="highhumidity",
+                    dotsize=40)
 
 #    diffPlot(HLL_298, HLL_320, "pm25", title="Diffplot 298 vs 320", xlim=(-10,10))
 #    diffPlot(HLL_298, HLL_415, "pm25", title="Diffplot 298 vs 415", xlim=(-10,10))
 #    diffPlot(HLL_298, HLL_378, "pm25", title="Diffplot 298 vs 378", xlim=(-10,10))
 #    diffPlot(HLL_298, HLL_325, "pm25", title="Diffplot 298 vs 325", xlim=(-10,10))
-    simpleScatterPlot(wideFrameAugmented, x="humidity_HLL_298", y="humidity_HLL_326", xlim=(20,100), ylim=(20,100))
-    simpleScatterPlot(wideFrameAugmented, x="temperature_HLL_298", y="temperature_HLL_326", xlim=(-10,50), ylim=(-10,50))
+    simpleScatterPlot(wideFrameAugmented, x="humidity_HLL_298", y="humidity_HLL_326",
+                      xlim=(20,100), ylim=(20,100))
+    simpleScatterPlot(wideFrameAugmented, x="temperature_HLL_298", y="temperature_HLL_326",
+                      xlim=(-10,50), ylim=(-10,50))
 
-    windplot(wideFrameAugmented, "diff_298_326")
-    windplot(wideFrameAugmented, "diff_326_320")
-    windplot(wideFrameAugmented, "diff_298_320")
+    windplot(wideFrameAugmented, "diff_298_326", polar=False, smooth=2)
+    windplot(wideFrameAugmented, "diff_326_320", polar=False, smooth=2)
+    windplot(wideFrameAugmented, "diff_298_320", polar=False, smooth=2)
 
 
     return

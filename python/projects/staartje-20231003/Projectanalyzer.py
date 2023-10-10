@@ -164,10 +164,17 @@ def runit():
     createSuperFrame(allSensorsText, KNMI_225)
     augmentSuperframe()
 
+    windplot(superFrameAugmented, "pm25_diff_545_549", polar=False,
+             useMedian=True, title="PM25 difference 545 - 549", smooth=3,
+             method="medianvalues", filename=projectdir+"/4-windplot-545-549")
+    return
+    diffPlot(HLL_545, HLL_549, attr="pm25", title="Difference 545 vs 549", xlim=(-2.5, 2.5),
+             filename=projectdir+"/1-HLL-diffplot", binwidth=0.1)
+
     simpleJointPlot(superFrameAugmented, x="pm25_NL49570", y="pm25_HLL_545",
                       xlim=(-5, 40), ylim=(-5, 40), title="Scatterplot NL - 545",
                       filename=projectdir+"/scatter-NL-545", dotsize=60, hue="highhumidity")
-    return
+
     simpleScatterPlot(superFrameAugmented, x="pm25_NL49570", y="pm25_HLL_545",
                       xlim=(-5, 25), ylim=(-5, 25), title="Scatterplot NL - 545 (detail)",
                       filename=projectdir+"/scatter-NL-545", dotsize=20)
