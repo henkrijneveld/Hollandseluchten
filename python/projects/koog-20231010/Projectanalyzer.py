@@ -76,13 +76,13 @@ def createWideFrame(sensors, knmi):
         else:
             sensorFrame.drop_duplicates(inplace=True, ignore_index=True)
             merged = pd.merge(merged, sensorFrame, how='outer', on='datetime',
-                              suffixes=("", "_" + sensor))
+                              suffixes=("", "_" + sensor), validate="1:1")
             merged.drop(['sensorname'+'_'+sensor], axis=1, inplace=True)
     merged.drop(['sensorname'], axis=1, inplace=True)
     # delete 0 and 990
     knmi = knmi[(knmi["winddirection"] < 369) & (knmi["winddirection"] > 5)]
     merged = pd.merge(merged, knmi, on='datetime', 
-                      suffixes=("", "_knmi"))
+                      suffixes=("", "_knmi"), validate="1:1")
     merged.drop(['sensorname', "pm25", "temperature", "humidity"], axis=1, inplace=True)
 #    merged.drop(merged.columns[0], axis=1, inplace=True)
 
@@ -162,7 +162,7 @@ def runit():
     simpleScatterPlot(wideFrameAugmented, x="temperature_HLL_298", y="temperature_HLL_326",
                       xlim=(-10,50), ylim=(-10,50))
 
-    windplot(wideFrameAugmented, "diff_298_326", polar=False, smooth=2)
+    windplot(wideFrameAugmented, "diff_298_326", polar=False, smooth=2, method="medianvalues")
     windplot(wideFrameAugmented, "diff_326_320", polar=False, smooth=2)
     windplot(wideFrameAugmented, "diff_298_320", polar=False, smooth=2)
 
