@@ -17,6 +17,7 @@ import pprint as pp
 # General
 wideFrame = pd.DataFrame()
 wideFrameAugmented = pd.DataFrame()
+HLL_256 = pd.DataFrame()
 HLL_326 = pd.DataFrame()
 HLL_298 = pd.DataFrame()
 KNMI_240 = pd.DataFrame()
@@ -25,10 +26,14 @@ HLL_415 = pd.DataFrame()
 HLL_378 = pd.DataFrame()
 HLL_339 = pd.DataFrame()
 HLL_325 = pd.DataFrame()
+HLL_323 = pd.DataFrame()
 NL49701 = pd.DataFrame()
+NLMedian = pd.DataFrame()
 startdate = "20230101"
 enddate = "20231001"
 projectdir = "/home/henk/Projects/Hollandseluchten/python/projects/koog-20231010"
+
+hllNumberlist = ["298", "326", "320", "415", "378", "339", "325", "256", "323"]
 
 def convertTextToDataFrame(aTextCollection):
     aDataFrameCollection = []
@@ -96,31 +101,26 @@ def highhumidity(aRow):
     humidity = aRow["humidity_HLL_298"]
     return humidity > 80
 
-def diff_298_326(aRow):
-    value = aRow["pm25_HLL_298"]
-    compare = aRow["pm25_HLL_326"]
-    return value - compare
-
-def diff_326_320(aRow):
-    value = aRow["pm25_HLL_326"]
-    compare = aRow["pm25_HLL_320"]
-    return value - compare
-def diff_298_320(aRow):
-    value = aRow["pm25_HLL_298"]
-    compare = aRow["pm25_HLL_320"]
-    return value - compare
-
-
 # add columns:
 #
 # write result to superFrameAugmented.csv
 def augmentWideFrame():
+    global wideFrame
     global wideFrameAugmented
 
-    wideFrame["diff_298_326"] = wideFrame.apply(diff_298_326, axis=1)
-    wideFrame["diff_326_320"] = wideFrame.apply(diff_326_320, axis=1)
-    wideFrame["diff_298_320"] = wideFrame.apply(diff_298_320, axis=1)
-    wideFrame["highhumidity"] = wideFrame.apply(highhumidity, axis=1)
+    createDiffColumn(wideFrame, "pm25_HLL_298", "pm25_HLL_326", "diff_298_326")
+    createDiffColumn(wideFrame, "pm25_HLL_326", "pm25_HLL_320", "diff_326_320")
+    createDiffColumn(wideFrame, "pm25_HLL_298", "pm25_HLL_320", "diff_298_320")
+#    wideFrame["highhumidity"] = wideFrame.apply(highhumidity, axis=1)
+
+    wideFrame["highhumidity"] = wideFrame["humidity_HLL_298"] > 80
+
+    wideFrame = wideFrame[wideFrame["humidity_HLL_298"] < 80]
+
+    # compare to median
+    for sensor in hllNumberlist:
+        createDiffColumn(wideFrame, "pm25_HLL_"+sensor, "pm25_NL49701", "diff_"+sensor+"_NL49701")
+
     print("Attributes added")
 
     wideFrameAugmented = wideFrame.copy()
@@ -134,17 +134,27 @@ def runit():
     global wideFrameAugmented
 
     allSensorsText = ["NL49701", "HLL_326", "HLL_298", "HLL_320", "HLL_415",
-                      "HLL_378", "HLL_339", "HLL_325"]
+                      "HLL_378", "HLL_339", "HLL_325", "HLL_256", "HLL_323",
+                      "NLMedian"]
 
 #    allSensors = convertTextToDataFrame(allSensorsText)
 #    createTimeSeries_Multiple(list(zip(allSensors, allSensorsText)), projectdir, namesuffix="pm25")
 
     createWideFrame(allSensorsText, KNMI_240)
-    print("Wideframe created")
     augmentWideFrame()
     print("Wideframe augmented")
+    printSeries(NLMedian)
 
-#    diffPlot(HLL_298, HLL_339, "pm25", title="Diffplot 298 vs 339", xlim=(-10,10))
+    windplot(wideFrameAugmented, "temperature_HLL_298", smooth=3,
+             title="humidity 298", method="medianvalues")
+
+    for sensor in hllNumberlist:
+        windplot(wideFrameAugmented, "diff_"+sensor+"_NL49701",
+                 polar=False, smooth=3, method="medianvalues",
+                 title="HLL "+sensor+" vs. NL49701")
+
+    return
+    #    diffPlot(HLL_298, HLL_339, "pm25", title="Diffplot 298 vs 339", xlim=(-10,10))
     diffPlot(HLL_298, NL49701, "pm25", title="Diffplot 298 vs NL49701", xlim=(-10,10))
     diffPlot(HLL_326, NL49701, "pm25", title="Diffplot 326 vs NL49701", xlim=(-10,10))
     diffPlot(HLL_320, NL49701, "pm25", title="Diffplot 320 vs NL49701", xlim=(-10,10))

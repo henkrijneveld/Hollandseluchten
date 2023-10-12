@@ -18,6 +18,7 @@ import pprint as pp
 superFrame = pd.DataFrame()
 superFrameAugmented = pd.DataFrame()
 KNMI_225 = pd.DataFrame()
+KNMI_240 = pd.DataFrame()
 HLL_549 = pd.DataFrame()
 OZK_1845 = pd.DataFrame()
 HLL_545 = pd.DataFrame()
@@ -80,13 +81,13 @@ def createSuperFrame(sensors, knmi):
                 merged["humidity"] = math.nan
         else:
             sensorFrame.drop_duplicates(inplace=True, ignore_index=True)
-            merged = pd.merge(merged, sensorFrame, how='outer', on='datetime',
+            merged = pd.merge(merged, sensorFrame, how='inner', on='datetime',
                               suffixes=("", "_" + sensor))
             merged.drop(['sensorname'+'_'+sensor], axis=1, inplace=True)
     merged.drop(['sensorname'], axis=1, inplace=True)
     # delete 0 and 990
     knmi = knmi[(knmi["winddirection"] < 369) & (knmi["winddirection"] > 5)]
-    merged = pd.merge(merged, knmi, on='datetime', 
+    merged = pd.merge(merged, knmi, on='datetime', how="inner",
                       suffixes=("", "_knmi"))
     merged.drop(['sensorname', "pm25", "temperature", "humidity"], axis=1, inplace=True)
 #    merged.drop(merged.columns[0], axis=1, inplace=True)
@@ -139,11 +140,12 @@ def augmentSuperframe():
     global superFrameAugmented
 
     superFrame["pm25_diff_545_NL"] = superFrame.apply(diff_545_NL, axis=1)
-    superFrame["pm25_diff_549_NL"] = superFrame.apply(diff_549_NL, axis=1)
+#    superFrame["pm25_diff_549_NL"] = superFrame.apply(diff_549_NL, axis=1)
     superFrame["pm25_diff_1845_NL"] = superFrame.apply(diff_1845_NL, axis=1)
-    superFrame["pm25_diff_1850_NL"] = superFrame.apply(diff_1850_NL, axis=1)
-    superFrame["pm25_diff_545_549"] = superFrame.apply(diff_545_549, axis=1)
+#    superFrame["pm25_diff_1850_NL"] = superFrame.apply(diff_1850_NL, axis=1)
+#    superFrame["pm25_diff_545_549"] = superFrame.apply(diff_545_549, axis=1)
     superFrame["highhumidity"] = superFrame.apply(highhumidity, axis=1)
+    superFrame["quotient"] = superFrame["pm25_HLL_545"] / superFrame["pm25_NL49570"]
 
 
     superFrameAugmented = superFrame.copy()
@@ -157,17 +159,69 @@ def runit():
     global HLL_545
     global HLL_549
 
-    allSensorsText = ["NL49570", "HLL_545", "HLL_549", "OZK_1845", "OZK_1850"]
+    allSensorsText = ["NL49570", "HLL_545", "OZK_1845", "HLL_549"]
+    #, "HLL_549", "OZK_1845", "OZK_1850"]
     allSensors = convertTextToDataFrame(allSensorsText)
 
 #    createTimeSeries_Multiple(list(zip(allSensors, allSensorsText)), projectdir, namesuffix="pm25")
-    createSuperFrame(allSensorsText, KNMI_225)
+    createSuperFrame(allSensorsText, KNMI_240)
     augmentSuperframe()
+
+    simpleStripPlot(superFrameAugmented, xlim=(0,12), ylim=(-5,20),x="windspeed", y="pm25_NL49570")
+
+    # superFrameAugmented = superFrameAugmented[superFrameAugmented["humidity_HLL_545"] < 81]
+
+    simpleScatterPlot(superFrameAugmented, "temperature_HLL_549", "temperature_knmi",
+                      xlim=(-10,40), ylim=(-10,40))
+
+#    superFrameAugmented = superFrameAugmented[superFrameAugmented["windspeed"] > 4]
+
+#    superFrameAugmented = superFrameAugmented[superFrameAugmented["windspeed"] < 4]
+
+    simpleStripPlot(superFrameAugmented, xlim=(0,20), ylim=(0,3),x="windspeed", y="quotient")
+#    superFrameAugmented = superFrameAugmented[superFrameAugmented["windspeed"] > 12]
+    attrPlot(superFrameAugmented, "pm25_diff_545_NL", binwidth=0.5)
+
+    simpleStripPlot(superFrameAugmented, xlim=(0,20), ylim=(20,100),x="windspeed", y="humidity_HLL_545")
+
+    windplot(superFrameAugmented, "pm25_NL49570", polar=False,
+             useMedian=True, title="PM25 NL49570", smooth=3,
+             method="medianvalues", filename=projectdir+"/6-windplot-NL49570")
+
+    windplot(superFrameAugmented, "pm25_HLL_545", polar=False,
+             useMedian=True, title="PM25 HLL 545", smooth=3,
+             method="medianvalues", filename=projectdir+"/6-windplot-545")
+
+    windplot(superFrameAugmented, "pm25_diff_545_NL", polar=False,
+             useMedian=True, title="PM25 difference 545 - NL", smooth=3,
+             method="medianvalues", filename=projectdir+"/6-windplot-545-NL")
+
+    windplot(superFrameAugmented, "pm25_OZK_1845", polar=False,
+             useMedian=True, title="PM25 OZK 1845", smooth=3,
+             method="medianvalues", filename=projectdir+"/6-windplot-1845")
+
+    windplot(superFrameAugmented, "pm25_diff_1845_NL", polar=False,
+             useMedian=True, title="PM25 difference 1845 - NL", smooth=3,
+             method="medianvalues", filename=projectdir+"/6-windplot-1845-NL")
+
+    windplot(superFrameAugmented, "windspeed", polar=False,
+             useMedian=True, title="Windspeed", smooth=3,
+             method="medianvalues", filename=projectdir+"/6-windplot-windspeed")
+
+    windplot(superFrameAugmented, "humidity_HLL_545", polar=False,
+             useMedian=True, title="Humidity 545", smooth=3,
+             method="medianvalues", filename=projectdir+"/6-windplot-humidity_545")
+
+    windplot(superFrameAugmented, "temperature_HLL_545", polar=False,
+             useMedian=True, title="Temperature 545", smooth=3,
+             method="medianvalues", filename=projectdir+"/6-windplot-temperature_545")
+
+    return
 
     windplot(superFrameAugmented, "pm25_diff_545_549", polar=False,
              useMedian=True, title="PM25 difference 545 - 549", smooth=3,
              method="medianvalues", filename=projectdir+"/4-windplot-545-549")
-    return
+
     diffPlot(HLL_545, HLL_549, attr="pm25", title="Difference 545 vs 549", xlim=(-2.5, 2.5),
              filename=projectdir+"/1-HLL-diffplot", binwidth=0.1)
 

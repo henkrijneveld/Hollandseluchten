@@ -14,7 +14,7 @@ def runit():
     start = "20230101"
 
     # enddate for retrieving (inclusive)
-    end = "20230901"
+    end = "20231001"
 
     # not None if knmi data must be retrieved
     knmiselection = ["240", "225", "209"]
@@ -30,7 +30,7 @@ def runit():
 
     # list sensors to retrieve. Every entry is a tuple: (project, sensornumber). None if nothing to retrieve
 #    sensorselection = [("HLL", "549"), ("OZK", "1845"), ("HLL", "545"), ("OZK", "1850")]
-    sensorselection = None
+#    sensorselection = None
     sensorselection = [("HLL", "298"),("HLL", "545"), ("HLL", "420")]
 
     # fastimport: if True existing files will not be reloaded (no check on dates is done!)

@@ -30,6 +30,10 @@ def dropNoWindDirection(aFrame):
     # drop no wind
     aFrame.drop(aFrame[aFrame['winddirection'] == 0].index, inplace=True)
 
+def createDiffColumn(aFrame, left, right, name):
+    aFrame[name] = aFrame[left] - aFrame[right]
+    return aFrame
+
 def printGlobals(projectdir):
     prefix = ""
     startdate = False

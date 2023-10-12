@@ -61,7 +61,7 @@ def runit():
 
 
     # create the virtual reference sensor
-    loc_all = removeDatesBefore(loc_all, "2023-01-01 02:00:00+00:00")  # remove the fireworks peak at 1th januari
+    loc_all = removeDatesBefore(loc_all, "2023-01-01 04:00:00+00:00")  # remove the fireworks peak at 1th januari
     loc_all.to_csv("NLMedian.csv")
 
     # plot the median pm concentrations of the virtual sensor
