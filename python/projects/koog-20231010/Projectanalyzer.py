@@ -7,6 +7,7 @@
 import sys
 
 import matplotlib.pyplot as plt
+import pandas as pd
 
 sys.path.insert(0, '../..')
 from analyzer import *
@@ -58,6 +59,8 @@ def createWideFrame(sensors, knmi):
 
     for sensor in sensors:
         sensorFrame = globals()[sensor]
+        sensorFrame.drop_duplicates(inplace=True, ignore_index=True)
+
         if merged.empty:
             merged = sensorFrame.copy()
             # these columns will be removed later. Used to ease the addition
@@ -79,7 +82,7 @@ def createWideFrame(sensors, knmi):
                 merged.rename(columns={'humidity': 'humidity_' + sensor}, inplace=True)
                 merged["humidity"] = math.nan
         else:
-            sensorFrame.drop_duplicates(inplace=True, ignore_index=True)
+#            sensorFrame.drop_duplicates(inplace=True, ignore_index=True)
             merged = pd.merge(merged, sensorFrame, how='outer', on='datetime',
                               suffixes=("", "_" + sensor), validate="1:1")
             merged.drop(['sensorname'+'_'+sensor], axis=1, inplace=True)
@@ -131,16 +134,67 @@ def augmentWideFrame():
 
 
 def runit():
+    global wideFrame
     global wideFrameAugmented
 
-    allSensorsText = ["NL49701", "HLL_326", "HLL_298", "HLL_320", "HLL_415",
-                      "HLL_378", "HLL_339", "HLL_325", "HLL_256", "HLL_323",
-                      "NLMedian"]
-
-#    allSensors = convertTextToDataFrame(allSensorsText)
-#    createTimeSeries_Multiple(list(zip(allSensors, allSensorsText)), projectdir, namesuffix="pm25")
-
+    allSensorsText = ["HLL_339", "HLL_298", "HLL_326", "HLL_320", "NLMedian"]
+#                     "HLL_378", "HLL_339", "HLL_325", "HLL_256", "HLL_323",
+    allSensors = convertTextToDataFrame(allSensorsText)
+#    createTimeSeries_Multiple(list(zip(allSensors, allSensorsText)), projectdir, namesuffix="pm25", fname="timeseries")
     createWideFrame(allSensorsText, KNMI_240)
+
+    # DIFFSENSORS
+    nrcols = len(allSensors)
+    nrrows = len(allSensors)
+    fig, axes = plt.subplots(nrcols, nrrows, figsize=(20,20), sharey=True, sharex=True)
+    for lastcomn in range(0, nrcols):
+        axes[nrrows - 1, lastcomn].tick_params(axis='x', which="both", labelrotation=30, bottom=True)
+    colnr = 0
+    rownr = 0
+    for ysensor in allSensorsText:
+        for xsensor in allSensorsText:
+            if xsensor != ysensor:
+                diffsensor = pd.DataFrame()
+                diffsensor["delta"] = wideFrame["pm25_" + xsensor] - wideFrame["pm25_" + ysensor]
+                ax = axes[rownr, colnr]
+                ax.set(title=xsensor + " - " + ysensor)
+                lplot = sns.histplot(binrange=(-10,10), data=diffsensor, x="delta", binwidth=0.25,
+                                     kde=False, ax=ax)
+            colnr += 1
+        colnr = 0
+        rownr += 1
+    plt.tight_layout()
+    plt.savefig(projectdir+"/diffplots", dpi='figure')
+    plt.show()
+
+    # WINDPLOTS
+    nrcols = len(allSensors)
+    nrrows = len(allSensors)
+    fig, axes = plt.subplots(nrcols, nrrows, figsize=(20,20), sharey=True, sharex=True)
+    for lastcomn in range(0, nrcols):
+        axes[nrrows - 1, lastcomn].tick_params(axis='x', which="both", labelrotation=30, bottom=True)
+    colnr = 0
+    rownr = 0
+    for ysensor in allSensorsText:
+        for xsensor in allSensorsText:
+            if xsensor != ysensor:
+                diffsensor = pd.DataFrame()
+                diffsensor["delta"] = wideFrame["pm25_" + xsensor] - wideFrame["pm25_" + ysensor]
+                diffsensor["winddirection"] = wideFrame["winddirection"]
+                ax = axes[rownr, colnr]
+ #               ax.set(title=xsensor + " - " + ysensor)
+                windplot(diffsensor, "delta", polar=False, smooth = 3, title="Diff " + xsensor + " - " + ysensor, ax=ax)
+                ax.xaxis.set_ticks(np.arange(0, 365, 90))
+            colnr += 1
+        colnr = 0
+        rownr += 1
+    plt.tight_layout()
+    plt.savefig(projectdir+"/windplots", dpi='figure')
+    plt.show()
+
+
+    return
+
     augmentWideFrame()
     print("Wideframe augmented")
     printSeries(NLMedian)

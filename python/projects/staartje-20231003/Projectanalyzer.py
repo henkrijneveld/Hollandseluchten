@@ -167,8 +167,10 @@ def runit():
     createSuperFrame(allSensorsText, KNMI_240)
     augmentSuperframe()
 
-    simpleStripPlot(superFrameAugmented, xlim=(0,12), ylim=(-5,20),x="windspeed", y="pm25_NL49570")
+    simpleStripPlot(superFrameAugmented, xlim=(0,36), ylim=(-5,30),
+                    x="winddirection", y="pm25_NL49570", jitter=0.6)
 
+    return
     # superFrameAugmented = superFrameAugmented[superFrameAugmented["humidity_HLL_545"] < 81]
 
     simpleScatterPlot(superFrameAugmented, "temperature_HLL_549", "temperature_knmi",

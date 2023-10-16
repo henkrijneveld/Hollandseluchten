@@ -274,7 +274,7 @@ def createTimeSeries(aCollection, projectdir, namesuffix=""):
         printSeries(sensordata, sensor + " " + namesuffix, projectdir + "/timeseries-" + sensor + "-" + namesuffix,
                     ylim=(-20,50))
 
-def createTimeSeries_Multiple(aCollection, projectdir, namesuffix=""):
+def createTimeSeries_Multiple(aCollection, projectdir, namesuffix="", fname=None):
     total = len(aCollection)
     nrcols = min(total, 3)
     nrrows = math.ceil(total / 3)
@@ -293,5 +293,7 @@ def createTimeSeries_Multiple(aCollection, projectdir, namesuffix=""):
             rownr += 1
 
     plt.tight_layout()
+    if fname is not None:
+        plt.savefig(projectdir+"/"+fname, dpi='figure')
     plt.show()
 

@@ -197,7 +197,8 @@ def fillmissingwinddirections(aFrame):
     return target
 
 # show median of values in the winddirection of frame, value in steps + and - 10 degrees
-def windplot(frame, values, polar=True, useMedian=True, title="Windplot", smooth=1, method="medianvalues", filename=False):
+# WARNING: ax only works with lineplots
+def windplot(frame, values, polar=True, useMedian=True, title="Windplot", smooth=1, method="medianvalues", filename=False, ax=None):
     global functions
     conc = frame.copy()
     if not useMedian:
@@ -219,6 +220,8 @@ def windplot(frame, values, polar=True, useMedian=True, title="Windplot", smooth
         values = svalues
 
     if polar:
+        if ax is not None:
+            print("==> ax defined in polor plot, ignored <==")
         conc["winddirection"] = conc["winddirection"] / 180 * math.pi
         conc["winddirection"][0] = 0
 
@@ -236,19 +239,21 @@ def windplot(frame, values, polar=True, useMedian=True, title="Windplot", smooth
             g.savefig(filename)
 
     else:
-        lplot = (sns.lineplot(data=conc, x="winddirection", y=values, linewidth=2.5))
+        lplot = (sns.lineplot(data=conc, x="winddirection", y=values, linewidth=2.5, ax=ax))
         lplot.set(xlim=(-5.0, 365.0))
+        lplot.xaxis.set_ticks(np.arange(0, 365, 90))
         lplot.set(title=title)
         lplot.set_ylabel(values.replace("_", " "), fontsize=14)
         lplot.set_xlabel("winddirection", fontsize=14)
         lplot.axes.set_title(title, fontsize=17)
 
-        plt.tight_layout()
+        if ax is None:
+            plt.tight_layout()
+            if filename:
+                lplot.get_figure().savefig(filename)
 
-        if filename:
-            lplot.get_figure().savefig(filename)
-
-    plt.show()
+    if ax is None:
+        plt.show()
 
 # show number of count of every winddirection in frame
 def windcountplot(frame, polar=True, title="wind count plot"):
