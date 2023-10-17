@@ -278,3 +278,60 @@ def windcountplot(frame, polar=True, title="wind count plot"):
         lplot.set(xlim=(0.0, 380.0))
     plt.tight_layout()
     plt.show()
+
+# diffplot for sensorlist for attr
+def diffPlotSensors(aFrame, attr, sensorlist, fname=None, binrange=(-10,10), binwidth=0.25):
+    nrcols = len(sensorlist)
+    nrrows = len(sensorlist)
+    fig, axes = plt.subplots(nrcols, nrrows, figsize=(20, 20), sharey=True, sharex=True)
+    for lastcomn in range(0, nrcols):
+        axes[nrrows - 1, lastcomn].tick_params(axis='x', which="both", labelrotation=30, bottom=True)
+    colnr = 0
+    rownr = 0
+    for ysensor in sensorlist:
+        for xsensor in sensorlist:
+            if xsensor != ysensor:
+                diffsensor = pd.DataFrame()
+                diffsensor["delta"] = aFrame[attr + "_" + xsensor] - aFrame[attr + "_" + ysensor]
+                ax = axes[rownr, colnr]
+                ax.set(title=xsensor + " - " + ysensor)
+                lplot = sns.histplot(binrange=binrange, data=diffsensor, x="delta", binwidth=binwidth,
+                                     kde=False, ax=ax)
+            colnr += 1
+        colnr = 0
+        rownr += 1
+    plt.tight_layout()
+    if fname is not None:
+        plt.savefig(fname, dpi='figure')
+    plt.show()
+
+def diffWindPlotSensors(aFrame, attr, allSensors, fname, smooth = 1):
+    nrcols = len(allSensors)
+    nrrows = len(allSensors)
+    fig, axes = plt.subplots(nrcols, nrrows, figsize=(20,20), sharey=True, sharex=True)
+    for lastcomn in range(0, nrcols):
+        axes[nrrows - 1, lastcomn].tick_params(axis='x', which="both", labelrotation=30, bottom=True)
+    colnr = 0
+    rownr = 0
+    for ysensor in allSensors:
+        for xsensor in allSensors:
+            if xsensor != ysensor:
+                diffsensor = pd.DataFrame()
+                diffsensor["delta"] = aFrame[attr + "_" + xsensor] - aFrame[attr + "_" + ysensor]
+                diffsensor["winddirection"] = aFrame["winddirection"]
+ #               diffsensor.to_csv("./diff-"+xsensor+"-"+ysensor+".csv", index=False)
+
+                ax = axes[rownr, colnr]
+ #               ax.set(title=xsensor + " - " + ysensor)
+                windplot(diffsensor, "delta", polar=False, smooth=smooth,
+                         method="medianvalues",
+                         title="Diff " + xsensor + " - " + ysensor, ax=ax)
+                ax.xaxis.set_ticks(np.arange(0, 365, 90))
+            colnr += 1
+        colnr = 0
+        rownr += 1
+    plt.tight_layout()
+    if fname is not None:
+        plt.savefig(fname, dpi='figure')
+    plt.show()
+

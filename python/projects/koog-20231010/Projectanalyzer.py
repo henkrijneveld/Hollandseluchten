@@ -28,13 +28,16 @@ HLL_378 = pd.DataFrame()
 HLL_339 = pd.DataFrame()
 HLL_325 = pd.DataFrame()
 HLL_323 = pd.DataFrame()
+HLL_413 = pd.DataFrame()
+HLL_345 = pd.DataFrame()
 NL49701 = pd.DataFrame()
 NLMedian = pd.DataFrame()
 startdate = "20230101"
 enddate = "20231001"
 projectdir = "/home/henk/Projects/Hollandseluchten/python/projects/koog-20231010"
 
-hllNumberlist = ["298", "326", "320", "415", "378", "339", "325", "256", "323"]
+hllNumberlist = ["298", "326", "320", "415", "378", "339", "325"]
+hllGrootkruislist = ["345", "413", "415", "323"]
 
 def convertTextToDataFrame(aTextCollection):
     aDataFrameCollection = []
@@ -114,6 +117,8 @@ def augmentWideFrame():
     createDiffColumn(wideFrame, "pm25_HLL_298", "pm25_HLL_326", "diff_298_326")
     createDiffColumn(wideFrame, "pm25_HLL_326", "pm25_HLL_320", "diff_326_320")
     createDiffColumn(wideFrame, "pm25_HLL_298", "pm25_HLL_320", "diff_298_320")
+    createDiffColumn(wideFrame, "pm25_HLL_298", "pm25_HLL_378", "diff_298_378")
+
 #    wideFrame["highhumidity"] = wideFrame.apply(highhumidity, axis=1)
 
     wideFrame["highhumidity"] = wideFrame["humidity_HLL_298"] > 80
@@ -122,13 +127,13 @@ def augmentWideFrame():
 
     # compare to median
     for sensor in hllNumberlist:
-        createDiffColumn(wideFrame, "pm25_HLL_"+sensor, "pm25_NL49701", "diff_"+sensor+"_NL49701")
+        createDiffColumn(wideFrame, "pm25_HLL_"+sensor, "pm25_NLMedian", "diff_"+sensor+"_NLMedian")
 
     print("Attributes added")
 
     wideFrameAugmented = wideFrame.copy()
     print("Frame copied")
-    #wideFrameAugmented.to_csv(projectdir + "/wideFrameAugmented.csv", index=False)
+    wideFrameAugmented.to_csv(projectdir + "/wideFrameAugmented.csv", index=False)
 
     return wideFrameAugmented
 
@@ -138,65 +143,31 @@ def runit():
     global wideFrameAugmented
 
     allSensorsText = ["HLL_339", "HLL_298", "HLL_326", "HLL_320", "NLMedian"]
-#                     "HLL_378", "HLL_339", "HLL_325", "HLL_256", "HLL_323",
-    allSensors = convertTextToDataFrame(allSensorsText)
-#    createTimeSeries_Multiple(list(zip(allSensors, allSensorsText)), projectdir, namesuffix="pm25", fname="timeseries")
-    createWideFrame(allSensorsText, KNMI_240)
+    allSensorsTextAlt=["HLL_378", "HLL_415", "HLL_325", "HLL_298", "NLMedian"]
+    allSensorsGrootkruis=["HLL_323", "HLL_345", "HLL_413", "HLL_415", "NLMedian"]
+
+    allSensorsTxt = ["HLL_339", "HLL_298", "HLL_326", "HLL_320", "NLMedian",
+                     "HLL_378", "HLL_415", "HLL_325", "HLL_323", "HLL_345", "HLL_413"]
+
+    allSensors = convertTextToDataFrame(allSensorsGrootkruis)
+    createTimeSeries_Multiple(list(zip(allSensors, allSensorsGrootkruis)), projectdir, namesuffix="pm25",
+                              fname="timeseries-grootkruis")
+    createWideFrame(allSensorsTxt, KNMI_240)
+    augmentWideFrame()
 
     # DIFFSENSORS
-    nrcols = len(allSensors)
-    nrrows = len(allSensors)
-    fig, axes = plt.subplots(nrcols, nrrows, figsize=(20,20), sharey=True, sharex=True)
-    for lastcomn in range(0, nrcols):
-        axes[nrrows - 1, lastcomn].tick_params(axis='x', which="both", labelrotation=30, bottom=True)
-    colnr = 0
-    rownr = 0
-    for ysensor in allSensorsText:
-        for xsensor in allSensorsText:
-            if xsensor != ysensor:
-                diffsensor = pd.DataFrame()
-                diffsensor["delta"] = wideFrame["pm25_" + xsensor] - wideFrame["pm25_" + ysensor]
-                ax = axes[rownr, colnr]
-                ax.set(title=xsensor + " - " + ysensor)
-                lplot = sns.histplot(binrange=(-10,10), data=diffsensor, x="delta", binwidth=0.25,
-                                     kde=False, ax=ax)
-            colnr += 1
-        colnr = 0
-        rownr += 1
-    plt.tight_layout()
-    plt.savefig(projectdir+"/diffplots", dpi='figure')
-    plt.show()
+#    diffPlotSensors(wideFrame, "pm25", allSensorsGrootkruis, projectdir+"/diffplots-grootkruis")
 
     # WINDPLOTS
-    nrcols = len(allSensors)
-    nrrows = len(allSensors)
-    fig, axes = plt.subplots(nrcols, nrrows, figsize=(20,20), sharey=True, sharex=True)
-    for lastcomn in range(0, nrcols):
-        axes[nrrows - 1, lastcomn].tick_params(axis='x', which="both", labelrotation=30, bottom=True)
-    colnr = 0
-    rownr = 0
-    for ysensor in allSensorsText:
-        for xsensor in allSensorsText:
-            if xsensor != ysensor:
-                diffsensor = pd.DataFrame()
-                diffsensor["delta"] = wideFrame["pm25_" + xsensor] - wideFrame["pm25_" + ysensor]
-                diffsensor["winddirection"] = wideFrame["winddirection"]
-                ax = axes[rownr, colnr]
- #               ax.set(title=xsensor + " - " + ysensor)
-                windplot(diffsensor, "delta", polar=False, smooth = 3, title="Diff " + xsensor + " - " + ysensor, ax=ax)
-                ax.xaxis.set_ticks(np.arange(0, 365, 90))
-            colnr += 1
-        colnr = 0
-        rownr += 1
-    plt.tight_layout()
-    plt.savefig(projectdir+"/windplots", dpi='figure')
-    plt.show()
-
+#    diffWindPlotSensors(wideFrame, "pm25", allSensorsGrootkruis, projectdir+"/windplots-grootkruis", smooth=3)
+    windplot(wideFrameAugmented, "pm25_HLL_345", polar=True,
+             method="meanvalues", smooth=0, title="pm25 HLL 345")
 
     return
+    windplot(wideFrameAugmented, "diff_298_378", polar=True, smooth=3, title="diff_298_378")
+    windplot(wideFrameAugmented, "diff_298_NLMedian", polar=True, smooth=3, title="diff_298_NLMedian")
+    windplot(wideFrameAugmented, "diff_378_NLMedian", polar=True, smooth=3, title="diff_378_NLMedian")
 
-    augmentWideFrame()
-    print("Wideframe augmented")
     printSeries(NLMedian)
 
     windplot(wideFrameAugmented, "temperature_HLL_298", smooth=3,

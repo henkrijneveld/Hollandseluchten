@@ -81,7 +81,7 @@ def createSuperFrame(sensors, knmi):
                 merged["humidity"] = math.nan
         else:
             sensorFrame.drop_duplicates(inplace=True, ignore_index=True)
-            merged = pd.merge(merged, sensorFrame, how='inner', on='datetime',
+            merged = pd.merge(merged, sensorFrame, how='outer', on='datetime',
                               suffixes=("", "_" + sensor))
             merged.drop(['sensorname'+'_'+sensor], axis=1, inplace=True)
     merged.drop(['sensorname'], axis=1, inplace=True)
@@ -137,14 +137,17 @@ def highhumidity(aRow):
 #
 # write result to superFrameAugmented.csv
 def augmentSuperframe():
+    global superFrame
     global superFrameAugmented
 
     superFrame["pm25_diff_545_NL"] = superFrame.apply(diff_545_NL, axis=1)
 #    superFrame["pm25_diff_549_NL"] = superFrame.apply(diff_549_NL, axis=1)
     superFrame["pm25_diff_1845_NL"] = superFrame.apply(diff_1845_NL, axis=1)
 #    superFrame["pm25_diff_1850_NL"] = superFrame.apply(diff_1850_NL, axis=1)
-#    superFrame["pm25_diff_545_549"] = superFrame.apply(diff_545_549, axis=1)
+    superFrame["pm25_diff_545_549"] = superFrame.apply(diff_545_549, axis=1)
     superFrame["highhumidity"] = superFrame.apply(highhumidity, axis=1)
+#    superFrame=superFrame[superFrame["highhumidity"] == True]
+
     superFrame["quotient"] = superFrame["pm25_HLL_545"] / superFrame["pm25_NL49570"]
 
 
@@ -159,18 +162,38 @@ def runit():
     global HLL_545
     global HLL_549
 
-    allSensorsText = ["NL49570", "HLL_545", "OZK_1845", "HLL_549"]
+    allSensorsText = ["HLL_545", "HLL_549", "OZK_1845", "OZK_1850", "NL49570"]
     #, "HLL_549", "OZK_1845", "OZK_1850"]
     allSensors = convertTextToDataFrame(allSensorsText)
 
 #    createTimeSeries_Multiple(list(zip(allSensors, allSensorsText)), projectdir, namesuffix="pm25")
-    createSuperFrame(allSensorsText, KNMI_240)
+    createSuperFrame(allSensorsText, KNMI_225)
     augmentSuperframe()
+#    diffPlotSensors(superFrameAugmented, "pm25", allSensorsText, projectdir + "/diffplots-sensors")
 
+#    diffWindPlotSensors(superFrameAugmented, "pm25", allSensorsText, projectdir + "/windplots-sensors", smooth=3)
+    windplot(superFrameAugmented, "pm25_diff_545_549", polar=False,
+             method="meanvalues", smooth=3, title="windplot mean 545 - 549")
+
+    windplot(superFrameAugmented, "pm25_diff_545_549", polar=False,
+             method="medianvalues", smooth=3, title="windplot median 545 - 549")
+
+    windplot(superFrameAugmented, "pm25_diff_545_NL", polar=False,
+             method="meanvalues", smooth=3, title="windplot mean 545 - NL")
+
+    windplot(superFrameAugmented, "pm25_diff_545_NL", polar=False,
+             method="medianvalues", smooth=3, title="windplot median 545 - NL")
+
+    simpleStripPlot(superFrameAugmented, x="windspeed", y="pm25_diff_545_549",
+                      xlim=(0, 20), ylim=(-5, 5), title="Windspeed vs diff 545 - 549")
+
+ #   simpleStripPlot(superFrameAugmented, x="humidity_HLL_545", y="pm25_diff_545_549",
+ #                     xlim=(10, 100), ylim=(-10, 10), title="Humidity vs diff 545 - 549")
+
+    return
     simpleStripPlot(superFrameAugmented, xlim=(0,36), ylim=(-5,30),
                     x="winddirection", y="pm25_NL49570", jitter=0.6)
 
-    return
     # superFrameAugmented = superFrameAugmented[superFrameAugmented["humidity_HLL_545"] < 81]
 
     simpleScatterPlot(superFrameAugmented, "temperature_HLL_549", "temperature_knmi",
