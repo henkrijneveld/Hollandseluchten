@@ -87,7 +87,7 @@ def createSuperFrame(sensors, knmi):
     merged.drop(['sensorname'], axis=1, inplace=True)
     # delete 0 and 990
     knmi = knmi[(knmi["winddirection"] < 369) & (knmi["winddirection"] > 5)]
-    merged = pd.merge(merged, knmi, on='datetime', how="inner",
+    merged = pd.merge(merged, knmi, on='datetime', how="outer",
                       suffixes=("", "_knmi"))
     merged.drop(['sensorname', "pm25", "temperature", "humidity"], axis=1, inplace=True)
 #    merged.drop(merged.columns[0], axis=1, inplace=True)
@@ -126,6 +126,20 @@ def highhumidity(aRow):
     humidity = aRow["humidity_HLL_545"]
     return humidity > 80
 
+def humiditycat(aRow):
+    humidity = aRow["humidity_HLL_545"]
+    if math.isfinite(humidity):
+        return int(humidity/10 + 0.5)
+    else:
+        return 0
+
+def windspeedcat(aRow):
+    wspeed = aRow["windspeed"]
+    if math.isfinite(wspeed):
+        return int(wspeed)
+    else:
+        return 0
+
 
 
 # add columns:
@@ -150,9 +164,15 @@ def augmentSuperframe():
 
     superFrame["quotient"] = superFrame["pm25_HLL_545"] / superFrame["pm25_NL49570"]
 
+    superFrame["windspeedcat"] = superFrame.apply(windspeedcat, axis=1)
+    superFrame["humiditycat"] = superFrame.apply(humiditycat, axis=1)
+
+    #superFrameAugmented.to_csv(projectdir + "/superFrameAugmented.csv", index=False)
+
+    superFrame['datehour'] = superFrame['datetime'].dt.hour
+    superFrame['dateday'] = superFrame['datetime'].dt.day_name()  # monday = 0
 
     superFrameAugmented = superFrame.copy()
-    #superFrameAugmented.to_csv(projectdir + "/superFrameAugmented.csv", index=False)
 
     return superFrameAugmented
 
@@ -169,6 +189,39 @@ def runit():
 #    createTimeSeries_Multiple(list(zip(allSensors, allSensorsText)), projectdir, namesuffix="pm25")
     createSuperFrame(allSensorsText, KNMI_225)
     augmentSuperframe()
+
+    simpleStripPlot(superFrameAugmented, x="datehour", y="pm25_diff_545_NL",
+                      xlim=(0, 24), ylim=(-20, 20), title="hour vs diff 545 - NL")
+
+    simpleStripPlot(superFrameAugmented, x="datehour", y="humidity_HLL_545",
+                      xlim=(0, 24), ylim=(10, 100), title="hour vs humidity")
+
+    simpleStripPlot(superFrameAugmented, x="datehour", y="windspeed",
+                      xlim=(0, 24), ylim=(0, 20), title="hour vs windspeed")
+
+    simpleStripPlot(superFrameAugmented, x="datehour", y="pm25_NL49570",
+                      xlim=(0, 24), ylim=(-10, 60), title="hour vs pm25")
+
+    simpleStripPlot(superFrameAugmented, x="dateday", y="pm25_diff_545_NL",
+                      xlim=(-1, 7), ylim=(-20, 20), title="day vs diff 545 - NL",
+                    xfont=10)
+
+    simpleStripPlot(superFrameAugmented, x="dateday", y="humidity_HLL_545",
+                      xlim=(-1, 7), ylim=(10, 100), title="day vs humidity",
+                    xfont=10)
+
+    simpleStripPlot(superFrameAugmented, x="dateday", y="windspeed",
+                      xlim=(-1, 7), ylim=(0, 20), title="day vs windspeed",
+                    xfont=10)
+
+    simpleStripPlot(superFrameAugmented, x="dateday", y="pm25_NL49570",
+                      xlim=(-1, 7), ylim=(-10, 60), title="day vs pm25",
+                    xfont=10)
+
+
+
+
+    return
 #    diffPlotSensors(superFrameAugmented, "pm25", allSensorsText, projectdir + "/diffplots-sensors")
 
 #    diffWindPlotSensors(superFrameAugmented, "pm25", allSensorsText, projectdir + "/windplots-sensors", smooth=3)
@@ -184,11 +237,17 @@ def runit():
     windplot(superFrameAugmented, "pm25_diff_545_NL", polar=False,
              method="medianvalues", smooth=3, title="windplot median 545 - NL")
 
-    simpleStripPlot(superFrameAugmented, x="windspeed", y="pm25_diff_545_549",
-                      xlim=(0, 20), ylim=(-5, 5), title="Windspeed vs diff 545 - 549")
+    simpleStripPlot(superFrameAugmented, x="windspeedcat", y="pm25_diff_545_NL",
+                      xlim=(0, 15), ylim=(-10, 20), title="Windspeed vs diff 545 - NL")
 
- #   simpleStripPlot(superFrameAugmented, x="humidity_HLL_545", y="pm25_diff_545_549",
- #                     xlim=(10, 100), ylim=(-10, 10), title="Humidity vs diff 545 - 549")
+    simpleStripPlot(superFrameAugmented, x="windspeedcat", y="humidity_HLL_545",
+                      xlim=(0, 15), ylim=(10, 100), title="Windspeed vs humidity 545")
+
+    simpleStripPlot(superFrameAugmented, x="windspeedcat", y="winddirection",
+                      xlim=(0, 15), ylim=(5, 365), title="Windspeed vs winddirection")
+
+    simpleStripPlot(superFrameAugmented, x="humiditycat", y="pm25_diff_545_NL",
+                     xlim=(0, 10), ylim=(-10, 20), title="Humidity vs diff 545 - NL")
 
     return
     simpleStripPlot(superFrameAugmented, xlim=(0,36), ylim=(-5,30),

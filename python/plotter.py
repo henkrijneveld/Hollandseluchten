@@ -87,7 +87,10 @@ def simpleJointPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0), t
     sns.set_context(rc=a)
 
 def simpleStripPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0), title="Scatterplot", filename=False,
-                      describe=False, jitter=0.2):
+                      describe=False, jitter=0.2, xfont=13):
+    a = sns.plotting_context()
+    sns.set_context(rc={"xtick.labelsize": xfont})
+
     # same length on x and y, assume square, otherwise landscape
     if (xlim[1]-xlim[0]) == (ylim[1]-ylim[0]):
         setPlotSizeSquare()
@@ -107,6 +110,7 @@ def simpleStripPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0), t
         print("---")
     if filename:
         scatter.get_figure().savefig(filename)
+    sns.set_context(rc=a)
 
 def printSeries(aSensor, title="PM Series", filename=False, ylim=None):
     lplot = sns.lineplot(aSensor, x="datetime", y="pm25")
