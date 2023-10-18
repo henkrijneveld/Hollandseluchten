@@ -284,10 +284,11 @@ def windcountplot(frame, polar=True, title="wind count plot"):
     plt.show()
 
 # diffplot for sensorlist for attr
-def diffPlotSensors(aFrame, attr, sensorlist, fname=None, binrange=(-10,10), binwidth=0.25):
+def diffPlotSensors(aFrame, attr, sensorlist, fname=None, binrange=(-10,10), binwidth=0.25, title="Matrixplot"):
     nrcols = len(sensorlist)
     nrrows = len(sensorlist)
     fig, axes = plt.subplots(nrcols, nrrows, figsize=(20, 20), sharey=True, sharex=True)
+    fig.suptitle(title, fontsize=22)
     for lastcomn in range(0, nrcols):
         axes[nrrows - 1, lastcomn].tick_params(axis='x', which="both", labelrotation=30, bottom=True)
     colnr = 0
@@ -309,10 +310,11 @@ def diffPlotSensors(aFrame, attr, sensorlist, fname=None, binrange=(-10,10), bin
         plt.savefig(fname, dpi='figure')
     plt.show()
 
-def diffWindPlotSensors(aFrame, attr, allSensors, fname, smooth = 1):
+def diffWindPlotSensors(aFrame, attr, allSensors, fname, smooth = 1, title="Matrixplot"):
     nrcols = len(allSensors)
     nrrows = len(allSensors)
     fig, axes = plt.subplots(nrcols, nrrows, figsize=(20,20), sharey=True, sharex=True)
+    fig.suptitle(title, fontsize=22)
     for lastcomn in range(0, nrcols):
         axes[nrrows - 1, lastcomn].tick_params(axis='x', which="both", labelrotation=30, bottom=True)
     colnr = 0

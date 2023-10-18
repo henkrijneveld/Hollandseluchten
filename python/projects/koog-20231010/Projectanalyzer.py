@@ -118,6 +118,8 @@ def augmentWideFrame():
     createDiffColumn(wideFrame, "pm25_HLL_326", "pm25_HLL_320", "diff_326_320")
     createDiffColumn(wideFrame, "pm25_HLL_298", "pm25_HLL_320", "diff_298_320")
     createDiffColumn(wideFrame, "pm25_HLL_298", "pm25_HLL_378", "diff_298_378")
+    createDiffColumn(wideFrame, "pm25_HLL_345", "pm25_HLL_325", "diff_345_325")
+
 
 #    wideFrame["highhumidity"] = wideFrame.apply(highhumidity, axis=1)
 
@@ -128,6 +130,9 @@ def augmentWideFrame():
     # compare to median
     for sensor in hllNumberlist:
         createDiffColumn(wideFrame, "pm25_HLL_"+sensor, "pm25_NLMedian", "diff_"+sensor+"_NLMedian")
+
+    wideFrame['datehour'] = wideFrame['datetime'].dt.hour
+    wideFrame['dateday'] = wideFrame['datetime'].dt.day_name()  # monday = 0
 
     print("Attributes added")
 
@@ -150,18 +155,32 @@ def runit():
                      "HLL_378", "HLL_415", "HLL_325", "HLL_323", "HLL_345", "HLL_413"]
 
     allSensors = convertTextToDataFrame(allSensorsGrootkruis)
-    createTimeSeries_Multiple(list(zip(allSensors, allSensorsGrootkruis)), projectdir, namesuffix="pm25",
-                              fname="timeseries-grootkruis")
+#    createTimeSeries_Multiple(list(zip(allSensors, allSensorsGrootkruis)), projectdir, namesuffix="pm25",
+#                              fname="timeseries-grootkruis")
     createWideFrame(allSensorsTxt, KNMI_240)
     augmentWideFrame()
 
+    simpleStripPlot(wideFrame, "datehour", "pm25_HLL_325", xlim=(-1,24), ylim=(0,40),
+                    title="HLL 325 dagelijkse gang", xfont=12)
+
+    simpleStripPlot(wideFrame, "datehour", "pm25_HLL_345", xlim=(-1,24), ylim=(0,40),
+                    title="HLL 345 dagelijkse gang", xfont=12)
+
+    simpleStripPlot(wideFrame, "datehour", "diff_345_325", xlim=(-1,24), ylim=(-10,10),
+                    title="Diff 345 vs 325 dagelijkse gang", xfont=12)
+
+    simpleStripPlot(wideFrame, "datehour", "diff_298_320", xlim=(-1,24), ylim=(-10,10),
+                    title="Diff 298 vs 320 dagelijkse gang", xfont=12)
+
+
+    return
     # DIFFSENSORS
-#    diffPlotSensors(wideFrame, "pm25", allSensorsGrootkruis, projectdir+"/diffplots-grootkruis")
+    diffPlotSensors(wideFrame, "pm25", allSensorsGrootkruis, projectdir+"/diffplots-grootkruis")
 
     # WINDPLOTS
-#    diffWindPlotSensors(wideFrame, "pm25", allSensorsGrootkruis, projectdir+"/windplots-grootkruis", smooth=3)
+    diffWindPlotSensors(wideFrame, "pm25", allSensorsGrootkruis, projectdir+"/windplots-grootkruis", smooth=3)
     windplot(wideFrameAugmented, "pm25_HLL_345", polar=True,
-             method="meanvalues", smooth=0, title="pm25 HLL 345")
+             method="medianvalues", smooth=0, title="pm25 HLL 345")
 
     return
     windplot(wideFrameAugmented, "diff_298_378", polar=True, smooth=3, title="diff_298_378")
