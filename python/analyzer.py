@@ -35,6 +35,7 @@ def createDiffColumn(aFrame, left, right, name):
     return aFrame
 
 def printGlobals(projectdir):
+    sensorList = []
     prefix = ""
     startdate = False
     enddate = False
@@ -45,6 +46,7 @@ def printGlobals(projectdir):
             tmpFrame["datetime"] = tmpFrame["datetime"].dt.tz_localize(None)
             fname = file[:-4]
             printf("%s%s = pd.DataFrame()\n", prefix, fname)
+            sensorList.append('"'+prefix+fname+'"')
             if (not startdate):
                 startdate = tmpFrame["datetime"].min()
             if (not enddate):
@@ -58,6 +60,7 @@ def printGlobals(projectdir):
     printf('startdate = "%s"\n', start)
     printf('enddate = "%s"\n', end)
     printf('projectdir = "%s"\n', projectdir)
+    printf('sensorList = [%s]', ', '.join(sensorList))
     printf("\nDone reading filenames\n")
     exit(0)
 
