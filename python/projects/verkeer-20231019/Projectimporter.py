@@ -21,13 +21,13 @@ def runit():
 #    knmiselection = False
 
     # list of meetnet sensors to retrieve
-    meetnetselection = ["NL49701"]   # colocatie NL Zaandam
+    meetnetselection = ["NL49701", "NL49556"]   # colocatie NL Zaandam
 #    meetnetselection = None
 
     # list sensors to retrieve. Every entry is a tuple: (project, sensornumber). None if nothing to retrieve
 #    sensorselection = None
     sensorselection = [("HLL", "298"), ("HLL", "320"), ("HLL", "256"),
-                       ("HLL", "345"), ("HLL", "307"), ("HLL", "448")]
+                       ("HLL", "345"), ("HLL", "307"), ("HLL", "448"), ("HLL", "531")]
 
     # fastimport: if True existing files will not be reloaded (no check on dates is done!)
     fastimport = True

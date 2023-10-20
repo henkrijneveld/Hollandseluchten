@@ -55,7 +55,8 @@ def createSuperFrame(sensors, knmi):
     # Both OVK's where in a different location in januari
     OZK_1845 = removeDatesBefore(OZK_1845, aDate="2023-02-01 21:00:00+00:00")
     OZK_1850 = removeDatesBefore(OZK_1850, aDate="2023-02-01 21:00:00+00:00")
-   # HLL_545 = HLL_545[HLL_545["humidity"] < 80.0]
+
+    HLL_545["pm25"] = HLL_545["pm25"] + ((60 - HLL_545["humidity"]) * 2.5 / 15)
 
     for sensor in sensors:
         sensorFrame = globals()[sensor]
@@ -122,6 +123,11 @@ def diff_1845_NL(aRow):
     low = aRow["pm25_NL49570"]
     return high - low
 
+def diff_545_1845(aRow):
+    high = aRow["pm25_HLL_545"]
+    low = aRow["pm25_OZK_1845"]
+    return high - low
+
 def highhumidity(aRow):
     humidity = aRow["humidity_HLL_545"]
     return humidity > 80
@@ -159,6 +165,8 @@ def augmentSuperframe():
     superFrame["pm25_diff_1845_NL"] = superFrame.apply(diff_1845_NL, axis=1)
 #    superFrame["pm25_diff_1850_NL"] = superFrame.apply(diff_1850_NL, axis=1)
     superFrame["pm25_diff_545_549"] = superFrame.apply(diff_545_549, axis=1)
+    superFrame["pm25_diff_545_1845"] = superFrame.apply(diff_545_1845, axis=1)
+
     superFrame["highhumidity"] = superFrame.apply(highhumidity, axis=1)
 
 
@@ -195,6 +203,64 @@ def runit():
     superFrameAugmented80plus = superFrameAugmented80plus[superFrameAugmented80plus["highhumidity"] == True]
     superFrameAugmented80min = superFrameAugmented.copy()
     superFrameAugmented80min = superFrameAugmented80min[superFrameAugmented80min["highhumidity"] != True]
+
+    plotframe = medianvalues([superFrameAugmented], "datehour", "pm25_diff_545_NL")
+    lplot = (sns.lineplot(data=plotframe, x="datehour", y="pm25_diff_545_NL", linewidth=2.5))
+    lplot.set(xlim=(-1, 24))
+    lplot.set(title="Dagelijkse gang verschil 545 vs NL")
+    lplot.set_ylabel("Difference median", fontsize=14)
+    lplot.set_xlabel("Hour of day (UTC)", fontsize=14)
+
+    plt.tight_layout()
+    lplot.get_figure().savefig(projectdir + "/0-9-pm25-diff-hour-545-NL.jpg")
+    plt.show()
+
+    plotframe = medianvalues([superFrameAugmented], "datehour", "pm25_diff_1845_NL")
+    lplot = (sns.lineplot(data=plotframe, x="datehour", y="pm25_diff_1845_NL", linewidth=2.5))
+    lplot.set(xlim=(-1, 24))
+    lplot.set(title="Dagelijkse gang verschil 1845 vs NL")
+    lplot.set_ylabel("Difference median", fontsize=14)
+    lplot.set_xlabel("Hour of day (UTC)", fontsize=14)
+
+    plt.tight_layout()
+    lplot.get_figure().savefig(projectdir + "/0-9-pm25-diff-hour-1845-NL.jpg")
+    plt.show()
+
+    plotframe = medianvalues([superFrameAugmented], "datehour", "pm25_diff_545_1845")
+    lplot = (sns.lineplot(data=plotframe, x="datehour", y="pm25_diff_545_1845", linewidth=2.5))
+    lplot.set(xlim=(-1, 24))
+    lplot.set(title="Dagelijkse gang verschil 545 vs 1845")
+    lplot.set_ylabel("Difference median", fontsize=14)
+    lplot.set_xlabel("Hour of day (UTC)", fontsize=14)
+
+    plt.tight_layout()
+    lplot.get_figure().savefig(projectdir + "/0-9-pm25-diff-hour-545-1845.jpg")
+    plt.show()
+
+
+    plotframe = medianvalues([superFrameAugmented], "datehour", "humidity_HLL_545")
+    lplot = (sns.lineplot(data=plotframe, x="datehour", y="humidity_HLL_545", linewidth=2.5))
+    lplot.set(xlim=(-1, 24))
+    lplot.set(title="Dagelijkse gang humidity 545")
+    lplot.set_ylabel("Humidity", fontsize=14)
+    lplot.set_xlabel("Hour of day (UTC)", fontsize=14)
+
+    plt.tight_layout()
+    lplot.get_figure().savefig(projectdir + "/0-9-humidity-hour-545.jpg")
+    plt.show()
+
+    plotframe = medianvalues([superFrameAugmented], "datehour", "humidity_OZK_1845")
+    lplot = (sns.lineplot(data=plotframe, x="datehour", y="humidity_OZK_1845", linewidth=2.5))
+    lplot.set(xlim=(-1, 24))
+    lplot.set(title="Dagelijkse gang humidity 1845")
+    lplot.set_ylabel("Humidity", fontsize=14)
+    lplot.set_xlabel("Hour of day (UTC)", fontsize=14)
+
+    plt.tight_layout()
+    lplot.get_figure().savefig(projectdir + "/0-9-humidity-hour-1845.jpg")
+    plt.show()
+
+    return
 
     diffPlotSensors(superFrameAugmented, "pm25", allSensorsText, title="Delta pm25: All sensors and all humidity "+type,
                     fname=projectdir + "/0-0-diffplots-sensors-allhum"+"-"+type)
