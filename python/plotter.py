@@ -97,6 +97,7 @@ def simpleStripPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0), t
     else:
         setPlotSizeLandscape()
 
+    aDataFrame = aDataFrame[~np.isnan(aDataFrame[y])]
     scatter = sns.stripplot(aDataFrame, x=x, y=y, size=1, jitter=jitter)
 
     scatter.set(title=title)

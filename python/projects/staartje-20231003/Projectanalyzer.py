@@ -179,7 +179,7 @@ def augmentSuperframe():
     superFrame["pm25_diff_545_1845"] = superFrame.apply(diff_545_1845, axis=1)
 
     superFrame["highhumidity"] = superFrame.apply(highhumidity, axis=1)
-    superFrame=superFrame[superFrame["highhumidity"] == False]
+#   superFrame=superFrame[superFrame["highhumidity"] == False]
 
     superFrame["quotient"] = superFrame["pm25_HLL_545"] / superFrame["pm25_NL49570"]
 
