@@ -12,6 +12,7 @@ from plotter import *
 import math
 import pprint as pp
 
+
 # General
 NLMedian = pd.DataFrame()
 

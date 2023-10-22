@@ -14,6 +14,12 @@ from plotter import *
 import math
 import pprint as pp
 
+type = "outer"
+def getType():
+    global type
+    return type
+
+
 # General
 superFrame = pd.DataFrame()
 superFrameAugmented = pd.DataFrame()
@@ -56,7 +62,9 @@ def createSuperFrame(sensors, knmi):
     OZK_1845 = removeDatesBefore(OZK_1845, aDate="2023-02-01 21:00:00+00:00")
     OZK_1850 = removeDatesBefore(OZK_1850, aDate="2023-02-01 21:00:00+00:00")
 
-    HLL_545["pm25"] = HLL_545["pm25"] + ((60 - HLL_545["humidity"]) * 2.5 / 15)
+    # mean outer: delta hum: 30 / delta pm: 7 / zeropoint (delta pm = 0) on hum 52
+#    HLL_545["pm25"] = HLL_545["pm25"] + ((52 - HLL_545["humidity"]) * 7 / 30)
+#    HLL_545["pm25"] = HLL_545["pm25"] + ((60 - HLL_545["humidity"]) * 2 / 23)
 
     for sensor in sensors:
         sensorFrame = globals()[sensor]
@@ -82,13 +90,13 @@ def createSuperFrame(sensors, knmi):
                 merged["humidity"] = math.nan
         else:
             sensorFrame.drop_duplicates(inplace=True, ignore_index=True)
-            merged = pd.merge(merged, sensorFrame, how='inner', on='datetime',
+            merged = pd.merge(merged, sensorFrame, how=getType(), on='datetime',
                               suffixes=("", "_" + sensor))
             merged.drop(['sensorname'+'_'+sensor], axis=1, inplace=True)
     merged.drop(['sensorname'], axis=1, inplace=True)
     # delete 0 and 990
     knmi = knmi[(knmi["winddirection"] < 369) & (knmi["winddirection"] > 5)]
-    merged = pd.merge(merged, knmi, on='datetime', how="inner",
+    merged = pd.merge(merged, knmi, on='datetime', how=getType(),
                       suffixes=("", "_knmi"))
     merged.drop(['sensorname', "pm25", "temperature", "humidity"], axis=1, inplace=True)
 #    merged.drop(merged.columns[0], axis=1, inplace=True)
@@ -96,7 +104,10 @@ def createSuperFrame(sensors, knmi):
     superFrame = merged.copy()
 #    superFrame.to_csv(projectdir + "/superFrame.csv", index=False)
 
-    return merged
+# windspeed correction
+#    superFrame["pm25_HLL_545"] = superFrame["pm25_HLL_545"] + (superFrame["windspeed"] - 10)
+
+    return superFrame
 
 def diff_545_NL(aRow):
     high = aRow["pm25_HLL_545"]
@@ -130,7 +141,7 @@ def diff_545_1845(aRow):
 
 def highhumidity(aRow):
     humidity = aRow["humidity_HLL_545"]
-    return humidity > 80
+    return humidity > 85
 
 def humiditycat(aRow):
     humidity = aRow["humidity_HLL_545"]
@@ -168,7 +179,7 @@ def augmentSuperframe():
     superFrame["pm25_diff_545_1845"] = superFrame.apply(diff_545_1845, axis=1)
 
     superFrame["highhumidity"] = superFrame.apply(highhumidity, axis=1)
-
+    superFrame=superFrame[superFrame["highhumidity"] == False]
 
     superFrame["quotient"] = superFrame["pm25_HLL_545"] / superFrame["pm25_NL49570"]
 
@@ -197,8 +208,6 @@ def runit():
     createSuperFrame(allSensorsText, KNMI_225)
     augmentSuperframe()
 
-    type="inner"
-
     superFrameAugmented80plus = superFrameAugmented.copy()
     superFrameAugmented80plus = superFrameAugmented80plus[superFrameAugmented80plus["highhumidity"] == True]
     superFrameAugmented80min = superFrameAugmented.copy()
@@ -207,58 +216,75 @@ def runit():
     plotframe = medianvalues([superFrameAugmented], "datehour", "pm25_diff_545_NL")
     lplot = (sns.lineplot(data=plotframe, x="datehour", y="pm25_diff_545_NL", linewidth=2.5))
     lplot.set(xlim=(-1, 24))
-    lplot.set(title="Dagelijkse gang verschil 545 vs NL")
+    lplot.set(title="Daily verschil 545 vs NL")
     lplot.set_ylabel("Difference median", fontsize=14)
     lplot.set_xlabel("Hour of day (UTC)", fontsize=14)
-
     plt.tight_layout()
-    lplot.get_figure().savefig(projectdir + "/0-9-pm25-diff-hour-545-NL.jpg")
+    lplot.get_figure().savefig(projectdir + "/0-9-pm25-diff-hour-545-NL-median-"+getType()+".jpg")
     plt.show()
 
-    plotframe = medianvalues([superFrameAugmented], "datehour", "pm25_diff_1845_NL")
-    lplot = (sns.lineplot(data=plotframe, x="datehour", y="pm25_diff_1845_NL", linewidth=2.5))
+    plotframe = medianvalues([superFrameAugmented], "datehour", "pm25_HLL_545")
+    lplot = (sns.lineplot(data=plotframe, x="datehour", y="pm25_HLL_545", linewidth=2.5))
     lplot.set(xlim=(-1, 24))
-    lplot.set(title="Dagelijkse gang verschil 1845 vs NL")
-    lplot.set_ylabel("Difference median", fontsize=14)
+    lplot.set(title="Daily absolute pm25 HLL 545")
+    lplot.set_ylabel("PM25 median", fontsize=14)
     lplot.set_xlabel("Hour of day (UTC)", fontsize=14)
-
     plt.tight_layout()
-    lplot.get_figure().savefig(projectdir + "/0-9-pm25-diff-hour-1845-NL.jpg")
+    lplot.get_figure().savefig(projectdir + "/0-9-pm25-pm25-hour-545-median-"+getType()+".jpg")
     plt.show()
-
-    plotframe = medianvalues([superFrameAugmented], "datehour", "pm25_diff_545_1845")
-    lplot = (sns.lineplot(data=plotframe, x="datehour", y="pm25_diff_545_1845", linewidth=2.5))
-    lplot.set(xlim=(-1, 24))
-    lplot.set(title="Dagelijkse gang verschil 545 vs 1845")
-    lplot.set_ylabel("Difference median", fontsize=14)
-    lplot.set_xlabel("Hour of day (UTC)", fontsize=14)
-
-    plt.tight_layout()
-    lplot.get_figure().savefig(projectdir + "/0-9-pm25-diff-hour-545-1845.jpg")
-    plt.show()
-
 
     plotframe = medianvalues([superFrameAugmented], "datehour", "humidity_HLL_545")
     lplot = (sns.lineplot(data=plotframe, x="datehour", y="humidity_HLL_545", linewidth=2.5))
     lplot.set(xlim=(-1, 24))
-    lplot.set(title="Dagelijkse gang humidity 545")
-    lplot.set_ylabel("Humidity", fontsize=14)
+    lplot.set(title="Daily humidity 545")
+    lplot.set_ylabel("Humidity mean", fontsize=14)
     lplot.set_xlabel("Hour of day (UTC)", fontsize=14)
-
     plt.tight_layout()
-    lplot.get_figure().savefig(projectdir + "/0-9-humidity-hour-545.jpg")
+    lplot.get_figure().savefig(projectdir + "/0-9-humidity-hour-545-median-"+getType()+".jpg")
     plt.show()
 
-    plotframe = medianvalues([superFrameAugmented], "datehour", "humidity_OZK_1845")
-    lplot = (sns.lineplot(data=plotframe, x="datehour", y="humidity_OZK_1845", linewidth=2.5))
+    plotframe = meanvalues([superFrameAugmented], "datehour", "windspeed")
+    lplot = (sns.lineplot(data=plotframe, x="datehour", y="windspeed", linewidth=2.5))
     lplot.set(xlim=(-1, 24))
-    lplot.set(title="Dagelijkse gang humidity 1845")
-    lplot.set_ylabel("Humidity", fontsize=14)
+    lplot.set(title="Daily windspeed")
+    lplot.set_ylabel("Windspeed m/s mean", fontsize=14)
     lplot.set_xlabel("Hour of day (UTC)", fontsize=14)
-
     plt.tight_layout()
-    lplot.get_figure().savefig(projectdir + "/0-9-humidity-hour-1845.jpg")
+    lplot.get_figure().savefig(projectdir + "/0-9-windspeed-mean-"+getType()+".jpg")
     plt.show()
+
+    plotframe = meanvalues([superFrameAugmented], "datehour", "pm25_diff_545_NL")
+    lplot = (sns.lineplot(data=plotframe, x="datehour", y="pm25_diff_545_NL", linewidth=2.5))
+    lplot.set(xlim=(-1, 24))
+    lplot.set(title="Daily verschil 545 vs NL")
+    lplot.set_ylabel("Difference mean", fontsize=14)
+    lplot.set_xlabel("Hour of day (UTC)", fontsize=14)
+    plt.tight_layout()
+    lplot.get_figure().savefig(projectdir + "/0-9-pm25-diff-hour-545-NL-mean-"+getType()+".jpg")
+    plt.show()
+
+    plotframe = meanvalues([superFrameAugmented], "datehour", "pm25_HLL_545")
+    lplot = (sns.lineplot(data=plotframe, x="datehour", y="pm25_HLL_545", linewidth=2.5))
+    lplot.set(xlim=(-1, 24))
+    lplot.set(title="Daily absolute pm25 HLL 545")
+    lplot.set_ylabel("PM25 median", fontsize=14)
+    lplot.set_xlabel("Hour of day (UTC)", fontsize=14)
+    plt.tight_layout()
+    lplot.get_figure().savefig(projectdir + "/0-9-pm25-pm25-hour-545-mean-"+getType()+".jpg")
+    plt.show()
+
+    plotframe = meanvalues([superFrameAugmented], "datehour", "humidity_HLL_545")
+    lplot = (sns.lineplot(data=plotframe, x="datehour", y="humidity_HLL_545", linewidth=2.5))
+    lplot.set(xlim=(-1, 24))
+    lplot.set(title="Daily humidity 545")
+    lplot.set_ylabel("Humidity mean", fontsize=14)
+    lplot.set_xlabel("Hour of day (UTC)", fontsize=14)
+    plt.tight_layout()
+    lplot.get_figure().savefig(projectdir + "/0-9-humidity-hour-545-mean-"+getType()+".jpg")
+    plt.show()
+
+
+
 
     return
 

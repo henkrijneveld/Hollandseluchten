@@ -36,6 +36,7 @@ projectdir = "/home/henk/Projects/Hollandseluchten/python/projects/verkeer-20231
 allSensorsList = ["HLL_298", "HLL_345", "KNMI_240", "NL49701", "NL49556",
                   "HLL_256", "HLL_307", "HLL_320", "HLL_531"]
 sensorList = ["NL49701", "NL49556", "HLL_345", "HLL_307", "HLL_298", "HLL_320", "HLL_531"]
+hllSensorList = ["HLL_345", "HLL_307", "HLL_298", "HLL_320", "HLL_531"]
 
 mergetype="outer"
 
@@ -188,71 +189,123 @@ def runit():
 #    cv2.imwrite(projectdir+"/totaldiffs.jpg", totalimg, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
 
     # print all diff plots
-    printf("Diffplots median: ")
-    for baselist in sensorList:
-        for comparelist in sensorList:
-            plotframe = medianvalues([wideFrameAugmented], "datehour", "pm25_diff_" + baselist + "_" + comparelist)
+#    printf("Diffplots median: ")
+#    for baselist in sensorList:
+#        for comparelist in sensorList:
+#            plotframe = medianvalues([wideFrameAugmented], "datehour", "pm25_diff_" + baselist + "_" + comparelist)
 #            simpleStripPlot(wideFrame, "datehour", "pm25_diff_" + baselist + "_" + comparelist,
 #                            xlim=(-1, 24), ylim=(-7, 7),
 #                            title=baselist + " - " + comparelist + " delta pm25", xfont=11,
 #                            filename=projectdir+"/diff-median-"+baselist+"-"+comparelist)
-            lplot = (sns.lineplot(data=plotframe, x="datehour", y="pm25_diff_" + baselist + "_" + comparelist, linewidth=2.5))
-            lplot.set(xlim=(-1, 24))
-            lplot.set(title=baselist + " - " + comparelist + " delta pm25")
-            lplot.set_ylabel("Difference median", fontsize=14)
-            lplot.set_xlabel("Hour of day (UTC)", fontsize=14)
+#            lplot = (sns.lineplot(data=plotframe, x="datehour", y="pm25_diff_" + baselist + "_" + comparelist, linewidth=2.5))
+#            lplot.set(xlim=(-1, 24))
+#            lplot.set(title=baselist + " - " + comparelist + " delta pm25")
+#            lplot.set_ylabel("Difference median", fontsize=14)
+#            lplot.set_xlabel("Hour of day (UTC)", fontsize=14)
 
-            plt.tight_layout()
-            lplot.get_figure().savefig(projectdir+"/diff-median-"+baselist+"-"+comparelist)
-            plt.close()
-            printf(">")
-    printf("\n")
+#            plt.tight_layout()
+#            lplot.get_figure().savefig(projectdir+"/diff-median-"+baselist+"-"+comparelist)
+#            plt.close()
+#            printf(">")
+#    printf("\n")
 
     # read the images
-    printf("Concat images: ")
-    rows = []
-    for baselist in sensorList:
-        rowList = []
-        for comparelist in sensorList:
-            filename = "/diff-median-"+baselist+"-"+comparelist+".png"
-            img = cv2.imread(projectdir + "/" + filename)
-            rowList.append(img)
-            printf(">")
-        rowimg = cv2.hconcat(rowList)
-        rows.append(rowimg)
-    totalimg = cv2.vconcat(rows)
-    printf("\n")
-    cv2.imwrite(projectdir+"/totaldiffs-median.jpg", totalimg, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
+#    printf("Concat images: ")
+#    rows = []
+#    for baselist in sensorList:
+#        rowList = []
+#        for comparelist in sensorList:
+#            filename = "/diff-median-"+baselist+"-"+comparelist+".png"
+#            img = cv2.imread(projectdir + "/" + filename)
+#            rowList.append(img)
+#            printf(">")
+#        rowimg = cv2.hconcat(rowList)
+#        rows.append(rowimg)
+#    totalimg = cv2.vconcat(rows)
+#    printf("\n")
+#    cv2.imwrite(projectdir+"/totaldiffs-median.jpg", totalimg, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
 
     # print all diff plots
-    printf("Diffplots mean: ")
-    for baselist in sensorList:
-        for comparelist in sensorList:
-            plotframe = meanvalues([wideFrameAugmented], "datehour", "pm25_diff_" + baselist + "_" + comparelist)
-            #            simpleStripPlot(wideFrame, "datehour", "pm25_diff_" + baselist + "_" + comparelist,
-            #                            xlim=(-1, 24), ylim=(-7, 7),
-            #                            title=baselist + " - " + comparelist + " delta pm25", xfont=11,
-            #                            filename=projectdir+"/diff-median-"+baselist+"-"+comparelist)
-            lplot = (sns.lineplot(data=plotframe, x="datehour", y="pm25_diff_" + baselist + "_" + comparelist,
-                                  linewidth=2.5))
-            lplot.set(xlim=(-1, 24))
-            lplot.set(title=baselist + " - " + comparelist + " delta pm25")
-            lplot.set_ylabel("Difference mean", fontsize=14)
-            lplot.set_xlabel("Hour of day (UTC)", fontsize=14)
+#    printf("Diffplots mean: ")
+#    for baselist in sensorList:
+#        for comparelist in sensorList:
+#            plotframe = meanvalues([wideFrameAugmented], "datehour", "pm25_diff_" + baselist + "_" + comparelist)
+#            #            simpleStripPlot(wideFrame, "datehour", "pm25_diff_" + baselist + "_" + comparelist,
+#            #                            xlim=(-1, 24), ylim=(-7, 7),
+#            #                            title=baselist + " - " + comparelist + " delta pm25", xfont=11,
+#            #                            filename=projectdir+"/diff-median-"+baselist+"-"+comparelist)
+#            lplot = (sns.lineplot(data=plotframe, x="datehour", y="pm25_diff_" + baselist + "_" + comparelist,
+#                                  linewidth=2.5))
+#            lplot.set(xlim=(-1, 24))
+#            lplot.set(title=baselist + " - " + comparelist + " delta pm25")
+#            lplot.set_ylabel("Difference mean", fontsize=14)
+#            lplot.set_xlabel("Hour of day (UTC)", fontsize=14)#
+#
+#            plt.tight_layout()
+#            lplot.get_figure().savefig(projectdir + "/diff-mean-" + baselist + "-" + comparelist)
+#            plt.close()
+#            printf(">")
+#    printf("\n")
 
-            plt.tight_layout()
-            lplot.get_figure().savefig(projectdir + "/diff-mean-" + baselist + "-" + comparelist)
-            plt.close()
+    # read the images
+#    printf("Concat images: ")
+#    rows = []
+#    for baselist in sensorList:
+#        rowList = []
+#        for comparelist in sensorList:
+#            filename = "/diff-mean-" + baselist + "-" + comparelist + ".png"
+#            img = cv2.imread(projectdir + "/" + filename)
+#           rowList.append(img)
+#            printf(">")
+#        rowimg = cv2.hconcat(rowList)
+#        rows.append(rowimg)
+#    totalimg = cv2.vconcat(rows)
+#    printf("\n")
+#    cv2.imwrite(projectdir + "/totaldiffs-mean.jpg", totalimg, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
+
+    # print all humidity scatter plots
+#    printf("Humidity scatter: ")
+#    for baselist in hllSensorList:
+#        for comparelist in hllSensorList:
+#            simpleScatterPlot(wideFrameAugmented, "humidity_"+baselist, "humidity_"+comparelist, xlim=(10,100),
+#                              ylim=(10,100), filename = projectdir + "/humidity-" + baselist + "-" + comparelist,
+#                              title="Humidity "+baselist+" vs "+comparelist)
+#            printf(">")
+#    printf("\n")
+
+    # read the images
+#    printf("Concat images: ")
+#    rows = []
+#    for baselist in hllSensorList:
+#        rowList = []
+#        for comparelist in hllSensorList:
+#            filename = "/humidity-" + baselist + "-" + comparelist + ".png"
+#            img = cv2.imread(projectdir + "/" + filename)
+#            rowList.append(img)
+#            printf(">")
+#        rowimg = cv2.hconcat(rowList)
+#        rows.append(rowimg)
+#    totalimg = cv2.vconcat(rows)
+#    printf("\n")
+#    cv2.imwrite(projectdir + "/humidity-scatter.jpg", totalimg, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
+
+    # print all temperature scatter plots
+    printf("Temperature scatter: ")
+    for baselist in hllSensorList:
+        for comparelist in hllSensorList:
+            simpleScatterPlot(wideFrameAugmented, "temperature_" + baselist, "temperature_" + comparelist, xlim=(-5, 45),
+                              ylim=(-5, 45), filename=projectdir + "/temperature-" + baselist + "-" + comparelist,
+                              title="Temperature " + baselist + " vs " + comparelist)
             printf(">")
     printf("\n")
 
     # read the images
     printf("Concat images: ")
     rows = []
-    for baselist in sensorList:
+    for baselist in hllSensorList:
         rowList = []
-        for comparelist in sensorList:
-            filename = "/diff-mean-" + baselist + "-" + comparelist + ".png"
+        for comparelist in hllSensorList:
+            filename = "/temperature-" + baselist + "-" + comparelist + ".png"
             img = cv2.imread(projectdir + "/" + filename)
             rowList.append(img)
             printf(">")
@@ -260,7 +313,7 @@ def runit():
         rows.append(rowimg)
     totalimg = cv2.vconcat(rows)
     printf("\n")
-    cv2.imwrite(projectdir + "/totaldiffs-mean.jpg", totalimg, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
+    cv2.imwrite(projectdir + "/temperature-scatter.jpg", totalimg, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
 
     return
 
