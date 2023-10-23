@@ -14,7 +14,7 @@ from plotter import *
 import math
 import pprint as pp
 
-type = "outer"
+type = "inner"
 def getType():
     global type
     return type
@@ -223,6 +223,16 @@ def runit():
     lplot.get_figure().savefig(projectdir + "/0-9-pm25-diff-hour-545-NL-median-"+getType()+".jpg")
     plt.show()
 
+    plotframe = medianvalues([superFrameAugmented], "datehour", "pm25_diff_1845_NL")
+    lplot = (sns.lineplot(data=plotframe, x="datehour", y="pm25_diff_1845_NL", linewidth=2.5))
+    lplot.set(xlim=(-1, 24))
+    lplot.set(title="Daily verschil 1845 vs NL")
+    lplot.set_ylabel("Difference median", fontsize=14)
+    lplot.set_xlabel("Hour of day (UTC)", fontsize=14)
+    plt.tight_layout()
+    lplot.get_figure().savefig(projectdir + "/0-9-pm25-diff-hour-1845-NL-median-"+getType()+".jpg")
+    plt.show()
+
     plotframe = medianvalues([superFrameAugmented], "datehour", "pm25_HLL_545")
     lplot = (sns.lineplot(data=plotframe, x="datehour", y="pm25_HLL_545", linewidth=2.5))
     lplot.set(xlim=(-1, 24))
@@ -283,6 +293,38 @@ def runit():
     lplot.get_figure().savefig(projectdir + "/0-9-humidity-hour-545-mean-"+getType()+".jpg")
     plt.show()
 
+    plotframe = meanvalues([superFrameAugmented], "datehour", "temperature_HLL_545")
+    lplot = (sns.lineplot(data=plotframe, x="datehour", y="temperature_HLL_545", linewidth=2.5))
+    lplot.set(xlim=(-1, 24))
+    lplot.set(title="Daily temperature 545")
+    lplot.set_ylabel("temperature mean", fontsize=14)
+    lplot.set_xlabel("Hour of day (UTC)", fontsize=14)
+    plt.tight_layout()
+    lplot.get_figure().savefig(projectdir + "/0-9-temperature-hour-545-mean-"+getType()+".jpg")
+    plt.show()
+
+
+    plotframe = meanvalues([superFrameAugmented], "datehour", "pm25_NL49570")
+    lplot = (sns.lineplot(data=plotframe, x="datehour", y="pm25_NL49570", linewidth=2.5))
+    lplot.set(xlim=(-1, 24))
+    lplot.set(title="Daily NL49570")
+    lplot.set_ylabel("pm25 mean NL49570", fontsize=14)
+    lplot.set_xlabel("Hour of day (UTC)", fontsize=14)
+    plt.tight_layout()
+    lplot.get_figure().savefig(projectdir + "/0-9-pm25-NL49570-mean-"+getType()+".jpg")
+    plt.show()
+
+
+
+    plotframe = meanvalues([superFrameAugmented], "datehour", "pm25_diff_1845_NL")
+    lplot = (sns.lineplot(data=plotframe, x="datehour", y="pm25_diff_1845_NL", linewidth=2.5))
+    lplot.set(xlim=(-1, 24))
+    lplot.set(title="Daily verschil 1845 vs NL")
+    lplot.set_ylabel("Difference mean", fontsize=14)
+    lplot.set_xlabel("Hour of day (UTC)", fontsize=14)
+    plt.tight_layout()
+    lplot.get_figure().savefig(projectdir + "/0-9-pm25-diff-hour-1845-NL-mean-"+getType()+".jpg")
+    plt.show()
 
 
 

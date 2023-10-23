@@ -29,14 +29,20 @@ NL49556 = pd.DataFrame()
 HLL_256 = pd.DataFrame()
 HLL_307 = pd.DataFrame()
 HLL_320 = pd.DataFrame()
+HLL_326 = pd.DataFrame()
+HLL_339 = pd.DataFrame()
+HLL_325 = pd.DataFrame()
+HLL_415 = pd.DataFrame()
+HLL_378 = pd.DataFrame()
+
 HLL_531 = pd.DataFrame()
 startdate = "20230101"
 enddate = "20231001"
 projectdir = "/home/henk/Projects/Hollandseluchten/python/projects/verkeer-20231019"
-allSensorsList = ["HLL_298", "HLL_345", "KNMI_240", "NL49701", "NL49556",
+allSensorsList = ["HLL_298", "HLL_345", "HLL_326", "KNMI_240", "NL49701", "NL49556",
                   "HLL_256", "HLL_307", "HLL_320", "HLL_531"]
 sensorList = ["NL49701", "NL49556", "HLL_345", "HLL_307", "HLL_298", "HLL_320", "HLL_531"]
-hllSensorList = ["HLL_345", "HLL_307", "HLL_298", "HLL_320", "HLL_531"]
+hllSensorList = ["HLL_339", "HLL_298", "HLL_326", "HLL_320", "HLL_378", "HLL_415", "HLL_325"]
 
 mergetype="outer"
 
@@ -167,8 +173,23 @@ def runit():
     allSensors = convertTextToDataFrame(sensorList)
 #    createTimeSeries_Multiple(list(zip(allSensors, sensorList)), projectdir, namesuffix="pm25",
 #                              fname="timeseries-sensors")
-    createWideFrame(allSensorsList, KNMI_240)
-    augmentWideFrame(sensorList)
+    createWideFrame(hllSensorList, KNMI_240)
+    augmentWideFrame(hllSensorList)
+
+    print("298:")
+    print(HLL_298.describe())
+    print(wideFrameAugmented["pm25_HLL_298"].mean())
+    print("\n326:")
+    print(HLL_326.describe())
+    print(wideFrameAugmented["pm25_HLL_326"].mean())
+    print("\n320:")
+    print(HLL_320.describe())
+    print(wideFrameAugmented["pm25_HLL_320"].mean())
+
+#    print("\nNL49701:")
+#    print(NL49701.describe())
+#    print(wideFrameAugmented["pm25_NL49701"].mean())
+
 
     # print dagelijkse gang
 #    for sensor in sensorList:
@@ -204,9 +225,9 @@ def runit():
 #    cv2.imwrite(projectdir+"/totaldiffs.jpg", totalimg, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
 
     # print all diff plots
-    printf("Diffplots median: ")
-    for baselist in sensorList:
-        for comparelist in sensorList:
+    printf("Dailyplots median: ")
+    for baselist in hllSensorList:
+        for comparelist in hllSensorList:
             plotframe = medianvalues([wideFrameAugmented], "datehour", "pm25_diff_" + baselist + "_" + comparelist)
             plotframe = plotframe[~np.isnan(plotframe["pm25_diff_" + baselist + "_" + comparelist])]
 #            simpleStripPlot(plotframe, x="datehour", y="pm25_diff_" + baselist + "_" + comparelist,
@@ -228,9 +249,9 @@ def runit():
     # read the images
     printf("Concat images: ")
     rows = []
-    for baselist in sensorList:
+    for baselist in hllSensorList:
         rowList = []
-        for comparelist in sensorList:
+        for comparelist in hllSensorList:
             filename = "/diff-median-"+baselist+"-"+comparelist+".png"
             img = cv2.imread(projectdir + "/" + filename)
             rowList.append(img)
@@ -239,7 +260,34 @@ def runit():
         rows.append(rowimg)
     totalimg = cv2.vconcat(rows)
     printf("\n")
-    cv2.imwrite(projectdir+"/totaldiffs-median-humdiff-nomax.jpg", totalimg, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
+    cv2.imwrite(projectdir+"/KOOG-Daily-totaldiffs-median-humdiff-nomax.jpg", totalimg, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
+
+    # print all diff plots
+    printf("Windplots diff median: ")
+    for baselist in hllSensorList:
+        for comparelist in hllSensorList:
+            windplot(wideFrameAugmented, "pm25_diff_" + baselist + "_" + comparelist,
+                     filename=projectdir + "/diff-windplot-median-" + baselist + "-" + comparelist, polar=False,
+                     smooth=3, title="Difference "+baselist+" - "+comparelist)
+        printf(">")
+    printf("\n")
+
+    # read the images
+    printf("Concat images: ")
+    rows = []
+    for baselist in hllSensorList:
+        rowList = []
+        for comparelist in hllSensorList:
+            filename = "/diff-windplot-median-" + baselist + "-" + comparelist + ".png"
+            img = cv2.imread(projectdir + "/" + filename)
+            rowList.append(img)
+            printf(">")
+        rowimg = cv2.hconcat(rowList)
+        rows.append(rowimg)
+    totalimg = cv2.vconcat(rows)
+    printf("\n")
+    cv2.imwrite(projectdir + "/KOOG-Windplots-totaldiffs-median-humdiff-nomax.jpg", totalimg,
+                [int(cv2.IMWRITE_JPEG_QUALITY), 85])
 
     # print all diff plots
 #    printf("Diffplots mean: ")
