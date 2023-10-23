@@ -42,7 +42,7 @@ projectdir = "/home/henk/Projects/Hollandseluchten/python/projects/verkeer-20231
 allSensorsList = ["HLL_298", "HLL_345", "HLL_326", "KNMI_240", "NL49701", "NL49556",
                   "HLL_256", "HLL_307", "HLL_320", "HLL_531"]
 sensorList = ["NL49701", "NL49556", "HLL_345", "HLL_307", "HLL_298", "HLL_320", "HLL_531"]
-hllSensorList = ["HLL_339", "HLL_298", "HLL_326", "HLL_320", "HLL_378", "HLL_415", "HLL_325"]
+hllSensorList = ["NL49701", "HLL_339", "HLL_298", "HLL_326", "HLL_320", "HLL_378", "HLL_415", "HLL_325"]
 
 mergetype="outer"
 
