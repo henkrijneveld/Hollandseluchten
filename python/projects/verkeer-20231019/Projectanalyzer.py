@@ -168,6 +168,8 @@ def augmentWideFrame(sensorList):
 
 def runit():
     global wideFrame
+    global NL49701
+    global HLL_320
     global wideFrameAugmented
 
     allSensors = convertTextToDataFrame(sensorList)
@@ -176,6 +178,12 @@ def runit():
     createWideFrame(hllSensorList, KNMI_240)
     augmentWideFrame(hllSensorList)
 
+    printf("aantal metingen 320 %d\n", len(HLL_320))
+    HLL_320 = HLL_320[HLL_320["pm25"] > 25]
+    printf("aantal metingen 320 >25 %d\n", len(HLL_320))
+
+
+    return
     print("298:")
     print(HLL_298.describe())
     print(wideFrameAugmented["pm25_HLL_298"].mean())
