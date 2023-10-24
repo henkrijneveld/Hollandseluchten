@@ -42,7 +42,7 @@ projectdir = "/home/henk/Projects/Hollandseluchten/python/projects/verkeer-20231
 allSensorsList = ["HLL_298", "HLL_345", "HLL_326", "KNMI_240", "NL49701", "NL49556",
                   "HLL_256", "HLL_307", "HLL_320", "HLL_531"]
 sensorList = ["NL49701", "NL49556", "HLL_345", "HLL_307", "HLL_298", "HLL_320", "HLL_531"]
-hllSensorList = ["NL49701", "HLL_339", "HLL_298", "HLL_326", "HLL_320", "HLL_378", "HLL_415", "HLL_325"]
+hllSensorList = ["NL49701", "HLL_332", "HLL_339", "HLL_298", "HLL_326", "HLL_320", "HLL_378", "HLL_415", "HLL_325"]
 
 mergetype="outer"
 
@@ -170,6 +170,8 @@ def runit():
     global wideFrame
     global NL49701
     global HLL_320
+    global HLL_326
+    global HLL_298
     global wideFrameAugmented
 
     allSensors = convertTextToDataFrame(sensorList)
@@ -178,25 +180,41 @@ def runit():
     createWideFrame(hllSensorList, KNMI_240)
     augmentWideFrame(hllSensorList)
 
-    printf("aantal metingen 320 %d\n", len(HLL_320))
-    HLL_320 = HLL_320[HLL_320["pm25"] > 25]
-    printf("aantal metingen 320 >25 %d\n", len(HLL_320))
-
-
-    return
     print("298:")
     print(HLL_298.describe())
-    print(wideFrameAugmented["pm25_HLL_298"].mean())
+    print(HLL_298["pm25"].mean())
+#    HLL_298 = HLL_298[HLL_298["humidity"] < 81]
+    print("Humidity < 80")
+    print(HLL_298.describe())
+    print(HLL_298["pm25"].mean())
+
     print("\n326:")
     print(HLL_326.describe())
-    print(wideFrameAugmented["pm25_HLL_326"].mean())
+    print(HLL_326["pm25"].mean())
+#    HLL_326 = HLL_326[HLL_326["humidity"] < 81]
+
+    print("Humidity < 80")
+    print(HLL_326.describe())
+    print(HLL_326["pm25"].mean())
+
+
     print("\n320:")
     print(HLL_320.describe())
-    print(wideFrameAugmented["pm25_HLL_320"].mean())
+    print(HLL_320["pm25"].mean())
+#    HLL_320 = HLL_320[HLL_320["humidity"] < 81]
 
-#    print("\nNL49701:")
-#    print(NL49701.describe())
-#    print(wideFrameAugmented["pm25_NL49701"].mean())
+    print("Humidity < 80")
+    print(HLL_320.describe())
+    print(HLL_320["pm25"].mean())
+
+    print("\nNL49701:")
+    print(NL49701.describe())
+    print(NL49701["pm25"].mean())
+#    wideFrameAugmented = wideFrameAugmented[wideFrameAugmented["humidity_HLL_326"] < 81]
+
+    print("Humidity < 80")
+    print(wideFrameAugmented["pm25_NL49701"].describe())
+    print(wideFrameAugmented["pm25_NL49701"].mean())
 
 
     # print dagelijkse gang
@@ -233,6 +251,9 @@ def runit():
 #    cv2.imwrite(projectdir+"/totaldiffs.jpg", totalimg, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
 
     # print all diff plots
+#    wideFrameAugmented = wideFrameAugmented[wideFrameAugmented["winddirection"] < 271]
+#    wideFrameAugmented = wideFrameAugmented[wideFrameAugmented["winddirection"] > 90]
+
     printf("Dailyplots median: ")
     for baselist in hllSensorList:
         for comparelist in hllSensorList:
@@ -244,7 +265,7 @@ def runit():
 #                            filename=projectdir+"/diff-median-"+baselist+"-"+comparelist)
             lplot = (sns.lineplot(data=plotframe, x="datehour", y="pm25_diff_" + baselist + "_" + comparelist, linewidth=2.5))
             lplot.set(xlim=(-1, 24))
-            lplot.set(title=baselist + " - " + comparelist + " delta pm25 (no max hum diff)")
+            lplot.set(title=baselist + " - " + comparelist + " pm25 - Southwinds")
             lplot.set_ylabel("Difference median", fontsize=14)
             lplot.set_xlabel("Hour of day (UTC)", fontsize=14)
 

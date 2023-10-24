@@ -26,7 +26,7 @@ def runit():
 
     # list sensors to retrieve. Every entry is a tuple: (project, sensornumber). None if nothing to retrieve
 #    sensorselection = None
-    sensorselection = [("HLL", "298"), ("HLL", "320"), ("HLL", "256"), ("HLL", "326"), ("HLL", "339"), ("HLL", "325"),
+    sensorselection = [("HLL", "332"), ("HLL", "298"), ("HLL", "320"), ("HLL", "256"), ("HLL", "326"), ("HLL", "339"), ("HLL", "325"),
                        ("HLL", "345"), ("HLL", "307"), ("HLL", "448"), ("HLL", "531"), ("HLL", "378"), ("HLL", "415")]
 
     # fastimport: if True existing files will not be reloaded (no check on dates is done!)
