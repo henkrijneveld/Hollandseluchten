@@ -14,7 +14,7 @@ from plotter import *
 import math
 import pprint as pp
 
-type = "inner"
+type = "outer"
 def getType():
     global type
     return type
@@ -212,6 +212,13 @@ def runit():
     superFrameAugmented80plus = superFrameAugmented80plus[superFrameAugmented80plus["highhumidity"] == True]
     superFrameAugmented80min = superFrameAugmented.copy()
     superFrameAugmented80min = superFrameAugmented80min[superFrameAugmented80min["highhumidity"] != True]
+
+    simpleScatterPlot(superFrameAugmented, "humidity_HLL_545", "humidity_HLL_549",
+                      xlim=(10,100), ylim=(10,100), title="humidity 545 vs 549", filename=projectdir+"/hum-545-549-trendline.jpg")
+
+
+
+    return
 
     plotframe = medianvalues([superFrameAugmented], "datehour", "pm25_diff_545_NL")
     lplot = (sns.lineplot(data=plotframe, x="datehour", y="pm25_diff_545_NL", linewidth=2.5))

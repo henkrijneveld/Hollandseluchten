@@ -60,6 +60,34 @@ def simpleScatterPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0),
     if filename:
         scatter.get_figure().savefig(filename)
 
+def simpleRegPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0), title="Regplot", filename=False,
+                      describe=False, dotsize=3, tickSize=10):
+    # same length on x and y, assume square, otherwise landscape
+    isSquare = False
+    if (xlim[1]-xlim[0]) == (ylim[1]-ylim[0]):
+        setPlotSizeSquare()
+        isSquare = True
+    else:
+        setPlotSizeLandscape()
+
+    scatter = sns.regplot(aDataFrame, x=x, y=y, marker=".", line_kws={"color": "blue"}) #, s=dotsize)
+
+    if isSquare:
+        scatter.xaxis.set_ticks(np.arange(xlim[0], xlim[1], tickSize))
+        scatter.yaxis.set_ticks(np.arange(ylim[0], ylim[1], tickSize))
+
+    scatter.set(title=title)
+    scatter.set(xlim=xlim)
+    scatter.set(ylim=ylim)
+    plt.tight_layout()
+    plt.show()
+    if describe:
+        print("Describe: " + title)
+        print(aDataFrame[y].describe())
+        print("---")
+    if filename:
+        scatter.get_figure().savefig(filename)
+
 def simpleJointPlot(aDataFrame, x, y,  xlim=(-40.0, 40.0), ylim=(-40.0, 40.0), title="Scatterplot", filename=False,
                       describe=False, dotsize=3, hue=None):
 

@@ -180,8 +180,10 @@ def runit():
     createWideFrame(hllSensorList, KNMI_240)
     augmentWideFrame(hllSensorList)
 
-    simpleScatterPlot(wideFrameAugmented, "humidity_HLL_326", "humidity_HLL_320",
-                      xlim=(10,100), ylim=(10,100), title="humidity 326 vs 320")
+    simpleRegPlot(wideFrameAugmented, "humidity_HLL_326", "humidity_HLL_320",
+                      xlim=(10,100), ylim=(10,100), title="humidity 326 vs 320",
+                      filename=projectdir+"/hum-326-320-trendline.jpg", tickSize=20)
+    return
 
     wideFrameAugmented = wideFrameAugmented[wideFrameAugmented["winddirection"] < 365]
     wideFrameAugmented = wideFrameAugmented[wideFrameAugmented["winddirection"] > 175]
