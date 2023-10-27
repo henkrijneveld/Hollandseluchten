@@ -180,6 +180,20 @@ def runit():
     createWideFrame(hllSensorList, KNMI_240)
     augmentWideFrame(hllSensorList)
 
+    simpleScatterPlot(wideFrameAugmented, "humidity_HLL_326", "humidity_HLL_320",
+                      xlim=(10,100), ylim=(10,100), title="humidity 326 vs 320")
+
+    wideFrameAugmented = wideFrameAugmented[wideFrameAugmented["winddirection"] < 365]
+    wideFrameAugmented = wideFrameAugmented[wideFrameAugmented["winddirection"] > 175]
+
+
+    simpleScatterPlot(wideFrameAugmented, "humidity_HLL_326", "humidity_HLL_320",
+                      xlim=(10,100), ylim=(10,100), title="humidity 326 vs 320")
+
+    simpleScatterPlot(wideFrameAugmented, "temperature_HLL_326", "temperature_HLL_320",
+                      xlim=(-4,40), ylim=(-5,40), title="Temperature 326 vs 320")
+    return
+
     print("298:")
     print(HLL_298.describe())
     print(HLL_298["pm25"].mean())
