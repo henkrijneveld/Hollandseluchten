@@ -162,9 +162,9 @@ def printSeries_on_ax(aSensor, title="PM Series", filename=False, ylim=None, ax=
         lplot.get_figure().savefig(filename)
 
 # histogram attributeplot on attribute name
-def attrPlot(aDataFrame, attr, xlim=(-40.0, 40.0), title="Difference", filename=False, binwidth=0.10, describe=False):
+def attrPlot(aDataFrame, attr, xlim=(-40.0, 40.0), title="Difference", kde=True, filename=False, binwidth=0.10, describe=False):
     setPlotSizeLandscape()
-    lplot = sns.histplot(data=aDataFrame, x=attr, binwidth=binwidth, kde=True)
+    lplot = sns.histplot(data=aDataFrame, x=attr, binwidth=binwidth, kde=kde)
     lplot.set(xlim=xlim)
     lplot.set(title=title)
     plt.tight_layout()

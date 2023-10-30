@@ -180,10 +180,24 @@ def runit():
     createWideFrame(hllSensorList, KNMI_240)
     augmentWideFrame(hllSensorList)
 
+
+    windplot(wideFrameAugmented, values="pm25_NL49701", title="PM25 (mean) voor NL49701", smooth=3, method="meanvalues" )
+    windplot(wideFrameAugmented, values="pm25_NL49701", title="PM25 (mean) voor NL49701", polar=False, smooth=3, method="meanvalues" )
+
+
+
+    return
+    attrPlot(NL49701, "pm25", xlim=(-5, 40), title="pm25 meetnet", filename=projectdir+"/meetnetattr-histo.jpg", binwidth=0.5,
+                 describe=False, kde=False)
+
+    return
+    attrPlot(HLL_298, "pm25", xlim=(-5, 75), title="pm25 HLL 298", filename=projectdir+"/hll298attr-histo.jpg", binwidth=1,
+                 describe=False, kde=False)
+
+    return
     simpleRegPlot(wideFrameAugmented, "humidity_HLL_326", "humidity_HLL_320",
                       xlim=(10,100), ylim=(10,100), title="humidity 326 vs 320",
                       filename=projectdir+"/hum-326-320-trendline.jpg", tickSize=20)
-    return
 
     wideFrameAugmented = wideFrameAugmented[wideFrameAugmented["winddirection"] < 365]
     wideFrameAugmented = wideFrameAugmented[wideFrameAugmented["winddirection"] > 175]

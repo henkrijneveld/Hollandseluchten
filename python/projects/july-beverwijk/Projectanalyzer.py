@@ -37,7 +37,6 @@ def runit():
     lplot.set(xlim=(-50.0, 50.0))
     smootifyLineplot(lplot)
 
-    return
 
     merged = pd.merge(OZK_1850, OZK_1845, on='datetime', suffixes=("_1850", "_1845"))
 
