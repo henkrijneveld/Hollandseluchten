@@ -181,6 +181,9 @@ def runit():
     augmentWideFrame(hllSensorList)
 
 
+    return
+
+
     windplot(wideFrameAugmented, values="pm25_NL49701", title="PM25 (mean) voor NL49701", smooth=3, method="meanvalues" )
     windplot(wideFrameAugmented, values="pm25_NL49701", title="PM25 (mean) voor NL49701", polar=False, smooth=3, method="meanvalues" )
 

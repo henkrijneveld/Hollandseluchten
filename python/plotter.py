@@ -331,6 +331,8 @@ def diffPlotSensors(aFrame, attr, sensorlist, fname=None, binrange=(-10,10), bin
                 ax.set(title=xsensor + " - " + ysensor)
                 lplot = sns.histplot(binrange=binrange, data=diffsensor, x="delta", binwidth=binwidth,
                                      kde=False, ax=ax)
+                if fname is not None:
+                    plt.savefig(fname+"-"+xsensor+"-"+ysensor+".jpg", dpi='figure')
             colnr += 1
         colnr = 0
         rownr += 1

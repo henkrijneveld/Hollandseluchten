@@ -213,6 +213,45 @@ def runit():
     superFrameAugmented80min = superFrameAugmented.copy()
     superFrameAugmented80min = superFrameAugmented80min[superFrameAugmented80min["highhumidity"] != True]
 
+    diffsensor = pd.DataFrame()
+    xsensor="HLL_545"
+    ysensor="HLL_549"
+    attr = "pm25"
+    diffsensor["delta"] = superFrameAugmented[attr + "_" + xsensor] - superFrameAugmented[attr + "_" + ysensor]
+    lplot = sns.histplot(binrange=(-15, 15), data=diffsensor, x="delta", binwidth=0.25)
+    lplot.set(title=xsensor+" -/- " +ysensor)
+    plt.tight_layout()
+    plt.savefig(projectdir+"/0-0-0-"+xsensor+"-"+ysensor+".jpg", dpi='figure')
+    plt.show()
+
+    diffsensor = pd.DataFrame()
+    xsensor="HLL_545"
+    ysensor="OZK_1845"
+    attr = "pm25"
+    diffsensor["delta"] = superFrameAugmented[attr + "_" + xsensor] - superFrameAugmented[attr + "_" + ysensor]
+    lplot = sns.histplot(binrange=(-15, 15), data=diffsensor, x="delta", binwidth=0.25)
+    lplot.set(title=xsensor+" -/- " +ysensor)
+    plt.tight_layout()
+    plt.savefig(projectdir+"/0-0-0-"+xsensor+"-"+ysensor+".jpg", dpi='figure')
+    plt.show()
+
+    diffsensor = pd.DataFrame()
+    xsensor="HLL_545"
+    ysensor="NL49570"
+    attr = "pm25"
+    diffsensor["delta"] = superFrameAugmented[attr + "_" + xsensor] - superFrameAugmented[attr + "_" + ysensor]
+    lplot = sns.histplot(binrange=(-15, 15), data=diffsensor, x="delta", binwidth=0.25)
+    lplot.set(title=xsensor+" -/- " +ysensor)
+    plt.tight_layout()
+    plt.savefig(projectdir+"/0-0-0-"+xsensor+"-"+ysensor+".jpg", dpi='figure')
+    plt.show()
+
+
+    return
+
+    diffPlotSensors(superFrameAugmented, "pm25", allSensorsText, title="Delta pm25: All sensors and all humidity "+type,
+                    fname=projectdir + "/0-0-diffplots-sensors-allhum"+"-"+type)
+
     simpleScatterPlot(superFrameAugmented, "humidity_HLL_545", "humidity_HLL_549",
                       xlim=(10,100), ylim=(10,100), title="humidity 545 vs 549", filename=projectdir+"/hum-545-549-trendline.jpg")
 
