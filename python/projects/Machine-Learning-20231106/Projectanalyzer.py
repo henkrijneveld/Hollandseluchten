@@ -8,6 +8,7 @@ import sys
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import PolynomialFeatures
 from sklearn import linear_model
 
 
@@ -128,7 +129,7 @@ def numpyfi(aFrame, sensorlist, targetlist, datalist):
 
 def plotdiff(left, right, title):
     target_diff = left - right
-    plt.hist(target_diff, bins=np.arange(-15, 15, 0.25))
+    plt.hist(target_diff, bins=np.arange(-10, 10, 0.5))
     plt.title(title)
     plt.show()
 
@@ -149,9 +150,9 @@ def runit():
 #    diffPlot(HLL_545, NL49570, attr="pm25", xlim=(-15,15), title="Uncalibrated diff 545 vs 49570", binwidth=0.25)
 #    diffPlot(HLL_549, NL49570, attr="pm25", xlim=(-15,15), title="Uncalibrated diff 549 vs 49570", binwidth=0.25)
 #    diffPlot(HLL_545, HLL_549, attr="pm25", xlim=(-15,15), title="Uncalibrated diff 545 vs 549", binwidth=0.25)
-    diffPlot(HLL_541, NL49701, attr="pm25", xlim=(-15,15), title="Uncalibrated diff 541 vs 49701", binwidth=0.25)
-    diffPlot(HLL_420, NL49701, attr="pm25", xlim=(-15,15), title="Uncalibrated diff 420 vs 49701", binwidth=0.25)
-    diffPlot(HLL_420, HLL_541, attr="pm25", xlim=(-15,15), title="Uncalibrated diff 420 vs 541", binwidth=0.25)
+    diffPlot(HLL_541, NL49701, attr="pm25", xlim=(-10,10), title="Uncalibrated diff 541 vs 49701", binwidth=0.5)
+    diffPlot(HLL_420, NL49701, attr="pm25", xlim=(-10,10), title="Uncalibrated diff 420 vs 49701", binwidth=0.5)
+    diffPlot(HLL_420, HLL_541, attr="pm25", xlim=(-10,10), title="Uncalibrated diff 420 vs 541", binwidth=0.5)
 
     # make arrays in numpy format. Maybe not necessary, we will see later
     target, data = numpyfi(wideFrameAugmented,
@@ -163,13 +164,16 @@ def runit():
     data_train, data_test, target_train, target_test = train_test_split(data, target, random_state=0)
 
     # model Lasso according to cheat sheet
-#    reg = linear_model.Lasso(alpha=0.1)
+    trans = PolynomialFeatures(degree=2)
+    data_train = trans.fit_transform(data_train)
+    reg = linear_model.Lasso(alpha=0.7)
 #    reg = linear_model.ElasticNet(random_state=0)
-    reg = linear_model.Ridge(alpha=1)
+#    reg = linear_model.Ridge(alpha=1)
 
     reg.fit(data_train, target_train)
 
     # blackbox accuracy score
+    data_test = trans.fit_transform(data_test)
     print(reg.score(data_test, target_test))
 
     # build predicted array, compare with test
@@ -188,6 +192,7 @@ def runit():
             ["pm25_HLL_549", "temperature_HLL_549", "humidity_HLL_549"])
 
     # build predicted array, compare with test
+    data = trans.fit_transform(data)
     target_predicted = reg.predict(data)
 
     # difference
@@ -201,6 +206,9 @@ def runit():
             ["pm25_HLL_549", "temperature_HLL_549", "humidity_HLL_549", "pm25_HLL_545", "temperature_HLL_545", "humidity_HLL_545"],
             ["pm25_HLL_545", "temperature_HLL_545", "humidity_HLL_545"],
             ["pm25_HLL_549", "temperature_HLL_549", "humidity_HLL_549"])
+    data_545 = trans.fit_transform(data_545)
+    data_549 = trans.fit_transform(data_549)
+
     data_545_cal = reg.predict(data_545)
     data_549_cal = reg.predict(data_549)
     plotdiff(data_545_cal, data_549_cal, "Histo calibrated 545 vs 549")
@@ -210,7 +218,10 @@ def runit():
             ["pm25_HLL_541", "temperature_HLL_541", "humidity_HLL_541", "pm25_NL49701"],
             "pm25_NL49701",
             ["pm25_HLL_541", "temperature_HLL_541", "humidity_HLL_541"])
+    data_541 = trans.fit_transform(data_541)
+
     data_541_cal = reg.predict(data_541)
+
     plotdiff(data_541_cal, data_49701, "Histo calibrated 541 vs NL")
 
     # compare 541 to 420
@@ -218,11 +229,13 @@ def runit():
             ["pm25_HLL_420", "temperature_HLL_420", "humidity_HLL_420", "pm25_NL49701"],
             "pm25_NL49701",
             ["pm25_HLL_420", "temperature_HLL_420", "humidity_HLL_420"])
+    data_420 = trans.fit_transform(data_420)
+
     data_420_cal = reg.predict(data_420)
     plotdiff(data_420_cal, data_49701, "Histo calibrated 420 vs NL")
 
     plotdiff(data_420_cal, data_541_cal, "Histo calibrated 420 vs 541")
-
+    printf("420 -/- 541 calibrated:")
 
     return
 
