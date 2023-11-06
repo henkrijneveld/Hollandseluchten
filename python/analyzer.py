@@ -9,6 +9,7 @@ import requests
 import datetime
 import seaborn as sns
 import sys
+from sys import exit
 import os
 import pprint as pp
 from plotter import *

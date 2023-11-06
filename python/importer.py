@@ -34,6 +34,8 @@ import os
 import time
 
 import sys
+from sys import exit
+
 def printf(format, *args):
     sys.stdout.write(format % args)
 
