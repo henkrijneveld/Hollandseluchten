@@ -123,7 +123,7 @@ def numpyfi(aFrame, sensorlist, targetlist, datalist):
 
 def plotdiff(left, right, title):
     target_diff = left - right
-    plt.hist(target_diff, bins=np.arange(-10, 10, 0.5))
+    plt.hist(target_diff, bins=np.arange(-10, 10, 0.25))
     plt.title(title)
     plt.show()
 
@@ -145,7 +145,7 @@ def runit():
 
     allSensorsText = ["HLL_545", "HLL_549", "HLL_420", "HLL_541", "NL49570", "NL49701"]
 
-    maxhum = 90
+    maxhum = 99
     HLL_545 = caphum(HLL_545, maxhum)
     HLL_549 = caphum(HLL_549, maxhum)
     HLL_541 = caphum(HLL_541, maxhum)
@@ -177,16 +177,24 @@ def runit():
     data_train, data_test, target_train, target_test = train_test_split(data, target, random_state=0)
 
     # model Lasso according to cheat sheet
-    trans = PolynomialFeatures(degree=2)
-    data_train = trans.fit_transform(data_train)
-#    reg = linear_model.Lasso(alpha=0.5)
+    trans = PolynomialFeatures(degree=3)
+    data = trans.fit_transform(data)
+    reg = linear_model.Lasso(alpha=0.5, max_iter=100000, tol=1e-6)
 #    reg = linear_model.ElasticNet(random_state=0)
 #    reg = linear_model.Ridge(alpha=10)
-    reg = linear_model.BayesianRidge(tol=1e-3, fit_intercept=False, compute_score=True)
-    reg.set_params(alpha_init=10, lambda_init=6)
+#    reg = linear_model.BayesianRidge(tol=1e-3, fit_intercept=False, compute_score=True)
+#    reg.set_params(alpha_init=10, lambda_init=6)
+    reg.fit(data, target)
 
-    reg.fit(data_train, target_train)
-    printf("5 wideFrameAugmented: %d\n", len(wideFrameAugmented))
+    # Second step POC, fit with second SODAQ
+    target_step_2, data = numpyfi(wideFrameAugmented,
+            ["pm25_NL49570", "pm25_HLL_549", "temperature_HLL_549", "humidity_HLL_549"],
+            "pm25_NL49570",
+            ["pm25_HLL_549", "temperature_HLL_549", "humidity_HLL_549"])
+
+    data_step_2 = trans.fit_transform(data)
+    reg_step_2 = linear_model.Lasso(alpha=0.5)
+    reg_step_2.fit(data_step_2, target_step_2)
 
     # blackbox accuracy score
     data_test = trans.fit_transform(data_test)
@@ -251,12 +259,15 @@ def runit():
             ["pm25_HLL_420", "temperature_HLL_420", "humidity_HLL_420"])
     data_420 = trans.fit_transform(data_420)
     printf("#420 fit: %d\n", len(data_420))
-
     data_420_cal = reg.predict(data_420)
+
+#    data_420[:,2] = data_420_cal[:]
+#   data_420_cal = reg_step_2.predict(data_420)
+
     printf("1 wideFrameAugmented: %d\n", len(wideFrameAugmented))
     printf("#420 cal: %d\n", len(data_420_cal))
 
-    plotdiff(data_420_cal, data_49701, "Histo calibrated 420 vs NL")
+    plotdiff(data_420_cal, data_49701, "Histo  calibrated 420 vs NL")
 
 
     # compare 541 to 420
