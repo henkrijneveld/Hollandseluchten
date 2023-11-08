@@ -109,7 +109,10 @@ def augmentWideFrame(sensorList):
     global wideFrame
     global wideFrameAugmented
 
+    wideFrame['datehour'] = wideFrame['datetime'].dt.hour
+
     wideFrameAugmented = wideFrame.copy()
+
     wideFrameAugmented.to_csv(projectdir + "/wideFrameAugmented.csv", index=False)
 
     return wideFrameAugmented
@@ -145,7 +148,7 @@ def runit():
 
     allSensorsText = ["HLL_545", "HLL_549", "HLL_420", "HLL_541", "NL49570", "NL49701"]
 
-    maxhum = 99
+    maxhum = 90
     HLL_545 = caphum(HLL_545, maxhum)
     HLL_549 = caphum(HLL_549, maxhum)
     HLL_541 = caphum(HLL_541, maxhum)
@@ -161,17 +164,17 @@ def runit():
 
 #    diffPlot(HLL_545, NL49570, attr="pm25", xlim=(-15,15), title="Uncalibrated diff 545 vs 49570", binwidth=0.25)
 #    diffPlot(HLL_549, NL49570, attr="pm25", xlim=(-15,15), title="Uncalibrated diff 549 vs 49570", binwidth=0.25)
-#    diffPlot(HLL_545, HLL_549, attr="pm25", xlim=(-15,15), title="Uncalibrated diff 545 vs 549", binwidth=0.25)
-    diffPlot(HLL_541, NL49701, attr="pm25", xlim=(-10,10), title="Uncalibrated diff 541 vs 49701", binwidth=0.5)
-    diffPlot(HLL_420, NL49701, attr="pm25", xlim=(-10,10), title="Uncalibrated diff 420 vs 49701", binwidth=0.5)
-    diffPlot(HLL_420, HLL_541, attr="pm25", xlim=(-10,10), title="Uncalibrated diff 420 vs 541", binwidth=0.5)
+    diffPlot(HLL_545, HLL_549, attr="pm25", xlim=(-10,10), title="Uncalibrated diff 545 vs 549", binwidth=0.25)
+    diffPlot(HLL_541, NL49701, attr="pm25", xlim=(-10,10), title="Uncalibrated diff 541 vs 49701", binwidth=0.25)
+#    diffPlot(HLL_420, NL49701, attr="pm25", xlim=(-10,10), title="Uncalibrated diff 420 vs 49701", binwidth=0.5)
+    diffPlot(HLL_420, HLL_541, attr="pm25", xlim=(-10,10), title="Uncalibrated diff 420 vs 541", binwidth=0.25)
     printf("#420 uncal: %d\n", len(HLL_420))
 
     # make arrays in numpy format. Maybe not necessary, we will see later
     target, data = numpyfi(wideFrameAugmented,
-            ["pm25_NL49570", "pm25_HLL_545", "temperature_HLL_545", "humidity_HLL_545"],
+            ["pm25_NL49570", "pm25_HLL_545", "datehour"],
             "pm25_NL49570",
-            ["pm25_HLL_545", "temperature_HLL_545", "humidity_HLL_545"])
+            ["pm25_HLL_545", "datehour"])
 
     # split
     data_train, data_test, target_train, target_test = train_test_split(data, target, random_state=0)
@@ -179,13 +182,58 @@ def runit():
     # model Lasso according to cheat sheet
     trans = PolynomialFeatures(degree=3)
     data = trans.fit_transform(data)
-    reg = linear_model.Lasso(alpha=0.5, max_iter=100000, tol=1e-6)
-#    reg = linear_model.ElasticNet(random_state=0)
+    reg = linear_model.Lasso(alpha=0.5, max_iter=100000, tol=1e-5)
+#   reg = linear_model.ElasticNet(random_state=0)
 #    reg = linear_model.Ridge(alpha=10)
 #    reg = linear_model.BayesianRidge(tol=1e-3, fit_intercept=False, compute_score=True)
 #    reg.set_params(alpha_init=10, lambda_init=6)
     reg.fit(data, target)
 
+    # compare the two HLL
+    data_545, data_549 = numpyfi(wideFrameAugmented,
+            ["pm25_HLL_549", "pm25_HLL_545", "datehour"],
+            ["pm25_HLL_545", "datehour"],
+            ["pm25_HLL_549", "datehour"])
+    data_545 = trans.fit_transform(data_545)
+    data_549 = trans.fit_transform(data_549)
+
+    data_545_cal = reg.predict(data_545)
+    data_549_cal = reg.predict(data_549)
+    plotdiff(data_545_cal, data_549_cal, "Histo calibrated 545 vs 549")
+    printf("3 wideFrameAugmented: %d\n", len(wideFrameAugmented))
+
+
+    # compare 541 to NL
+    data_49701, data_541 = numpyfi(wideFrameAugmented,
+            ["pm25_HLL_541", "pm25_NL49701", "datehour"],
+            "pm25_NL49701",
+            ["pm25_HLL_541", "datehour"])
+    data_541 = trans.fit_transform(data_541)
+
+    data_541_cal = reg.predict(data_541)
+
+    plotdiff(data_541_cal, data_49701, "Histo calibrated 541 vs NL")
+
+    printf("2 wideFrameAugmented: %d\n", len(wideFrameAugmented))
+
+    # compare 541 to 420
+    data_541, data_420 = numpyfi(wideFrameAugmented,
+            ["pm25_HLL_420",
+                    "pm25_HLL_541", "datehour"],
+            ["pm25_HLL_541", "datehour"],
+            ["pm25_HLL_420", "datehour"])
+    data_420 = trans.fit_transform(data_420)
+    printf("#420 fit: %d\n", len(data_420))
+    data_420_cal = reg.predict(data_420)
+
+    data_541 = trans.fit_transform(data_541)
+    printf("#541 fit: %d\n", len(data_541))
+    data_541_cal = reg.predict(data_541)
+
+
+    plotdiff(data_420_cal, data_541_cal, "Histo calibrated 420 vs 541")
+
+    return
     # Second step POC, fit with second SODAQ
     target_step_2, data = numpyfi(wideFrameAugmented,
             ["pm25_NL49570", "pm25_HLL_549", "temperature_HLL_549", "humidity_HLL_549"],
