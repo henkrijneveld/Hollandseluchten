@@ -261,7 +261,6 @@ def runMeetnettofile(savelocation, includedatesinfilename, start, end, meetnetse
         if not fastimport or not os.path.exists(savefile):
             meetframe = getMeetnet(sensor, start, end)
             meetframe.to_csv(savefile,index=False)
-            time.sleep(15)
 
 def checkDiff(row):
     if row["pm25"] != row["pm25_kal"]:
@@ -279,9 +278,104 @@ def runCSVtofile(savelocation, includedatesinfilename, start, end, sensorselecti
         savefile += ".csv"
         if not fastimport or not os.path.exists(savefile):
             meetframe = getCSVsensor(project, sensorid, start, end, ignorecsvnotfound)
-            meetframe.to_csv(savefile,index=False)
+            if meetframe.shape[0] == 0:
+                printf("Sensor %s_%s has no data, skipped\n", project, sensorid)
+            else:
+                meetframe.to_csv(savefile,index=False)
 #        printf("Sensor: %s - %s\n", project, sensorid)
 #        meetframe.apply(checkDiff, axis = 1)
+
+# Return in format:
+# latitude (breedtegraad N-S), longitude (lengtegraad E-W)
+def getLocationHLL(sensornumber):
+    sensornumber = str(sensornumber)
+    requestURL = ("https://api-samenmeten.rivm.nl/v1.0/Things?$filter=startswith(name,'HLL_hl_device_"+
+                  sensornumber + "')")
+    sensordata = requests.get(requestURL)
+    if sensordata.status_code != 200:
+        printf("Error reading sensordata %s. Status code = %d\n", sensornumber, sensordata.status_code)
+        exit(-1)
+    sensordict = sensordata.json()['value']
+    locationLink = sensordict[0]['Locations@iot.navigationLink']
+
+    locations = requests.get(locationLink)
+    if locations.status_code != 200:
+        printf("Error reading locations for sensordata %s. Status code = %d\n", sensornumber, locations.status_code)
+        exit(-1)
+    locationdict = locations.json()['value'][0]
+    locationlist = locationdict['location']['coordinates']
+    if len(locationlist) != 2:
+        printf("Locationlist for sensor %s different from 2\n", sensornumber)
+        printf("API Link: %s\n", locationLink)
+        exit(-1)
+
+    return(locationlist[1], locationlist[0])
+
+def getLocationMeetnet(sensornumber):
+    sensornumber = str(sensornumber)
+    if not sensornumber.startswith("NL"):
+        sensornumber = "NL" + sensornumber
+    requestURL = ("https://api.luchtmeetnet.nl/open_api/stations/" + sensornumber)
+    sensordata = requests.get(requestURL)
+    if sensordata.status_code != 200:
+        printf("Error reading sensordata %s. Status code = %d\n", sensornumber, sensordata.status_code)
+        exit(-1)
+    sensordict = sensordata.json()['data']
+    locationlist = sensordict['geometry']['coordinates']
+    if len(locationlist) != 2:
+        printf("Locationlist for sensor %s different from 2\n", sensornumber)
+        printf("API Link: %s\n", requestURL)
+        exit(-1)
+
+    return(locationlist[1], locationlist[0])
+
+# Retrieves location for a list of sensors
+# sensorname can be:
+# a tuple: project and number (project is HLL or OVK)
+# a string: identification of a meetnet sensor
+#
+# if locationList exists positions will only be retrieved if the sensor is not in it
+#
+# return: a dataframe with sensor (HLL_number, OVK_number, NLnumber)
+# lat (latitude) and lon (longitude)
+def getLocations(sensorList, locationList = None):
+    if locationList is None:
+        locationList = pd.DataFrame(columns=["sensor", "lat", "lon"])
+        locationList = locationList.astype({'sensor': 'string', 'lat': 'float', 'lon': 'float'})
+
+    sensorposition = None
+    for sensor in sensorList:
+        sensorname = None
+        sensorposition = None
+        if isinstance(sensor, str):
+            sensorname = sensor
+            if sensorname not in locationList['sensor'].values:
+                sensorposition = getLocationMeetnet(sensorname)
+        if isinstance(sensor, tuple):
+            if sensor[0] == "HLL":
+                sensorname = "HLL_" + sensor[1]
+                if sensorname not in locationList['sensor'].values:
+                    sensorposition = getLocationHLL(sensor[1])
+        if sensorname is None:
+            printf("Warning: unsupported sensorname %s - %s\n", sensor[0], sensor[1])
+        if sensorposition is not None:
+            locationList.loc[len(locationList)] = [sensorname, sensorposition[0], sensorposition[1]]
+
+    return locationList
+
+
+
+def runLocationsToFile(sensorlist, savelocation):
+    nrlocs = 0
+    filename = savelocation +"/locations.csv"
+    locations = None
+    if os.path.isfile(filename):
+        locations = pd.read_csv(filename)
+        nrlocs = locations.shape[0]
+    locations = getLocations(sensorlist, locations)
+    if locations is not None:
+        locations.to_csv(filename, index=False)
+        printf("Locations retrieved (%d in cache, %d new)\n", nrlocs, locations.shape[0] - nrlocs)
 
 
 def retrieveAllData(includedatesinfilename, savelocation, start, end, knmiselection, meetnetselection, sensorselection,
@@ -294,6 +388,10 @@ def retrieveAllData(includedatesinfilename, savelocation, start, end, knmiselect
         runKNMItofile(savelocation, includedatesinfilename, start, end, knmiselection, fastimport)
     if meetnetselection != None:
         runMeetnettofile(savelocation, includedatesinfilename, start, end, meetnetselection, fastimport)
+        runLocationsToFile(meetnetselection, savelocation)
     if sensorselection != None:
         runCSVtofile(savelocation, includedatesinfilename, start, end, sensorselection, fastimport, ignorecsvnotfound)
+        runLocationsToFile(sensorselection, savelocation)
+
     return
+

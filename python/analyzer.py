@@ -43,21 +43,23 @@ def printGlobals(projectdir):
     for file in os.listdir(projectdir):
         if file.endswith(".csv"):
             tmpFrame = pd.read_csv(projectdir + "/" + file)
-            tmpFrame["datetime"] = pd.to_datetime(tmpFrame["datetime"])
-            tmpFrame["datetime"] = tmpFrame["datetime"].dt.tz_localize(None)
             fname = file[:-4]
             printf("%s%s = pd.DataFrame()\n", prefix, fname)
-            sensorList.append('"'+prefix+fname+'"')
-            if (not startdate):
-                startdate = tmpFrame["datetime"].min()
-            if (not enddate):
-               enddate = tmpFrame["datetime"].min()
-            if tmpFrame["datetime"].min() < startdate:
-                startdate = tmpFrame["datetime"].min()
-            if tmpFrame["datetime"].max() > enddate:
-                enddate = tmpFrame["datetime"].max()
-            start = startdate.strftime("%Y%m%d")
-            end = enddate.strftime("%Y%m%d")
+
+            if "datetime" in tmpFrame.columns:
+                tmpFrame["datetime"] = pd.to_datetime(tmpFrame["datetime"])
+                tmpFrame["datetime"] = tmpFrame["datetime"].dt.tz_localize(None)
+                sensorList.append('"'+prefix+fname+'"')
+                if (not startdate):
+                    startdate = tmpFrame["datetime"].min()
+                if (not enddate):
+                   enddate = tmpFrame["datetime"].min()
+                if tmpFrame["datetime"].min() < startdate:
+                    startdate = tmpFrame["datetime"].min()
+                if tmpFrame["datetime"].max() > enddate:
+                    enddate = tmpFrame["datetime"].max()
+                start = startdate.strftime("%Y%m%d")
+                end = enddate.strftime("%Y%m%d")
     printf('startdate = "%s"\n', start)
     printf('enddate = "%s"\n', end)
     printf('projectdir = "%s"\n', projectdir)
@@ -70,12 +72,13 @@ def importDataframes(projectdir, globalcontext):
     for file in os.listdir(projectdir):
         if file.endswith(".csv"):
             tmpFrame = pd.read_csv(projectdir + "/" + file)
-            tmpFrame["datetime"] = pd.to_datetime(tmpFrame["datetime"])
-            tmpFrame = removeDatesBefore(tmpFrame, "2023-01-01 04:00:00+00:00")
             fname = file[:-4]
+            if "datetime" in tmpFrame.columns:
+                tmpFrame["datetime"] = pd.to_datetime(tmpFrame["datetime"])
+                tmpFrame = removeDatesBefore(tmpFrame, "2023-01-01 04:00:00+00:00")
+                tmpFrame["sensorname"] = fname
             if not fname in globalcontext:
                 printf("File %s added to globals\n", fname)
-            tmpFrame["sensorname"] = fname
             globalcontext[fname] = tmpFrame
 
     printf("\nDone importing\n")
