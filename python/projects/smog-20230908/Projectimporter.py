@@ -23,7 +23,9 @@ def runit():
     knmiselection = False
 
     # list of meetnet sensors to retrieve
-    meetnetselection = ["NL10418", "NL49570", "NL49701", "NL49556", "NL49561", "NL10641", "NL10636", "NL10538", "NL10738", "NL10644", "NL10404"]   # colocatie NL Beverwijk
+    meetnetselection = ["NL10418", "NL49570", "NL49701", "NL49556", "NL49561", "NL10641", "NL10636", "NL10538",
+                        "NL10738", "NL10644", "NL10404", "NL49573", "NL49551", "NL49704",  "NL49017", "NL10641"
+                        ]
 
 #    meetnetselection = None
 

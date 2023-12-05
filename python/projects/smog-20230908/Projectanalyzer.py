@@ -21,12 +21,15 @@ NL10644 = pd.DataFrame()
 NL10418 = pd.DataFrame()
 HLL_469 = pd.DataFrame()
 HLL_506 = pd.DataFrame()
+NL49704 = pd.DataFrame()
 HLL_323 = pd.DataFrame()
 HLL_527 = pd.DataFrame()
+NL49551 = pd.DataFrame()
 HLL_509 = pd.DataFrame()
 HLL_546 = pd.DataFrame()
 HLL_284 = pd.DataFrame()
 NL49701 = pd.DataFrame()
+NL49573 = pd.DataFrame()
 NL49561 = pd.DataFrame()
 HLL_298 = pd.DataFrame()
 locations = pd.DataFrame()
@@ -43,6 +46,7 @@ NL10538 = pd.DataFrame()
 NL10641 = pd.DataFrame()
 NL49570 = pd.DataFrame()
 HLL_532 = pd.DataFrame()
+NL49017 = pd.DataFrame()
 HLL_448 = pd.DataFrame()
 HLL_334 = pd.DataFrame()
 NL49556 = pd.DataFrame()
@@ -51,7 +55,10 @@ HLL_250 = pd.DataFrame()
 startdate = "20230908"
 enddate = "20230909"
 projectdir = "/home/henk/Projects/Hollandseluchten/python/projects/smog-20230908"
-sensorList = ["NL10644", "NL10418", "HLL_469", "HLL_506", "HLL_323", "HLL_527", "HLL_509", "HLL_546", "HLL_284", "NL49701", "NL49561", "HLL_298", "NL10404", "HLL_350", "HLL_415", "NL10636", "HLL_462", "HLL_474", "NL10738", "HLL_439", "HLL_413", "NL10538", "NL10641", "NL49570", "HLL_532", "HLL_448", "HLL_334", "NL49556", "HLL_458", "HLL_250"]
+sensorList = ["NL10644", "NL10418", "HLL_469", "HLL_506", "NL49704", "HLL_323", "HLL_527", "NL49551", "HLL_509", "HLL_546", "HLL_284", "NL49701", "NL49573", "NL49561", "HLL_298", "NL10404", "HLL_350", "HLL_415", "NL10636", "HLL_462", "HLL_474", "NL10738", "HLL_439", "HLL_413", "NL10538", "NL10641", "NL49570", "HLL_532", "NL49017", "HLL_448", "HLL_334", "NL49556", "HLL_458", "HLL_250"]
+sensorListNL = ["NL10644", "NL10418", "NL49704", "NL49551", "NL49701", "NL49573", "NL49561",
+                "NL10404", "NL10636", "NL10738", "NL10538", "NL10641", "NL49570", "NL49017",
+                "NL49556"]
 
 def convertTextToDataFrame(aText):
     return globals()[aText]
@@ -91,7 +98,8 @@ def makeSnapshots(sensorlist, start, end, locations):
                         aSeries = sensorframe.loc[sensorframe["datetime"] == aDate, "pm25"]
                         if len(aSeries) > 0:
                             pm25 = aSeries.values[0]
-                            pm25 = math.sqrt(pm25)
+                            if pm25 < 0:
+                                pm25 = 0
                         snapshot.loc[len(snapshot)] = [sensorname, dt_start.strftime("%Y-%m-%d %Hh"), lat, lon, pm25, getsize(pm25, 2)]
 #        if snapshot.shape[0] > 0:
 #            snapshots.append(snapshot)
@@ -103,14 +111,14 @@ def makeSnapshots(sensorlist, start, end, locations):
     return snapshots
 
 def runit():
-    snapshots = makeSnapshots(sensorList, startdate, enddate, locations)
+    snapshots = makeSnapshots(sensorListNL, startdate, enddate, locations)
 
     fig = px.scatter_mapbox(snapshots, lat='lat', lon='lon', color='pm25',
                             center=dict(lat=52.471, lon=4.810),
                             zoom=8,
                             # mapbox_style = 'open-street-map',
                             mapbox_style='carto-darkmatter',
-                            range_color=(1, 12),
+                            range_color=(1, 100),
                             opacity=0.9,
                             size="pm25",
                             size_max=50,
@@ -127,7 +135,7 @@ def runit():
 
 # run stand alone entry point
 if __name__ == '__main__':
-   # printGlobals(os.getcwd())
+  #  printGlobals(os.getcwd())
     importDataframes(os.getcwd(), globals())
     runit()
 
