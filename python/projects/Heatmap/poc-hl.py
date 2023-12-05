@@ -1,6 +1,7 @@
 import pandas as pd
 import plotly.express as px
-
+import plotly.io as pio
+pio.renderers.default = "browser"
 # Data with latitude/longitude and values
 #df = pd.read_csv('https://raw.githubusercontent.com/R-CoderDotCom/data/main/sample_datasets/population_galicia.csv')
 
@@ -30,7 +31,7 @@ df = pd.DataFrame(data=data)
 
 fig = px.scatter_mapbox(df, lat = 'lat', lon = 'lon', color = 'pm25',
                         center = dict(lat = 52.471, lon = 4.810),
-                        zoom = 9,
+                        zoom = 8,
 #                        mapbox_style = 'open-street-map',
                         mapbox_style='carto-darkmatter',
                         range_color = (5, 25),

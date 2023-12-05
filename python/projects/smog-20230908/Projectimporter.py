@@ -3,6 +3,8 @@ sys.path.insert(0, '../..')
 import importer as imp
 import os
 
+
+
 def runit():
     # should the datarange be included in the filename
     includedatesinfilename = False
@@ -18,17 +20,20 @@ def runit():
 
     # not None if knmi data must be retrieved
     knmiselection = ["225"]
-#    knmiselection = False
+    knmiselection = False
 
     # list of meetnet sensors to retrieve
-    meetnetselection = ["NL49570", "NL49701"]   # colocatie NL Beverwijk
+    meetnetselection = ["NL10418", "NL49570", "NL49701", "NL49556", "NL49561", "NL10641", "NL10636", "NL10538", "NL10738", "NL10644", "NL10404"]   # colocatie NL Beverwijk
 
 #    meetnetselection = None
 
     # list sensors to retrieve. Every entry is a tuple: (project, sensornumber). None if nothing to retrieve
 #    sensorselection = None
-    sensorselection = [("HLL", "298"), ("HLL", "462"), ("HLL", "532"), ("HLL", "548"),
-                       ("HLL", "413"), ("HLL", "323"), ("HLL", "284"), ("HLL", "527")]
+    sensorselection = [("HLL", "298"), ("HLL", "462"), ("HLL", "532"),
+                       ("HLL", "413"), ("HLL", "323"), ("HLL", "284"), ("HLL", "527"),
+                       ("HLL", "350"), ("HLL", "546"), ("HLL", "250"), ("HLL", "509"),
+                       ("HLL", "469"), ("HLL", "448"), ("HLL", "474"), ("HLL", "506"),
+                       ("HLL", "439"), ("HLL", "334"), ("HLL", "415"), ("HLL", "458")]
 
 
     # fastimport: if True existing files will not be reloaded (no check on dates is done!)
