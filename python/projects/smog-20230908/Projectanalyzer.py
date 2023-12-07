@@ -256,16 +256,16 @@ def makeSnapshots(sensorlist, start, end, locations):
     return snapshots
 
 def runit():
-    snapshots = makeSnapshots(sensorListHLL, startdate, enddate, locations)
+    snapshots = makeSnapshots(sensorListNL, startdate, enddate, locations)
 
-    maxpm25 = getMaxVal(sensorListHLL, "pm25")
+    maxpm25 = getMaxVal(sensorListNL, "pm25")
     maxpm25 = 5 * (int((maxpm25 + 5) / 5))
     if maxpm25 > 150:
         maxpm25 = 150
 
     fig = px.scatter_mapbox(snapshots, lat='lat', lon='lon', color='pm25',
                             center=dict(lat=52.471, lon=4.810),
-                            zoom=9,
+                            zoom=7,
                             # mapbox_style = 'open-street-map',
                             mapbox_style='carto-darkmatter',
                             range_color=(1, maxpm25),
@@ -276,7 +276,7 @@ def runit():
                             animation_group="time"
     )
 
-    fig.write_html("export.html")
+    fig.write_html("exportNL.html")
     fig.show()
 
     printf("Done\n")
