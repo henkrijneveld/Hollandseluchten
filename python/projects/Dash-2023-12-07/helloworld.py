@@ -1,4 +1,7 @@
 # Import packages
+# import dash_dangerously_set_inner_html as rawhtml
+from dash_dangerously_set_inner_html import DangerouslySetInnerHTML as pureHTML
+
 from dash import Dash, html, dash_table, dcc, callback, Output, Input
 import pandas as pd
 import plotly.express as px
@@ -12,6 +15,9 @@ app = Dash(__name__, external_stylesheets=external_stylesheets)
 
 # App layout
 app.layout = html.Div([
+    html.Div([pureHTML('''
+        <p>Is <b>dit</b> bold?<br/>En <i>this</i> in italics? </p>
+    ''')]),
     html.Div(className='row', children='My First App with Data, Graph, and Controls',
              style={'textAlign': 'center', 'color': 'blue', 'fontSize': 30}),
 
@@ -42,8 +48,6 @@ def update_graph(col_chosen):
     return fig
 
 # Run the app
-#if __name__ == '__main__':
-#    app.run(debug=True)
-
 if __name__ == '__main__':
-    app.run_server(debug=True, host='0.0.0.0', port=9000)
+    app.run(debug=True)
+
