@@ -1,8 +1,8 @@
-FROM python:3.7.1
+FROM python:3.11.7-bullseye
 
 WORKDIR /code
 
-COPY ./requirements.txt /code/requirements.txt
+COPY requirements.txt /code/requirements.txt
 
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
@@ -19,4 +19,5 @@ COPY helloworld.py /code/helloworld.py
 #COPY jpwhisky_review_tfidf.py /code/jpwhisky_review_tfidf.py
 #COPY japanese_whisky_review.csv /code/japanese_whisky_review.csv
 
+#CMD["bash", "top"]
 CMD ["python","helloworld.py"]
