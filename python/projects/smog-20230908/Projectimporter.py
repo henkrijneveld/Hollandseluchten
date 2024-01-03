@@ -13,10 +13,10 @@ def runit():
     savelocation = os.getcwd()
 
     # startdate for retrieving
-    start = "20230908"
+    start = "20231231"
 
     # enddate for retrieving (inclusive)
-    end = "20230909"
+    end = "20240101"
 
     # not None if knmi data must be retrieved
     knmiselection = ["225"]
@@ -159,9 +159,10 @@ def runit():
     ("HLL", "546"),
     ("HLL", "547"),
     ("HLL", "549")]
+    sensorselection = None
 
     # fastimport: if True existing files will not be reloaded (no check on dates is done!)
-    fastimport = True
+    fastimport = False
 
     # when csv for sensordata not found, just continue (True), or end (False)
     ignorecsvnotfound = True
