@@ -154,8 +154,8 @@ def runit():
                             # mapbox_style = 'open-street-map',
                             mapbox_style='carto-darkmatter',
                             range_color=(1, maxpm25),
-                            opacity=0.9,
-                            size="pm25",
+                            opacity=0.5,
+                            size="size",
                             size_max=20,
                             animation_frame="time",
                             animation_group="time"

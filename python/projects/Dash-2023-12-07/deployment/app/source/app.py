@@ -2,6 +2,8 @@
 from dash import Dash, html, dash_table, dcc, callback, Output, Input
 import pandas as pd
 import plotly.express as px
+from dash_dangerously_set_inner_html import DangerouslySetInnerHTML as pureHTML
+
 
 # Incorporate data
 df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/gapminder2007.csv')
@@ -11,8 +13,12 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 
 # App layout
-app.layout = html.Div([
-    html.Div(className='row', children='My First App with Data, Graph, and Controls',
+app.layout = html.Div(children=[
+    html.Div([pureHTML('''
+        <p>Is <b>dit</b> bold?<br/>En <i>this</i> in italics? </p>
+    ''')]),
+
+    html.Div(className='row', children='My First Test App with Data, Graph, and Controls',
              style={'textAlign': 'center', 'color': 'blue', 'fontSize': 30}),
 
     html.Div(className='row', children=[
@@ -46,7 +52,7 @@ def update_graph(col_chosen):
 #    app.run(debug=True)
 
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=9000)
+    app.run(debug=True, host='0.0.0.0', port=9000)
 
 
 
